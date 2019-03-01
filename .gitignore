@@ -3,9 +3,8 @@ bin/
 obj/
 packages/
 
-*.config
-
-
+track/Web.config
+track/Web.*.config
 
 
 backup/
