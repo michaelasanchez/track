@@ -16,18 +16,18 @@
                     }
                 </select>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="add-tab">
                 <a class="nav-link" id="add" data-toggle="tab" href="#tab-add">
                     <i class="fas fa-plus"></i>
                 </a>
             </li>
-            <li class="nav-item ml-auto" style="display: none;">
+            <li class="nav-item ml-auto" id="save-tab" style="display: none;">
                 <a class="nav-link" id="save" data-toggle="tab" href="#tab-chart">Save</a>
             </li>
-            <li class="nav-item" style="display: none;">
+            <li class="nav-item" id="cancel-tab" style="display: none;">
                 <a class="nav-link" id="cancel" data-toggle="tab" href="#tab-chart">Cancel</a>
             </li>
-            <li class="nav-item ml-auto">
+            <li class="nav-item ml-auto" id="settings-tab">
                 <a class="nav-link" id="settings" data-toggle="tab" href="#tab-settings">Settings</a>
             </li>
         </ul>
@@ -53,16 +53,6 @@
 
     // Initialize page ----------------------------------------------------
 
-    // Create Record ----------
-    // Datetime Select
-    var datetimeChanged = false;
-    var focusValue;
-    $('#datasetSelect').focus();
-
-    $('#datetimeSelect').datetimepicker();
-
-    $('#datetimeSelect').val(moment(new Date()).format("MM/DD/YYYY h:mm A"));
-    refreshTime();
 
     // Edit Dataset -----------
     var curDatasetLabel;
@@ -78,56 +68,43 @@
 
 
     // Init Tabs --------------------------------------------------------
-    var $addTab = $('#add').parent();
-    var $settingsTab = $('#settings').parent();
-    var $saveTab = $('#save').parent();
-    var $cancelTab = $('#cancel').parent();
+    var $addTab = $('#add-tab');
+    var $settingsTab = $('#settings-tab');
+    var $saveTab = $('#save-tab');
+    var $cancelTab = $('#cancel-tab');
 
     $(function () {
 
-        // Custom hide/show tab behavior
+        // On tab swap
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
-            var newTabId = $(e.target).prop('id');
+            var tabId = $(e.target).prop('id');
+            var prevTabId = $(e.relatedTarget).prop('id');
 
-            if (['add', 'settings'].indexOf(newTabId) >= 0) {
-                $('#datasetSelect').prop('disabled', true);
+            // Custom hide/show tab behavior
+            swapTabs(tabId);
 
-                $addTab.hide();
-
-                $saveTab.show();
-                $cancelTab.show();
-
-                $settingsTab.hide();
-
-            } else if (['save', 'cancel'].indexOf(newTabId) >= 0) {
-                $('#datasetSelect').prop('disabled', false);
-
-                $addTab.show();
-
-                $saveTab.hide();
-                $cancelTab.hide();
-
-                $settingsTab.show();
+            // - SETTINGS ------------------------------------------------
+            if (tabId == 'settings')
+            {
+                $.get('@Url.Action("EditDatasetView", "Home")', function (html) {
+                    $('#tab-settings').html(html);
+                })
             }
-            
-        })
 
+            // - ADD -----------------------------------------------------
+            else if (tabId == 'add')
+            {
+                $.get('@Url.Action("CreateDatasetView", "Home")', function (html) {
+                    $('#tab-add').html(html);
+                })
+            }
 
-        // Tab Swap --------------------------------------------------------
-        $('.nav .nav-item').click(function (e) {
+            // - SAVE ----------------------------------------------------
+            else if (tabId == 'save')
+            {
 
-            var tab = $('.nav-link', this);
-            var id = $(tab).prop('id');
-            var prevPane = $('[id^=tab].active').first();
-
-            // - SAVE ------------------------------------------------------
-            if (id == 'save') {
-
-                var tabId = $(prevPane).attr('id');
-
-                // SAVE - Create Dataset
-                if (tabId == 'tab-add') {
+                if (prevTabId == 'add') {
 
                     var datasetLabel = $('#createDatasetLabel').val();
 
@@ -154,13 +131,10 @@
                         data: data
                     });
 
-
-
-
-                    // SAVE Button - Edit Dataset
                 }
-                else if (tabId == 'tab-settings') {
-
+                else if (prevTabId == 'settings')
+                {
+                    
                     var datasetLabel;
 
                     if ($('#edit-datasetLabel').hasClass('is-valid'))
@@ -209,48 +183,14 @@
                         });
                 }
 
-                // TODO: don't switch tabs until confirmation of new dataset
-
-
-            }
-            // - EDIT -----------------------------------------------------
-            else if (id == 'settings') {
-
-                $.get('@Url.Action("EditDatasetView", "Home")', function (html) {
-                    $('#tab-settings').html(html);
-                })
-
-            // - ADD -----------------------------------------------------
-            } else if (id == 'add') {
-
-                $.get('@Url.Action("CreateDatasetView", "Home")', function (html) {
-                    $('#tab-add').html(html);
-                })
-
-            }
-        });
-
-
-        // Create Dataset ---------------------------------------------------
-
-        //
-        $('.dropdown-toggle').dropdown();
-
-        $('.dropdown-item').click(function (e) {
-            var base = $(e.target).parent().parent();
-
-            if ($('input[type=text]', base).length) {
-                $('input[type=text]', base).val($(e.target).html());
-            } else {
-                $('.dropdown-toggle', base).html($(e.target).html());
-            }
-
-        });
+            } // save
+            
+        }) // On tab swap
 
     });
 
 
-    // Events --------------------------------------------------------------
+    // - Events --------------------------------------------------------------
 
     // Dataset Select - On Change
     $('#datasetSelect').change(function (e) {
@@ -263,223 +203,31 @@
         });
     });
 
-    // Create Record
-    $('#addRecord').click(function (e)
-    {
-        var datasetId = $('#datasetSelect').val();
-        var datetime = $('#datetimeSelect').val();
-        var labels = [];
-        var values = [];
 
-        // Use current time is input in unchanged
-        var now = new Date();
-        if (datetime == moment(now).format("MM/DD/YYYY h:mm A")) {
-            datetime = moment(now).format("MM/DD/YYYY hh:mm:ss a");
-        }
+    // - Functions -----------------------------------------------------------
 
-        var formProps = $('#createRecord .form-props .form-group');
+    // Show/hide tabs for pane swap
+    function swapTabs(tabId) {
 
-        for (var i = 0; i < formProps.length; i++) {
-            var label = $('label', formProps[i]).html();
-            var value = $('.form-control', formProps[i]).val();
-            $('.form-control', formProps[i]).val('');
+        if (['add', 'settings'].indexOf(tabId) >= 0) {
+            $('#datasetSelect').prop('disabled', true);
 
-            labels.push(label);
-            values.push(value);
-        }
+            $addTab.hide();
 
-        var note = $('#noteTextarea').val();
+            $saveTab.show();
+            $cancelTab.show();
 
-        var data = {
-            "id": datasetId,
-            "datetime": datetime,
-            "labels": labels,
-            "values": values,
-            "note": note
-        };
+            $settingsTab.hide();
 
-        $.ajax({
-            type: 'POST',
-            url: '@Url.Action("SaveRecord", "Home")',
-            traditional: true,
-            data: data
-        })
-            .done(function (data) {
+        } else if (['save', 'cancel'].indexOf(tabId) >= 0) {
+            $('#datasetSelect').prop('disabled', false);
 
-                $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
-                {
-                    refreshChart(JSON.parse(data), '.ct-chart');
-                });
-            });
+            $addTab.show();
 
-        return false;
-    });
+            $saveTab.hide();
+            $cancelTab.hide();
 
-    // Datetime Select
-    $('#datetimeSelect').focus(function (e) {
-        focusValue = $(this).val();
-    })
-    $('#datetimeSelect').focusout(function (e) {
-        if (focusValue != null && $(this).val() != focusValue) {
-            datetimeChanged = true;
-            console.log('changed');
-        }
-        focusValue = null;
-    });
-
-
-    // No Clue!
-    $('#manageDatasets').click(function (e) {
-        //$('.multi-collapse').hasClass('show') ? $('.form-top').removeClass('show') : $('.form-top').addClass('show');
-    });
-
-
-    // Refresh Create Record Form DateTime field
-    function refreshTime() {
-
-        var now = moment(new Date()).format("MM/DD/YYYY h:mm A");
-
-        if (focusValue == null && !datetimeChanged && $('#datetimeSelect').val() != now) {
-            $('#datetimeSelect').val(now);
-        }
-
-        setTimeout(refreshTime, 1000);
-    }
-
-    // Refresh Create Record Form
-    function refreshForm(dataset) {
-
-        var html = '';
-
-        for (var i = 0; i < dataset.series.length; i++) {
-
-            // Add series field
-            html += '<div class="form-group"><label>' + dataset.series[i] + '</label><input type="text" class="form-control" id="prop-' + i + '"></div>';
-        }
-
-        $('#createRecord .form-props').html(html);
-    }
-
-    // Refresh Chart
-    function refreshChart(dataset, selecter) {
-
-        //console.log(dataset);
-
-        // Create Chartist data object
-        var data = {
-            //labels: []
-            series: []
-        }
-
-        // Chartist data
-        if (dataset != null) {
-
-            // Populate first data object
-            for (var i = 0; i < dataset.series.length; i++) {
-
-                data.series.push({
-                    name: dataset.series[i],
-                    data: []
-                });
-
-                for (var j = 0; j < dataset.records.length; j++) {
-                    data.series[i].data.push({
-                        meta: (dataset.notes[j] == null) ? '' : dataset.notes[j],
-                        x: new Date(dataset.records[j]),
-                        y: dataset[dataset.series[i]][j]
-                    });
-
-                }
-            }
-        }
-
-        // Chartist options
-        var options = {
-            axisX: {
-                type: Chartist.FixedScaleAxis,
-                divisor: Math.round(Math.max(1, parseInt(dataset.span) / 30)),
-                labelInterpolationFnc: function (value) {
-                    return moment(value).format('MMM');
-                }
-            },
-            chartPadding: {
-                left: 0,
-                //right: 20
-            },
-            fullWidth: true,
-            plugins: [
-                Chartist.plugins.tooltip({
-                    tooltipOffset: {
-                        x: $('.scroll')[0].scrollLeft,
-                    },
-                    transformTooltipTextFnc: function (val) {
-
-                        var coords = val.split(',');
-                        val = coords[0] + ' - ' + coords[1];
-
-                        return val;
-                    }
-                })
-            ],
-            showGridBackground: false
-        };
-
-
-        // Resize Chart
-        var span = parseInt(dataset.span);
-
-        //console.log("span: " + span + "; w: " + span * 2 + "; cw: " + $('.scroll')[0].clientWidth + "; d:" + Math.max(1, span / 30));
-
-        if (span) {
-            if (span * 2 < $('.scroll')[0].clientWidth) {
-                $('.ct-chart').css('width', $('.scroll')[0].clientWidth);
-            } else {
-                $('.ct-chart').css('width', span * 2);
-            }
-        } else {
-            $('.ct-chart').css('width', $('.scroll')[0].clientWidth);
-        }
-
-
-        // Render new graph
-        if (!chart) {
-            chart = new Chartist.Line(selecter, data, options);
-        } else {
-            chart.update(data, options);
-        }
-
-        // Move vertical labels
-        $.each($('#chart-labels g').children(), function (i, val) {
-            $(val).remove();
-        })
-        checkLabels();
-
-        // Update chart colors
-        var sp = 'abcdefghij';
-        var css = '';
-        for (var c in currentDataset.colors) {
-            var prefix = sp.substr(c, 1);
-            css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + currentDataset.colors[c] + '; }';
-        }
-        $('style#dynamic').html(css);
-
-        // Scroll chart to right edge
-        $('.scroll')[0].scrollLeft = $('.scroll')[0].scrollWidth - $('.scroll')[0].clientWidth;
-    }
-
-
-    // Check is vertical Chart labels have appeared
-    function checkLabels() {
-
-        var vertLabels = $('.ct-start').parent();
-        $.each($(vertLabels), function (id, value) {
-            $(value).attr('y', parseInt($(value).attr('y')) + 20);
-        });
-
-        if (!vertLabels.length) {
-            setTimeout(checkLabels, 100);
-        } else {
-            $('#chart-labels g').append($(vertLabels));
+            $settingsTab.show();
         }
     }
 
