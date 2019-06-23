@@ -2,12 +2,13 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <style id="dynamic"></style>
+
 <div class="row">
     <div class="col-12">
 
         <!-- Manage Datasets Tab -->
         <ul class="nav nav-tabs">
-            <li class="nav-item mr-2">
+            <li class="mr-2">
                 <select id="datasetSelect" class="custom-select selectpicker">
                     @foreach (var label in (Dictionary<int, string>)Model)
                     {
@@ -15,79 +16,31 @@
                     }
                 </select>
             </li>
-            <li class="nav-item mr-auto">
-                <a class="nav-link" id="add" href="#tab-add">
+            <li class="nav-item">
+                <a class="nav-link" id="add" data-toggle="tab" href="#tab-add">
                     <i class="fas fa-plus"></i>
                 </a>
             </li>
-            <li class="nav-item mr-auto">
-                <a class="nav-link" id="archive" href="#tab-chart">
-                    <i class="fas fa-archive"></i>
-                </a>
+            <li class="nav-item ml-auto" style="display: none;">
+                <a class="nav-link" id="save" data-toggle="tab" href="#tab-chart">Save</a>
             </li>
-            <li class="nav-item hide">
-                <a class="nav-link" id="save" href="#tab-chart">Save</a>
+            <li class="nav-item" style="display: none;">
+                <a class="nav-link" id="cancel" data-toggle="tab" href="#tab-chart">Cancel</a>
             </li>
-            <li class="nav-item hide">
-                <a class="nav-link" id="cancel" href="#tab-chart">Cancel</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="edit" href="#tab-settings">Settings</a>
+            <li class="nav-item ml-auto">
+                <a class="nav-link" id="settings" data-toggle="tab" href="#tab-settings">Settings</a>
             </li>
         </ul>
-    </div>
-</div>
-<div id="tab-chart" class="active">
-    <div class="row">
 
-        <div class="order-2 col-12 col-md-4 col-lg-3 order-lg-1">
-
-            <div class="form-bottom">
-                <!-- Create Record ------------------------------ -->
-                <h5><a data-toggle="collapse" href="#createRecord">Create Record</a></h5>
-                <form id="createRecord" class="collapse show">
-
-                    <!-- Property Inputs -->
-                    <div class="form-props"></div>
-
-                    <!-- DateTime Select -->
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="text" class="form-control" id="datetimeSelect">
-                    </div>
-
-                    <!-- Note Textarea -->
-                    <div class="form-group">
-                        <label>Note</label>
-                        <textarea class="form-control" id="noteTextarea" rows="2"></textarea>
-                    </div>
-
-                    <button type="button" id="addRecord" class="btn btn-primary">Add</button>
-                </form>
-
-            </div>
-
-        </div>
-        <div class="order-1 col-lg-9 order-md-1 order-lg-2">
-
-            <div id="chart-container"></div>
-
-            <div class="wrap">
-                <svg id="chart-labels"><g></g></svg>
-                <div class="scroll dragscroll">
-
-                    <div class="ct-chart"></div>
-
-                </div>
-            </div>
-
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-chart">@Html.Partial("Partials/_ViewDataset")</div>
+            <div class="tab-pane fade" id="tab-add"></div>
+            <div class="tab-pane fade" id="tab-settings"></div>
         </div>
 
     </div>
-
 </div>
-<div id="tab-add"></div>
-<div id="tab-settings"></div>
+
 
 <script>
 
@@ -116,11 +69,6 @@
     var curPropLabels = [];
     var curPropTypes = [];
 
-    //
-    $('.nav-link:contains(Cancel)').hide();
-    $('.nav-link:contains(Save)').hide();
-    $('#archive').parent().hide();
-
     $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
     {
         currentDataset = JSON.parse(data);
@@ -129,26 +77,49 @@
     });
 
 
+    // Init Tabs --------------------------------------------------------
+    var $addTab = $('#add').parent();
+    var $settingsTab = $('#settings').parent();
+    var $saveTab = $('#save').parent();
+    var $cancelTab = $('#cancel').parent();
+
     $(function () {
 
-        // Tabs -------------------------------------------------------------
+        // Custom hide/show tab behavior
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
-        // Init - Hide inactive tabs
-        $.each($('[id^=tab]:not(.active)'), function (index, value) {
-            $(value).hide();
-        });
+            var newTabId = $(e.target).prop('id');
 
-        // Tabs - On Click
+            if (['add', 'settings'].indexOf(newTabId) >= 0) {
+                $('#datasetSelect').prop('disabled', true);
+
+                $addTab.hide();
+
+                $saveTab.show();
+                $cancelTab.show();
+
+                $settingsTab.hide();
+
+            } else if (['save', 'cancel'].indexOf(newTabId) >= 0) {
+                $('#datasetSelect').prop('disabled', false);
+
+                $addTab.show();
+
+                $saveTab.hide();
+                $cancelTab.hide();
+
+                $settingsTab.show();
+            }
+            
+        })
+
+
+        // Tab Swap --------------------------------------------------------
         $('.nav .nav-item').click(function (e) {
 
             var tab = $('.nav-link', this);
             var id = $(tab).prop('id');
-            var nextTab = $(tab).attr('href');
-
-
             var prevPane = $('[id^=tab].active').first();
-
-            console.log($(prevPane));
 
             // - SAVE ------------------------------------------------------
             if (id == 'save') {
@@ -243,7 +214,7 @@
 
             }
             // - EDIT -----------------------------------------------------
-            else if (id == 'edit') {
+            else if (id == 'settings') {
 
                 $.get('@Url.Action("EditDatasetView", "Home")', function (html) {
                     $('#tab-settings').html(html);
@@ -256,51 +227,6 @@
                     $('#tab-add').html(html);
                 })
 
-            // - ARCHIVE -----------------------------------------------------
-            }
-            else if ($(e.currentTarget).attr('id') == 'archive') {
-
-
-                $('#archiveModal .modal-body p').html('Are you sure you want to archive <strong>' + currentDataset.label + '</strong>?');
-
-                $('#archiveModal .btn-danger').click(function () {
-
-                    //console.log(currentDataset);
-                });
-                $('#archiveModal').modal();
-            }
-
-            // Swap Tabs
-            if (nextTab) {
-
-                // Set active tab & inactivate previous tab
-                $('.nav-link.active').removeClass('active');
-                $(prevPane).removeClass('active').hide();
-
-                $(id).addClass('active');
-                $(nextTab).addClass('active').show();
-
-                // Manually show/hide tabs..
-                if (nextTab == '#tab-add' || nextTab == '#tab-settings') {
-                    if (nextTab == '#tab-add') {
-                        $('.nav-link:contains(Settings)').hide();
-                    } else if (nextTab == '#tab-settings') {
-                        //$('#add').parent().hide();
-                    }
-
-                    $('.nav-link:contains(Cancel)').show();
-                    $('.nav-link:contains(Save)').show();
-                    $('.nav-link:contains(Settings)').hide();
-
-                    $('#datasetSelect').attr('disabled', true);
-
-                } else {
-                    $('.nav-link:contains(Cancel)').hide();
-                    $('.nav-link:contains(Save)').hide();
-                    $('.nav-link:contains(Settings)').show();
-
-                    $('#datasetSelect').attr('disabled', false);
-                }
             }
         });
 

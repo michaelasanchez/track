@@ -220,6 +220,7 @@
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Home\Partials\_EditDataset.cshtml" />
     <Content Include="Views\Home\Partials\_CreateDataset.cshtml" />
+    <Content Include="Views\Home\Partials\_ViewDataset.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
