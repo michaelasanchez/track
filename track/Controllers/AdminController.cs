@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 
 namespace track.Controllers
 {
-    public class TestController : Controller
+    public class AdminController : Controller
     {
         // GET: Test
         public ActionResult Index()

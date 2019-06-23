@@ -24,8 +24,8 @@
                 <li class="nav-item @((ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "Home") ? "active" : "")">
                     @Html.ActionLink("Home", "Index", "Home", "Home", new { @class = "nav-link" })
                 </li>
-                <li class="nav-item @((ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "Test") ? "active" : "")">
-                    @Html.ActionLink("Admin", "Index", "Test", "Test", new { @class = "nav-link" })
+                <li class="nav-item @((ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "Admin") ? "active" : "")">
+                    @Html.ActionLink("Admin", "Index", "Admin", "Admin", new { @class = "nav-link" })
                 </li>
             </ul>
         </div>
