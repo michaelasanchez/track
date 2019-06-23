@@ -15,24 +15,24 @@
                     }
                 </select>
             </li>
-            <li class="nav-item mr-auto" id="add">
-                <a class="nav-link" href="#tab-add">
+            <li class="nav-item mr-auto">
+                <a class="nav-link" id="add" href="#tab-add">
                     <i class="fas fa-plus"></i>
                 </a>
             </li>
-            <li class="nav-item mr-auto" id="archive">
-                <a class="nav-link" href="#tab-chart">
+            <li class="nav-item mr-auto">
+                <a class="nav-link" id="archive" href="#tab-chart">
                     <i class="fas fa-archive"></i>
                 </a>
             </li>
             <li class="nav-item hide">
-                <a class="nav-link" href="#tab-chart">Save</a>
+                <a class="nav-link" id="save" href="#tab-chart">Save</a>
             </li>
             <li class="nav-item hide">
-                <a class="nav-link" href="#tab-chart">Cancel</a>
+                <a class="nav-link" id="cancel" href="#tab-chart">Cancel</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#tab-settings">Edit</a>
+                <a class="nav-link" id="edit" href="#tab-settings">Settings</a>
             </li>
         </ul>
     </div>
@@ -119,7 +119,7 @@
     //
     $('.nav-link:contains(Cancel)').hide();
     $('.nav-link:contains(Save)').hide();
-    $('#archive').hide();
+    $('#archive').parent().hide();
 
     $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
     {
@@ -127,17 +127,6 @@
         refreshForm(currentDataset);
         refreshChart(JSON.parse(data), '.ct-chart');
     });
-
-
-
-
-
-
-
-
-
-
-
 
 
     $(function () {
@@ -151,20 +140,20 @@
 
         // Tabs - On Click
         $('.nav .nav-item').click(function (e) {
-            e.preventDefault();
 
-            var link = $('.nav-link', e.currentTarget);
-            var nextTab = $(link).attr('href');
-
-            var currentTab = $('[id^=tab].active').first();
+            var tab = $('.nav-link', this);
+            var id = $(tab).prop('id');
+            var nextTab = $(tab).attr('href');
 
 
-            // Save Button ------------------------------------------------------
-            if (e.target.innerHTML == 'Save') {
+            var prevPane = $('[id^=tab].active').first();
 
-                var tabId = $(currentTab).attr('id');
+            console.log($(prevPane));
 
+            // - SAVE ------------------------------------------------------
+            if (id == 'save') {
 
+                var tabId = $(prevPane).attr('id');
 
                 // SAVE - Create Dataset
                 if (tabId == 'tab-add') {
@@ -252,15 +241,16 @@
                 // TODO: don't switch tabs until confirmation of new dataset
 
 
-                // - EDIT -----------------------------------------------------
             }
-            else if (e.target.innerHTML == 'Edit') {
+            // - EDIT -----------------------------------------------------
+            else if (id == 'edit') {
 
                 $.get('@Url.Action("EditDatasetView", "Home")', function (html) {
                     $('#tab-settings').html(html);
                 })
 
-            } else if ($(e.currentTarget).attr('id') == 'add') {
+            // - ADD -----------------------------------------------------
+            } else if (id == 'add') {
 
                 $.get('@Url.Action("CreateDatasetView", "Home")', function (html) {
                     $('#tab-add').html(html);
@@ -270,57 +260,52 @@
             }
             else if ($(e.currentTarget).attr('id') == 'archive') {
 
-                
+
                 $('#archiveModal .modal-body p').html('Are you sure you want to archive <strong>' + currentDataset.label + '</strong>?');
 
                 $('#archiveModal .btn-danger').click(function () {
 
-                    console.log(currentDataset);
+                    //console.log(currentDataset);
                 });
                 $('#archiveModal').modal();
             }
 
             // Swap Tabs
-            if ($(link).length) {
+            if (nextTab) {
 
-                // if (('#' + $(currentTab).attr('id')) != nextTab) {
+                // Set active tab & inactivate previous tab
                 $('.nav-link.active').removeClass('active');
-                $(currentTab).hide();
-                $(currentTab).removeClass('active');
+                $(prevPane).removeClass('active').hide();
 
-                $(link).addClass('active');
-                $(nextTab).show();
-                $(nextTab).addClass('active');
-                //}
+                $(id).addClass('active');
+                $(nextTab).addClass('active').show();
 
-                $(nextTab).show();
-
-                //
+                // Manually show/hide tabs..
                 if (nextTab == '#tab-add' || nextTab == '#tab-settings') {
                     if (nextTab == '#tab-add') {
-                        $('#datasetSelect').attr('disabled', true);
-                        $('.nav-link:contains(Edit)').hide();
+                        $('.nav-link:contains(Settings)').hide();
                     } else if (nextTab == '#tab-settings') {
-                        //$('#add').hide();
-                        //$('#archive').show();
+                        //$('#add').parent().hide();
                     }
+
                     $('.nav-link:contains(Cancel)').show();
                     $('.nav-link:contains(Save)').show();
-                    $('.nav-link:contains(Edit)').hide();
+                    $('.nav-link:contains(Settings)').hide();
+
+                    $('#datasetSelect').attr('disabled', true);
 
                 } else {
-                    //$('#add').show();
-                    //$('#archive').hide();
                     $('.nav-link:contains(Cancel)').hide();
                     $('.nav-link:contains(Save)').hide();
-                    $('.nav-link:contains(Edit)').show();
+                    $('.nav-link:contains(Settings)').show();
+
                     $('#datasetSelect').attr('disabled', false);
                 }
             }
         });
 
-        // Create Dataset ---------------------------------------------------
 
+        // Create Dataset ---------------------------------------------------
 
         //
         $('.dropdown-toggle').dropdown();
@@ -400,6 +385,8 @@
                     refreshChart(JSON.parse(data), '.ct-chart');
                 });
             });
+
+        return false;
     });
 
     // Datetime Select
@@ -450,7 +437,7 @@
     // Refresh Chart
     function refreshChart(dataset, selecter) {
 
-        console.log(dataset);
+        //console.log(dataset);
 
         // Create Chartist data object
         var data = {
@@ -515,7 +502,7 @@
         // Resize Chart
         var span = parseInt(dataset.span);
 
-        console.log("span: " + span + "; w: " + span * 2 + "; cw: " + $('.scroll')[0].clientWidth + "; d:" + Math.max(1, span / 30));
+        //console.log("span: " + span + "; w: " + span * 2 + "; cw: " + $('.scroll')[0].clientWidth + "; d:" + Math.max(1, span / 30));
 
         if (span) {
             if (span * 2 < $('.scroll')[0].clientWidth) {
