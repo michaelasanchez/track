@@ -8,3 +8,5 @@ track/Web.*.config
 
 
 backup/
+
+*.sql
