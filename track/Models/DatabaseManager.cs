@@ -15,7 +15,7 @@ namespace track.Models
     {
 
         //
-        public static string connString = ConfigurationManager.ConnectionStrings["dev"].ConnectionString;
+        public static string connString = ConfigurationManager.ConnectionStrings["track"].ConnectionString;
 
 
         public static string testConnection()

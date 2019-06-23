@@ -101,7 +101,12 @@
             values.push(value);
         }
 
+        // Grab note value & clear
         var note = $('#noteTextarea').val();
+        $('#noteTextarea').val('');
+
+        // Focus first property field
+        $('#createRecord [id^=prop]').first().focus();
 
         var data = {
             "id": datasetId,
@@ -153,7 +158,7 @@
         for (var i = 0; i < dataset.series.length; i++) {
 
             // Add series field
-            html += '<div class="form-group"><label>' + dataset.series[i] + '</label><input type="text" class="form-control" id="prop-' + i + '"></div>';
+            html += '<div class="form-group"><label>' + dataset.series[i] + '</label><input type="number" class="form-control" id="prop-' + i + '"></div>';
         }
 
         $('#createRecord .form-props').html(html);

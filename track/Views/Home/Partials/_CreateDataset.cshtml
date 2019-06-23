@@ -82,7 +82,15 @@
 
             $('#createDataset .form-props').append(clone);
 
-            if (rowCount + 1 == maxProperties) {
+            // Highlight first empty label
+            $('[id^=label]').each(function () {
+                if ($(this).val().length == 0) {
+                    $(this).focus();
+                    return false;
+                }
+            })
+
+            if (rowCount + 1 >= maxProperties) {
                 $('#createAddProperty').hide();
             }
         }
