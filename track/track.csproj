@@ -231,6 +231,7 @@
     <Content Include="Views\Home\Partials\_Modal.cshtml" />
     <Content Include="Views\Home\Partials\_EditDataset.cshtml" />
     <Content Include="Views\Test\Chart.cshtml" />
+    <Content Include="Views\Home\Partials\_CreateDataset.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

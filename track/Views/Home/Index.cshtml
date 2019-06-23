@@ -20,7 +20,7 @@
                     <i class="fas fa-plus"></i>
                 </a>
             </li>
-            <li class="nav-item mr-auto hide" id="archive">
+            <li class="nav-item mr-auto" id="archive">
                 <a class="nav-link" href="#tab-chart">
                     <i class="fas fa-archive"></i>
                 </a>
@@ -70,6 +70,8 @@
         </div>
         <div class="order-1 col-lg-9 order-md-1 order-lg-2">
 
+            <div id="chart-container"></div>
+
             <div class="wrap">
                 <svg id="chart-labels"><g></g></svg>
                 <div class="scroll dragscroll">
@@ -84,139 +86,8 @@
     </div>
 
 </div>
-<div id="tab-add">
-    <div class="row">
-        <div class="col-12">
-
-            <!-- Create Dataset ----------------------------- -->
-            <h5>Create Dataset</h5>
-            <form id="createDataset">
-
-                <div class="form-row mb-3">
-                    <div class="col-12 col-sm-6">
-                        <input type="text" class="form-control" id="createDatasetLabel" placeholder="Label">
-                    </div>
-                </div>
-                <h6>Properties</h6>
-                <div class="form-props">
-                    <div class="form-row mb-3 init">
-                        <div class="col-6 col-md-4">
-                            <input type="text" class="form-control" id="label-1" placeholder="Label">
-                        </div>
-                        <div class="col-5 col-md-3">
-                            <select class="form-control" id="type-1">
-                                <option>Integer</option>
-                                <option>Decimal</option>
-                            </select>
-                        </div>
-                        <div class="col-1">
-                            <button type="button" class="btn btn-link remove">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-                        <!--
-                        <div class="col-3">
-                            <div class="dropdown">
-                                <button class="btn btn-outline dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Integer
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#">Integer</a>
-                                    <a class="dropdown-item" href="#">Decimal</a>
-                                </div>
-                            </div>
-                        </div>
-                            <div class="col-3">
-                                <div class="btn-group">
-                                    <input type="text" class="btn btn-outline w-100" placeholder="Units"  id="units-1" />
-                                    <button type="button" class="btn btn-outline dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
-                                        <span class="sr-only">Toggle Dropdown</span>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <h6 class="dropdown-header">Weight</h6>
-                                        <a class="dropdown-item" href="#">Pounds (lbs)</a>
-                                        <a class="dropdown-item" href="#">Grams (g)</a>
-                                        <div class="dropdown-divider"></div>
-                                        <h6 class="dropdown-header">Time</h6>
-                                        <a class="dropdown-item" href="#">Hours</a>
-                                        <a class="dropdown-item" href="#">Minutes</a>
-                                        <div class="dropdown-divider"></div>
-                                        <h6 class="dropdown-header">Misc</h6>
-                                        <a class="dropdown-item" href="#">Dollars ($)</a>
-                                        <a class="dropdown-item" href="#">Reps</a>
-                                    </div>
-                                </div>
-                            </div>
-                        -->
-                    </div>
-                </div>
-
-                <style>
-                    /* TODO */
-
-                    .dropdown-menu.show {
-                        transform: translate3d(0px, 38px, 0px) !important;
-                    }
-                </style>
-                <input type="button" class="btn btn-secondary addProperty" id="createAddProperty" value="Add Property" />
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-<div id="tab-settings">
-    <div class="row">
-        <div class="col-12">
-
-            <!-- Edit Dataset ------------------------------- -->
-            <h5>Edit Dataset</h5>
-            <form id="editDataset">
-
-                <div class="form-row mb-3">
-                    <div class="col-6 col-md-4">
-                        <label>Label</label>
-                        <input type="text" class="form-control" id="edit-datasetLabel" />
-                    </div>
-                </div>
-
-                <h6>Properties</h6>
-                <div class="form-props">
-
-                    <div class="form-row mb-3 init">
-                        <div class="col-6 col-md-4">
-                            <input type="text" class="form-control" id="edit-label-0" placeholder="Label">
-                        </div>
-                        <div class="col-5 col-md-3" style="display: none;">
-                            <select class="form-control" id="edit-type-0">
-                                <option value="int">Integer</option>
-                                <option value="double">Decimal</option>
-                            </select>
-                        </div>
-                        <div class="col-4 col-md-3">
-                            <span>#</span>&nbsp;<input type="text" class="form-control" id="edit-color-0" />
-                        </div>
-                        <div class="col-1">
-                            <div class="form-control" id="color-0"></div>
-                        </div>
-                        <!--
-                            <div class="col-1">
-                                <button type="button" class="btn btn-link remove">
-                                    <i class="fas fa-times-circle"></i>
-                                </button>
-                            </div>
-                        -->
-                    </div>
-
-                    </div>
-                    <!--<input type="button" class="btn btn-secondary addProperty" id="editAddProperty" value="Add Property" />-->
-
-            </form>
-        </div>
-    </div>
-</div>
+<div id="tab-add"></div>
+<div id="tab-settings"></div>
 
 <script>
 
@@ -252,11 +123,22 @@
 
     $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
     {
-        console.log(data);
         currentDataset = JSON.parse(data);
         refreshForm(currentDataset);
         refreshChart(JSON.parse(data), '.ct-chart');
     });
+
+
+
+
+
+
+
+
+
+
+
+
 
     $(function () {
 
@@ -276,12 +158,15 @@
 
             var currentTab = $('[id^=tab].active').first();
 
+
             // Save Button ------------------------------------------------------
             if (e.target.innerHTML == 'Save') {
 
                 var tabId = $(currentTab).attr('id');
 
-                // Save - Create Dataset
+
+
+                // SAVE - Create Dataset
                 if (tabId == 'tab-add') {
 
                     var datasetLabel = $('#createDatasetLabel').val();
@@ -309,8 +194,12 @@
                         data: data
                     });
 
-                    // Save - Edit Dataset
-                } else if (tabId == 'tab-settings') {
+
+
+
+                    // SAVE Button - Edit Dataset
+                }
+                else if (tabId == 'tab-settings') {
 
                     var datasetLabel;
 
@@ -363,62 +252,23 @@
                 // TODO: don't switch tabs until confirmation of new dataset
 
 
-                // Edit Dataset -----------------------------------------------------
-            } else if (e.target.innerHTML == 'Edit') {
+                // - EDIT -----------------------------------------------------
+            }
+            else if (e.target.innerHTML == 'Edit') {
 
-                var rowCount = $('#editDataset .form-props > .form-row').length;
+                $.get('@Url.Action("EditDatasetView", "Home")', function (html) {
+                    $('#tab-settings').html(html);
+                })
 
-                $('#editDataset .form-props .form-row:not(.init)').remove();
-                $('#editDataset .form-props .form-row.init').attr('id', 'prop-' + currentDataset.ids[0]);
-                $('#editDataset #edit-color-0').val(currentDataset.colors[0]);
-                $('#editDataset #color-0').css('background-color', '#' + currentDataset.colors[0]);
+            } else if ($(e.currentTarget).attr('id') == 'add') {
 
-                // Create property rows
-                for (var i = 1; i < currentDataset.series.length; i++) {
-                    clone = $('#editDataset .form-row.init').last().clone();
-                    clone.removeClass('init');
+                $.get('@Url.Action("CreateDatasetView", "Home")', function (html) {
+                    $('#tab-add').html(html);
+                })
 
-                    // Increment clone input ids
-                    $(clone).attr('id', 'prop-' + currentDataset.ids[i]);
-                    $('[id^=edit-label]', clone).attr('id', 'edit-label-' + i);
-                    $('[id^=edit-type]', clone).attr('id', 'edit-type-' + i);
-                    $('[id^=edit-color]', clone).attr('id', 'edit-color-' + i);
-                    $('[id^=edit-color]', clone).val(currentDataset.colors[i]);
-                    $('[id^=color]', clone).attr('id', 'color-' + i);
-                    $('[id^=color]', clone).css('background-color', '#' + currentDataset.colors[i]);
-
-                    $('#editDataset .form-props').append(clone);
-
-                    if (rowCount + 1 == maxProperties) {
-                        $('#editAddProperty').hide();
-                    }
-                }
-
-                // Populate values
-                $('#edit-datasetLabel').val(currentDataset.label);
-                for (var i = 0; i < currentDataset.series.length; i++) {
-                    $('#editDataset #edit-label-' + i).val(currentDataset.series[i]);
-                    $('#editDataset #edit-type-' + i + ' option[value=' + currentDataset.types[i] + ']').attr('selected', true);
-                }
-
-                // Input change events
-                $('[id^=edit-color]').change(function (e) {
-
-                    var id = $(e.target).attr('id');
-
-
-                    $('#color-' + id.substr(id.length - 1)).css('background-color', '#' + $(e.target).val());
-                });
-                $('#edit-datasetLabel').change(function (e) {
-                    $(e.target).addClass('is-valid');
-                });
-                $('[id^=edit-label]').change(function (e) {
-                    $(e.target).addClass('is-valid');
-                });
-                $('[id^=edit-color]').change(function (e) {
-                    $(e.target).addClass('is-valid');
-                });
-            } else if ($(e.currentTarget).attr('id') == 'archive') {
+            // - ARCHIVE -----------------------------------------------------
+            }
+            else if ($(e.currentTarget).attr('id') == 'archive') {
 
                 
                 $('#archiveModal .modal-body p').html('Are you sure you want to archive <strong>' + currentDataset.label + '</strong>?');
@@ -471,45 +321,6 @@
 
         // Create Dataset ---------------------------------------------------
 
-        // Add Property Button
-        $('#createAddProperty').click(function (e) {
-
-            var clone = $('#createDataset .form-row.init').last().clone();
-
-            var rowCount = $('#createDataset .form-props > .form-row').length;
-            if (rowCount < maxProperties) {
-
-                // Increment clone input ids
-                var lastId = $('[id^=label]').attr('id');
-                var id = lastId.substr(lastId.length - 1);
-                var nextId = parseInt(id) + 1;
-                $('[id^=label]', clone).attr('id', 'label-' + nextId);
-                $('[id^=label]', clone).val('');
-
-                lastId = $('[id^=type]').attr('id');
-                id = lastId.substr(lastId.length - 1);
-                nextId = parseInt(id) + 1;
-                $('[id^=type]', clone).attr('id', 'type-' + nextId);
-
-                // Button - Remove Row
-                $('button.remove', clone).click(function (e) {
-                    // TODO:  improve this
-                    if ($(e.target).parent().parent().hasClass('form-row')) {
-                        $(e.target).parent().parent().remove();
-                    } else if ($(e.target).parent().parent().parent().hasClass('form-row')) {
-                        $(e.target).parent().parent().parent().remove();
-                    }
-                    if ($('#createAddProperty').css('display') == 'none')
-                        $('#createAddProperty').show();
-                });
-
-                $('#createDataset .form-props').append(clone);
-
-                if (rowCount + 1 == maxProperties) {
-                    $('#createAddProperty').hide();
-                }
-            }
-        });
 
         //
         $('.dropdown-toggle').dropdown();
@@ -525,11 +336,7 @@
 
         });
 
-    });     // Init
-
-    // TODO: Make so left & right on dropdown scroll chart horizontally
-
-
+    });
 
 
     // Events --------------------------------------------------------------

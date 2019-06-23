@@ -31,6 +31,16 @@ namespace track.Controllers
             return View(datasetDict);
         }
 
+        public PartialViewResult CreateDatasetView()
+        {
+            return PartialView("Partials/_CreateDataset");
+        }
+
+        public PartialViewResult EditDatasetView()
+        {
+            return PartialView("Partials/_EditDataset");
+        }
+
         public JsonResult GetDatasets(int id)
         {
             Dictionary<int, string> datasetDict = DatabaseManager.getDatasetLabels();

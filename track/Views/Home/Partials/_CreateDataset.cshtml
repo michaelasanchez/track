@@ -1,0 +1,91 @@
+﻿
+<div class="row">
+    <div class="col-12">
+
+        <!-- Create Dataset ----------------------------- -->
+        <h5>Create Dataset</h5>
+        <form id="createDataset">
+
+            <div class="form-row mb-3">
+                <div class="col-12 col-sm-6">
+                    <input type="text" class="form-control" id="createDatasetLabel" placeholder="Label">
+                </div>
+            </div>
+            <h6>Properties</h6>
+            <div class="form-props">
+                <div class="form-row mb-3 init">
+                    <div class="col-6 col-md-4">
+                        <input type="text" class="form-control" id="label-1" placeholder="Label">
+                    </div>
+                    <div class="col-5 col-md-3">
+                        <select class="form-control" id="type-1">
+                            <option>Integer</option>
+                            <option>Decimal</option>
+                        </select>
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn btn-link remove">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                /* TODO */
+
+                .dropdown-menu.show {
+                    transform: translate3d(0px, 38px, 0px) !important;
+                }
+            </style>
+            <input type="button" class="btn btn-secondary addProperty" id="createAddProperty" value="Add Property" />
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+    // Add Property Button
+    $('#createAddProperty').click(function (e) {
+
+        var clone = $('#createDataset .form-row.init').last().clone();
+
+        var rowCount = $('#createDataset .form-props > .form-row').length;
+        if (rowCount < maxProperties) {
+
+            // Increment clone input ids
+            var lastId = $('[id^=label]').attr('id');
+            var id = lastId.substr(lastId.length - 1);
+            var nextId = parseInt(id) + 1;
+            $('[id^=label]', clone).attr('id', 'label-' + nextId);
+            $('[id^=label]', clone).val('');
+
+            lastId = $('[id^=type]').attr('id');
+            id = lastId.substr(lastId.length - 1);
+            nextId = parseInt(id) + 1;
+            $('[id^=type]', clone).attr('id', 'type-' + nextId);
+
+            // Button - Remove Row
+            $('button.remove', clone).click(function (e) {
+                // TODO:  improve this
+                if ($(e.target).parent().parent().hasClass('form-row')) {
+                    $(e.target).parent().parent().remove();
+                } else if ($(e.target).parent().parent().parent().hasClass('form-row')) {
+                    $(e.target).parent().parent().parent().remove();
+                }
+                if ($('#createAddProperty').css('display') == 'none')
+                    $('#createAddProperty').show();
+            });
+
+            $('#createDataset .form-props').append(clone);
+
+            if (rowCount + 1 == maxProperties) {
+                $('#createAddProperty').hide();
+            }
+        }
+    });
+
+</script>

@@ -27,14 +27,6 @@
                 <li class="nav-item @((ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "Test") ? "active" : "")">
                     @Html.ActionLink("Admin", "Index", "Test", "Test", new { @class = "nav-link" })
                 </li>
-                <!--
-                <li class="nav-item @(ViewContext.RouteData.Values["Action"].ToString() == "About" ? "active" : "")">
-                    @Html.ActionLink("About", "About", "Home", new { @class = "nav-link" })
-                </li>
-                <li class="nav-item @(ViewContext.RouteData.Values["Action"].ToString() == "Contact" ? "active" : "")">
-                    @Html.ActionLink("Contact", "Contact", "Home", new { @class = "nav-link" })
-                </li>
-                -->
             </ul>
         </div>
     </nav>
@@ -47,6 +39,7 @@
     </div>
 
     @Scripts.Render("~/bundles/dragscroll")
+
     @RenderSection("scripts", required: false)
 
 </body>
