@@ -5,11 +5,11 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Web;
+using track.Models;
 
-namespace track.Models
+namespace track.Utils
 {
+    // Converts old JSON format to 
     public class JSONAdapter
     {
         private string connString = ConfigurationManager.ConnectionStrings["track"].ConnectionString;

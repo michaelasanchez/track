@@ -3,26 +3,22 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Web;
+using track.Models;
 
-namespace track.Models
+namespace track.Utils
 {
 
     public static class DatabaseManager
     {
-
-        //
-        public static string connString = ConfigurationManager.ConnectionStrings["track"].ConnectionString;
+        private static string connString = ConfigurationManager.ConnectionStrings["track"].ConnectionString;
 
 
+        // *TEMP* - make sure database d
         public static string testConnection()
         {
             try
             {
-
                 using (SqlConnection conn = new SqlConnection(connString))
                 {
                     SqlCommand cmd;
@@ -35,7 +31,7 @@ namespace track.Models
 
                     while (r.Read())
                     {
-
+                        // Connection works at this point or will throw exception
                     }
                 }
 
@@ -47,19 +43,16 @@ namespace track.Models
             }
         }
 
-        // Add user
+        // *TEMP* - Add default admin user
         public static int createUser(string username, string password)
         {
             int userId = 0, userCount;
-            
+
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlCommand cmd;
-                SqlDataReader r;
-
                 conn.Open();
 
-                cmd = new SqlCommand("SELECT COUNT(*) FROM [User] WHERE [Username]='" + username + "'", conn);
+                SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM [User] WHERE [Username]='" + username + "'", conn);
                 userCount = (int)cmd.ExecuteScalar();
 
                 // If username already exists
@@ -67,22 +60,23 @@ namespace track.Models
                 {
                     return 0;
 
+                }
                 // Otherwise, create new user
-                } else {
+                else
+                {
 
                     cmd = new SqlCommand("INSERT INTO [User] ([Username], [Password]) VALUES ('" + username + "', '" + CalculateMD5Hash(password) + "')", conn);
                     cmd.ExecuteNonQuery();
 
                     cmd = new SqlCommand("SELECT [Id] FROM [User] WHERE [Username]='" + username + "'", conn);
-                    r = cmd.ExecuteReader();
-
-                    while (r.Read())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        userId = r.GetInt32(r.GetOrdinal("id"));
+                        while (reader.Read())
+                        {
+                            userId = reader.GetInt32(reader.GetOrdinal("id"));
+                        }
                     }
                 }
-                
-                conn.Close();
             }
 
             return userId;
@@ -92,23 +86,19 @@ namespace track.Models
         public static Dictionary<int, string> getDatasetLabels()
         {
             Dictionary<int, string> datasetDict = new Dictionary<int, string>();
-            
+
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlCommand cmd;
-                SqlDataReader r;
-
-                cmd = new SqlCommand("SELECT * FROM [Dataset]", conn);
-
-
                 conn.Open();
-                r = cmd.ExecuteReader();
+                SqlCommand cmd = new SqlCommand("GetDatasets", conn) { CommandType = CommandType.StoredProcedure };
 
-                while (r.Read())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    datasetDict.Add(r.GetInt32(r.GetOrdinal("Id")), r.GetString(r.GetOrdinal("Label")));
+                    while (reader.Read())
+                    {
+                        datasetDict.Add(reader.GetInt32(reader.GetOrdinal("Id")), reader.GetString(reader.GetOrdinal("Label")));
+                    }
                 }
-                conn.Close();
             }
 
             return datasetDict;
@@ -119,13 +109,10 @@ namespace track.Models
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlCommand cmd;
-                SqlDataReader r;
-
                 conn.Open();
+                SqlCommand cmd = new SqlCommand("CreateDataset", conn) { CommandType = CommandType.StoredProcedure };
 
                 // Create dataset
-                cmd = new SqlCommand("CreateDataset", conn) { CommandType = CommandType.StoredProcedure };
                 cmd.Parameters.Add(new SqlParameter("@UserId", userId));
                 cmd.Parameters.Add(new SqlParameter("@Label", label));
                 cmd.Parameters.Add("@returnValue", SqlDbType.Int).Direction = ParameterDirection.ReturnValue;
@@ -135,14 +122,13 @@ namespace track.Models
 
                 for (int i = 0; i < seriesLabels.Count; i++)
                 {
-
                     cmd = new SqlCommand("AddSeries", conn) { CommandType = CommandType.StoredProcedure };
                     cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
                     cmd.Parameters.Add(new SqlParameter("@TypeId", typeIds[i]));
                     cmd.Parameters.Add(new SqlParameter("@Label", seriesLabels[i]));
                     cmd.ExecuteNonQuery();
                 }
-                
+
             }
 
             return 0;
@@ -152,58 +138,59 @@ namespace track.Models
         public static Dataset getDataset(int datasetId)
         {
             Dataset dataset;
+            string datasetLabel = "";
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlCommand cmd;
-                SqlDataReader r;
-
-                string datasetLabel = "";
+                conn.Open();
 
                 // Get label of dataset with matching id
-                cmd = new SqlCommand("SELECT * FROM [Dataset] WHERE [Id]=" + datasetId, conn);
+                SqlCommand cmd = new SqlCommand("SELECT * FROM [Dataset] WHERE [Id]=" + datasetId, conn);
 
                 // TODO: Fix so detects if null or more than 1
-                conn.Open();
-                r = cmd.ExecuteReader();
-                while (r.Read())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    datasetLabel = r.GetString(r.GetOrdinal("Label"));
-                    
+                    while (reader.Read())
+                    {
+                        datasetLabel = reader.GetString(reader.GetOrdinal("Label"));
+                    }
                 }
-                r.Close();
 
 
                 // Get dataset series list
                 cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
                 cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
-                r = cmd.ExecuteReader();
 
+                // TODO: Create & use Series instance
                 List<int> seriesIdList = new List<int>();
                 List<string> seriesList = new List<string>();
                 List<string> seriesTypeList = new List<string>();
                 List<string> seriesColorList = new List<string>();
-                while (r.Read())
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    int seriesId = r.GetInt32(r.GetOrdinal("SeriesId"));
-                    seriesIdList.Add(seriesId);
-
-                    string seriesLabel = r.GetString(r.GetOrdinal("Label"));
-                    seriesList.Add(seriesLabel);
-
-                    string seriesType = r.GetString(r.GetOrdinal("SeriesType"));
-                    seriesTypeList.Add(seriesType);
-
-                    if (r.IsDBNull(r.GetOrdinal("Color")))
+                    while (reader.Read())
                     {
-                        seriesColorList.Add(null);
-                    } else
-                    {
-                        string seriesColor = r.GetString(r.GetOrdinal("Color"));
-                        seriesColorList.Add(seriesColor);
+                        int seriesId = reader.GetInt32(reader.GetOrdinal("SeriesId"));
+                        seriesIdList.Add(seriesId);
+
+                        string seriesLabel = reader.GetString(reader.GetOrdinal("Label"));
+                        seriesList.Add(seriesLabel);
+
+                        string seriesType = reader.GetString(reader.GetOrdinal("SeriesType"));
+                        seriesTypeList.Add(seriesType);
+
+                        if (reader.IsDBNull(reader.GetOrdinal("Color")))
+                        {
+                            seriesColorList.Add(null);
+                        }
+                        else
+                        {
+                            string seriesColor = reader.GetString(reader.GetOrdinal("Color"));
+                            seriesColorList.Add(seriesColor);
+                        }
                     }
                 }
-                r.Close();
 
                 //
                 dataset = new Dataset(datasetLabel, seriesIdList, seriesList, seriesTypeList, seriesColorList);
@@ -212,77 +199,44 @@ namespace track.Models
                 // Get records with matching dataset id
                 cmd = new SqlCommand("GetRecords", conn) { CommandType = CommandType.StoredProcedure };
                 cmd.Parameters.Add(new SqlParameter("@Id", datasetId));
-                r = cmd.ExecuteReader();
 
-                while (r.Read())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    Dictionary<string, object> props = new Dictionary<string, object>();
-
-                    DateTime dt = r.GetDateTime(r.GetOrdinal("DateTime"));
-                    string propString = r.GetString(r.GetOrdinal("Properties"));
-                    string note = "";
-                    if (!r.IsDBNull(r.GetOrdinal("Text")))
-                        note = r.GetString(r.GetOrdinal("Text"));
-
-                    var test = propString.Split(';');
-
-                    foreach (var p in test)
+                    while (reader.Read())
                     {
-                        int colon = p.IndexOf(':');
-                        string key = p.Substring(1, colon - 1);
-                        string val = p.Substring(colon + 1, p.Length - colon - 1);
+                        Dictionary<string, object> props = new Dictionary<string, object>();
 
-                        if (props.ContainsKey(key))
+                        DateTime dt = reader.GetDateTime(reader.GetOrdinal("DateTime"));
+                        string propString = reader.GetString(reader.GetOrdinal("Properties"));
+                        string note = "";
+                        if (!reader.IsDBNull(reader.GetOrdinal("Text")))
+                            note = reader.GetString(reader.GetOrdinal("Text"));
+
+                        var test = propString.Split(';');
+
+                        foreach (var p in test)
                         {
-                            props[key] = val;
-                        } else
-                        {
-                            props.Add(key, val);
+                            int colon = p.IndexOf(':');
+                            string key = p.Substring(1, colon - 1);
+                            string val = p.Substring(colon + 1, p.Length - colon - 1);
+
+                            if (props.ContainsKey(key))
+                            {
+                                props[key] = val;
+                            }
+                            else
+                            {
+                                props.Add(key, val);
+                            }
                         }
-                    }
 
-                    //Debug.WriteLine(dt.ToString() + " - " + props.ToString());
-
-                    if (!string.IsNullOrEmpty(note))
-                        dataset.createRecord(dt, props, note);
-                    else
-                        dataset.createRecord(dt, props);
-
-
-                    //Debug.WriteLine(r.GetDateTime(r.GetOrdinal("DateTime")).ToString() + " - " + r.GetString(r.GetOrdinal("Properties")));
-                }
-                r.Close();
-
-                /*
-                cmd = new SqlCommand("SELECT [Series].[Id], [Label], [Name] AS 'Type' FROM [Series] JOIN [SeriesType] ON [TypeId]=[SeriesType].[Id] WHERE [DatasetId]=" + datasetId, conn);
-                r = cmd.ExecuteReader();
-
-                List<int> ids = new List<int>();
-                List<string> labels = new List<string>();
-                List<string> types = new List<string>();
-
-                while (r.Read())
-                {
-                    ids.Add(r.GetInt32(r.GetOrdinal("Id")));
-                    labels.Add(r.GetString(r.GetOrdinal("Label")));
-                    types.Add(r.GetString(r.GetOrdinal("Type")));
-                }
-                r.Close();
-
-                foreach (int id in ids)
-                {
-                    cmd = new SqlCommand("SELECT [DateTime], [Value] FROM [Record] JOIN [Property] ON [Record].[Id] = [Property].[RecordId] WHERE [SeriesId]=" + id, conn);
-                    r = cmd.ExecuteReader();
-
-                    while (r.Read())
-                    {
+                        if (!string.IsNullOrEmpty(note))
+                            dataset.createRecord(dt, props, note);
+                        else
+                            dataset.createRecord(dt, props);
 
                     }
-
                 }
-                */
-
-                conn.Close();
             }
 
             return dataset;
@@ -292,13 +246,11 @@ namespace track.Models
         {
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlCommand cmd;
-                SqlDataReader r;
-
                 conn.Open();
 
                 // Create record entry
-                cmd = new SqlCommand("CreateRecord", conn) { CommandType = CommandType.StoredProcedure };
+                SqlCommand cmd = new SqlCommand("CreateRecord", conn) { CommandType = CommandType.StoredProcedure };
+
                 cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
                 cmd.Parameters.Add(new SqlParameter("@DateTime", datetime.ToString()));
                 if (!string.IsNullOrEmpty(note))
@@ -312,6 +264,7 @@ namespace track.Models
                 for (var i = 0; i < labels.Count; i++)
                 {
                     cmd = new SqlCommand("AddProperty", conn) { CommandType = CommandType.StoredProcedure };
+
                     cmd.Parameters.Add(new SqlParameter("@RecordId", recordId));
                     cmd.Parameters.Add(new SqlParameter("@Label", labels[i]));
                     cmd.Parameters.Add(new SqlParameter("@Value", values[i]));
