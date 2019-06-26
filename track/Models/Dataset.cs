@@ -12,10 +12,12 @@ namespace track.Models
         public string Id { get; set; }
         public string Label { get; set; }
 
-        private List<Record> RecordList = new List<Record>();
+        private List<Record> RecordList;
+
+        private List<Series> SeriesList;
 
         private List<int> SeriesIdList = new List<int>();
-        private List<string> SeriesList = new List<string>();
+        private List<string> SeriesLabelList = new List<string>();
         private List<string> SeriesTypeList = new List<string>();
         private List<string> SeriesColorList;
 
@@ -23,14 +25,25 @@ namespace track.Models
         private DateTime endDateTime { get; set; }
 
         
-        public Dataset(string label, List<int> seriesIds, List<string> series, List<string> seriesTypes, List<string> seriesColors = null)
+        public Dataset(string label, List<int> seriesIds, List<string> seriesLabel, List<string> seriesTypes, List<string> seriesColors = null)
         {
             Label = label;
 
             SeriesIdList = seriesIds;
-            SeriesList = series;
+            SeriesLabelList = seriesLabel;
             SeriesTypeList = seriesTypes;
             SeriesColorList = seriesColors;
+
+            SeriesList = new List<Series>();
+            RecordList = new List<Record>();
+        }
+
+        public Dataset(string label, List<Series> seriesList)
+        {
+            Label = label;
+
+            SeriesList = seriesList;
+            RecordList = new List<Record>();
         }
 
         public void createRecord(DateTime dateTime, Dictionary<string, object> props, string note = null)
@@ -67,43 +80,41 @@ namespace track.Models
             return RecordList.Count;
         }
 
-        public void addSeries(string series)
+        public void addSeries(string seriesLabel)
         { 
             // TODO : test for duplicates
+            SeriesLabelList.Add(seriesLabel);
+        }
+
+        // Add series to dataset
+        public void addSeries(Series series)
+        {
             SeriesList.Add(series);
         }
 
+        // Return list of series ids
         public List<int> getSeriesIds()
         {
-            return SeriesIdList;
+            return SeriesList.Select(x => x.Id).ToList();
         }
 
-        public List<string> getSeries()
+        // Return list of series labels
+        public List<string> getSeriesLabels()
         {
-            return SeriesList;
+            return SeriesList.Select(x => x.Label).ToList();
         }
 
+        // Return list of series types
         public List<string> getSeriesTypes()
         {
-            return SeriesTypeList;
+            return SeriesList.Select(x => x.Type).ToList();
         }
 
+        // Return list of series colors
         public List<string> getSeriesColors()
         {
-            return SeriesColorList;
+            return SeriesList.Select(x => x.Color).ToList();
         }
-
-       /* public Dictionary<string, double> getRecordDictionary()
-        {
-            Dictionary<string, double> nodeDict = new Dictionary<string, double>();
-
-            foreach (Record n in RecordList)
-            {
-                //nodeDict.Add(n.DateTime.ToString(), n.Value);
-            }
-
-            return nodeDict;
-        }*/
         
         public List<DateTime> getDateTimes()
         {

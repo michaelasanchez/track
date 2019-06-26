@@ -112,8 +112,10 @@ namespace track.Utils
             return datasetDict;
         }
 
+        // Create dataset & associated series
         public static int createDataset(int userId, string label, List<string> seriesLabels, List<int> typeIds)
         {
+            SqlCommand cmd;
             int datasetId = 0;
 
             using (SqlConnection conn = new SqlConnection(connString))
@@ -121,7 +123,7 @@ namespace track.Utils
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("CreateDataset", conn) { CommandType = CommandType.StoredProcedure };
+                    cmd = new SqlCommand("CreateDataset", conn) { CommandType = CommandType.StoredProcedure };
 
                     // Create dataset
                     cmd.Parameters.Add(new SqlParameter("@UserId", userId));
@@ -149,15 +151,19 @@ namespace track.Utils
         // Return dataset object by id
         public static Dataset getDataset(int datasetId)
         {
+            SqlCommand cmd;
+
             Dataset dataset;
             string datasetLabel = "";
+
+            List<Series> seriesList = new List<Series>();
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 conn.Open();
 
                 // Get label of dataset with matching id
-                SqlCommand cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
+                cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
                 cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
 
                 // TODO: Fix so detects if null or more than 1
@@ -174,39 +180,31 @@ namespace track.Utils
                 cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
                 cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
 
-                // TODO: Create & use Series instance
-                List<int> seriesIdList = new List<int>();
-                List<string> seriesList = new List<string>();
-                List<string> seriesTypeList = new List<string>();
-                List<string> seriesColorList = new List<string>();
-
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        int seriesId = reader.GetInt32(reader.GetOrdinal("SeriesId"));
-                        seriesIdList.Add(seriesId);
-
-                        string seriesLabel = reader.GetString(reader.GetOrdinal("Label"));
-                        seriesList.Add(seriesLabel);
-
-                        string seriesType = reader.GetString(reader.GetOrdinal("SeriesType"));
-                        seriesTypeList.Add(seriesType);
-
+                        string color;
                         if (reader.IsDBNull(reader.GetOrdinal("Color")))
                         {
-                            seriesColorList.Add(null);
+                            color = null;
                         }
                         else
                         {
-                            string seriesColor = reader.GetString(reader.GetOrdinal("Color"));
-                            seriesColorList.Add(seriesColor);
+                            color =  reader.GetString(reader.GetOrdinal("Color"));
                         }
+
+                        seriesList.Add(new Series() {
+                            Id = reader.GetInt32(reader.GetOrdinal("SeriesId")),
+                            Label = reader.GetString(reader.GetOrdinal("Label")),
+                            Type = reader.GetString(reader.GetOrdinal("SeriesType")),
+                            Color = color
+                        });
                     }
                 }
 
-                //
-                dataset = new Dataset(datasetLabel, seriesIdList, seriesList, seriesTypeList, seriesColorList);
+                // Create dataset instance
+                dataset = new Dataset(datasetLabel, seriesList);
 
 
                 // Get records with matching dataset id

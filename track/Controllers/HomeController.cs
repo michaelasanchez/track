@@ -59,11 +59,12 @@ namespace track.Controllers
 
                 datasetJObject.label = dataset.Label;
                 datasetJObject.ids = new JArray(dataset.getSeriesIds());
-                datasetJObject.series = new JArray(dataset.getSeries());
+                datasetJObject.series = new JArray(dataset.getSeriesLabels());
                 datasetJObject.types = new JArray(dataset.getSeriesTypes());
                 datasetJObject.colors = new JArray(dataset.getSeriesColors());
+
                 datasetJObject.notes = new JArray(dataset.getNotes());
-                foreach (var s in dataset.getSeries())
+                foreach (var s in dataset.getSeriesLabels())
                 {
                     datasetJObject[s] = new JArray(dataset.getProperty(s));
                 }
@@ -90,7 +91,7 @@ namespace track.Controllers
         {
             Dataset cur = DatabaseManager.getDataset(id);
 
-            return Json(JsonConvert.SerializeObject(cur.getSeries()), JsonRequestBehavior.AllowGet);
+            return Json(JsonConvert.SerializeObject(cur.getSeriesLabels()), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

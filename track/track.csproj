@@ -152,6 +152,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Series.cs" />
     <Compile Include="Utils\DatabaseManager.cs" />
     <Compile Include="Models\Dataset.cs" />
     <Compile Include="Utils\JSONAdapter.cs" />
