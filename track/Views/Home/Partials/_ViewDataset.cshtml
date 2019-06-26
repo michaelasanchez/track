@@ -71,7 +71,6 @@
     $('#datetimeSelect').focusout(function (e) {
         if (focusValue != null && $(this).val() != focusValue) {
             datetimeChanged = true;
-            console.log('changed');
         }
         focusValue = null;
     });
@@ -105,9 +104,6 @@
         var note = $('#noteTextarea').val();
         $('#noteTextarea').val('');
 
-        // Focus first property field
-        $('#createRecord [id^=prop]').first().focus();
-
         var data = {
             "id": datasetId,
             "datetime": datetime,
@@ -126,7 +122,7 @@
 
                 $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
                 {
-                    refreshChart(JSON.parse(data), '.ct-chart');
+                    refreshChart(JSON.parse(data), $('.ct-chart'));
                 });
             });
 
@@ -165,9 +161,7 @@
     }
 
     // Refresh Chart
-    function refreshChart(dataset, selecter) {
-
-        //console.log(dataset);
+    function refreshChart(dataset, $chart) {
 
         // Create Chartist data object
         var data = {
@@ -236,18 +230,18 @@
 
         if (span) {
             if (span * 2 < $('.scroll')[0].clientWidth) {
-                $('.ct-chart').css('width', $('.scroll')[0].clientWidth);
+                $chart.css('width', $('.scroll')[0].clientWidth);
             } else {
-                $('.ct-chart').css('width', span * 2);
+                $chart.css('width', span * 2);
             }
         } else {
-            $('.ct-chart').css('width', $('.scroll')[0].clientWidth);
+            $chart.css('width', $('.scroll')[0].clientWidth);
         }
 
 
         // Render new graph
         if (!chart) {
-            chart = new Chartist.Line(selecter, data, options);
+            chart = new Chartist.Line('.' + $chart.prop('class'), data, options);
         } else {
             chart.update(data, options);
         }

@@ -1,0 +1,5 @@
+﻿
+@foreach (var label in (Dictionary<int, string>)Model)
+{
+    <option value="@label.Key" @(label.Key.ToString() == (string)ViewData["lastId"] ? "selected=\"selected\"" : "")>@label.Value</option>
+}

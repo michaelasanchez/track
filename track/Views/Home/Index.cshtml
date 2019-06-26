@@ -10,10 +10,7 @@
         <ul class="nav nav-tabs">
             <li class="mr-2">
                 <select id="datasetSelect" class="custom-select selectpicker">
-                    @foreach (var label in (Dictionary<int, string>)Model)
-                    {
-                        <option value="@label.Key" @(label.Key.ToString() == (string)ViewData["lastId"] ? "selected=\"selected\"" : "")>@label.Value</option>
-                    }
+                    @Html.Partial("Partials/_DatasetOptions")
                 </select>
             </li>
             <li class="nav-item" id="add-tab">
@@ -63,8 +60,9 @@
     {
         currentDataset = JSON.parse(data);
         refreshForm(currentDataset);
-        refreshChart(JSON.parse(data), '.ct-chart');
+        refreshChart(currentDataset, $('.ct-chart'));
     });
+
 
 
     // Init Tabs --------------------------------------------------------
@@ -129,12 +127,15 @@
                         url: '@Url.Action("CreateDataset", "Home")',
                         traditional: true,
                         data: data
-                    });
+                    })
+                        .done(function (id) {
+                            // Update select and focus new value
+                            refreshDatasetOptions($('#datasetSelect'), id);
+                        })
 
                 }
                 else if (prevTabId == 'settings')
                 {
-                    
                     var datasetLabel;
 
                     if ($('#edit-datasetLabel').hasClass('is-valid'))
@@ -168,11 +169,11 @@
                         traditional: true,
                         data: data
                     })
-                        .done(function (data) {
+                        .done(function () {
                             $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data) {
                                 currentDataset = JSON.parse(data);
                                 refreshForm(currentDataset);
-                                refreshChart(JSON.parse(data), '.ct-chart');
+                                refreshChart(currentDataset, $('.ct-chart'));
 
                                 // Update Dataset Select
                                 $('#datasetSelect option:selected').html(currentDataset.label);
@@ -197,9 +198,9 @@
         $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
         {
             currentDataset = JSON.parse(data);
-            var html = refreshForm(currentDataset);
+            refreshForm(currentDataset);
 
-            refreshChart(JSON.parse(data), '.ct-chart');
+            refreshChart(currentDataset, $('.ct-chart'));
         });
     });
 
@@ -229,6 +230,15 @@
 
             $settingsTab.show();
         }
+    }
+
+    // Refresh #DatasetSelect options.  Pass value to update selected option
+    function refreshDatasetOptions($select, value) {
+        $.get('@Url.Action("DatasetOptions", "Home")', function (html) {
+            $select.html(html);
+
+            if (value) $select.val(value).trigger('change');
+        })
     }
 
 </script>

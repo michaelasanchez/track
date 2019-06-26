@@ -42,10 +42,9 @@ namespace track.Controllers
             return PartialView("Partials/_EditDataset");
         }
 
-        public JsonResult GetDatasets(int id)
+        public PartialViewResult DatasetOptions()
         {
-            Dictionary<int, string> datasetDict = DatabaseManager.getDatasetLabels();
-            return Json(JsonConvert.SerializeObject(datasetDict), JsonRequestBehavior.AllowGet);
+            return PartialView("Partials/_DatasetOptions", DatabaseManager.getDatasetLabels());
         }
 
         public JsonResult GetDataset(int id)
@@ -116,9 +115,12 @@ namespace track.Controllers
             }
 
             // TODO : replace user id 
-            DatabaseManager.createDataset(1, datasetLabel, labels, typeIds);
+            int datasetId = DatabaseManager.createDataset(1, datasetLabel, labels, typeIds);
 
-            return Json("");
+            if (datasetId > 0)
+                return Json(datasetId);
+            else
+                return null;
         }
 
         [HttpPost]

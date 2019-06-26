@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Text;
 using track.Models;
 
@@ -89,15 +90,22 @@ namespace track.Utils
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("GetDatasets", conn) { CommandType = CommandType.StoredProcedure };
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                try
                 {
-                    while (reader.Read())
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("GetDatasets", conn) { CommandType = CommandType.StoredProcedure };
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        datasetDict.Add(reader.GetInt32(reader.GetOrdinal("Id")), reader.GetString(reader.GetOrdinal("Label")));
+                        while (reader.Read())
+                        {
+                            datasetDict.Add(reader.GetInt32(reader.GetOrdinal("Id")), reader.GetString(reader.GetOrdinal("Label")));
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
                 }
             }
 
@@ -106,32 +114,36 @@ namespace track.Utils
 
         public static int createDataset(int userId, string label, List<string> seriesLabels, List<int> typeIds)
         {
+            int datasetId = 0;
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("CreateDataset", conn) { CommandType = CommandType.StoredProcedure };
-
-                // Create dataset
-                cmd.Parameters.Add(new SqlParameter("@UserId", userId));
-                cmd.Parameters.Add(new SqlParameter("@Label", label));
-                cmd.Parameters.Add("@returnValue", SqlDbType.Int).Direction = ParameterDirection.ReturnValue;
-                cmd.ExecuteNonQuery();
-
-                int datasetId = (int)cmd.Parameters["@returnValue"].Value;
-
-                for (int i = 0; i < seriesLabels.Count; i++)
+                try
                 {
-                    cmd = new SqlCommand("AddSeries", conn) { CommandType = CommandType.StoredProcedure };
-                    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
-                    cmd.Parameters.Add(new SqlParameter("@TypeId", typeIds[i]));
-                    cmd.Parameters.Add(new SqlParameter("@Label", seriesLabels[i]));
-                    cmd.ExecuteNonQuery();
-                }
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("CreateDataset", conn) { CommandType = CommandType.StoredProcedure };
 
+                    // Create dataset
+                    cmd.Parameters.Add(new SqlParameter("@UserId", userId));
+                    cmd.Parameters.Add(new SqlParameter("@Label", label));
+                    datasetId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    for (int i = 0; i < seriesLabels.Count; i++)
+                    {
+                        cmd = new SqlCommand("AddSeries", conn) { CommandType = CommandType.StoredProcedure };
+                        cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+                        cmd.Parameters.Add(new SqlParameter("@TypeId", typeIds[i]));
+                        cmd.Parameters.Add(new SqlParameter("@Label", seriesLabels[i]));
+                        cmd.ExecuteNonQuery();
+                    }
+
+                } catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
             }
 
-            return 0;
+            return datasetId;
         }
 
         // Return dataset object by id
@@ -145,7 +157,8 @@ namespace track.Utils
                 conn.Open();
 
                 // Get label of dataset with matching id
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [Dataset] WHERE [Id]=" + datasetId, conn);
+                SqlCommand cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
+                cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
 
                 // TODO: Fix so detects if null or more than 1
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -253,12 +266,9 @@ namespace track.Utils
 
                 cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
                 cmd.Parameters.Add(new SqlParameter("@DateTime", datetime.ToString()));
-                if (!string.IsNullOrEmpty(note))
-                    cmd.Parameters.Add(new SqlParameter("@Note", note));
-                cmd.Parameters.Add("@returnValue", SqlDbType.Int).Direction = ParameterDirection.ReturnValue;
-                cmd.ExecuteNonQuery();
+                if (!string.IsNullOrEmpty(note)) cmd.Parameters.Add(new SqlParameter("@Note", note));
 
-                int recordId = (int)cmd.Parameters["@returnValue"].Value;
+                int recordId = Convert.ToInt32(cmd.ExecuteScalar());
 
                 // Add properties
                 for (var i = 0; i < labels.Count; i++)
