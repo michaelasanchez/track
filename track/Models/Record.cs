@@ -7,14 +7,16 @@ using System.Threading.Tasks;
 
 namespace track.Models
 {
-    class Record
+    public class Record
     {
         public DateTime DateTime { get; set; }
 
-        private Dictionary<string, object> Properties = new Dictionary<string, object>();
+        public Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         public string Note { get; set; }
 
+
+        public Record() { }
 
         public Record(DateTime dateTime)
         {

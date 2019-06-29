@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using track.Models;
 
@@ -151,104 +152,134 @@ namespace track.Utils
         // Return dataset object by id
         public static Dataset getDataset(int datasetId)
         {
-            SqlCommand cmd;
-
             Dataset dataset;
             string datasetLabel = "";
-
-            List<Series> seriesList = new List<Series>();
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 conn.Open();
 
                 // Get label of dataset with matching id
-                cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
-                cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
-
-                // TODO: Fix so detects if null or more than 1
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlCommand cmd = new SqlCommand("GetDataset", conn) { CommandType = CommandType.StoredProcedure })
                 {
-                    while (reader.Read())
+                    cmd.Parameters.Add(new SqlParameter("@Id", datasetId));
+
+                    // TODO: Fix so detects if null or more than 1
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        datasetLabel = reader.GetString(reader.GetOrdinal("Label"));
-                    }
-                }
-
-
-                // Get dataset series list
-                cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure };
-                cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        string color;
-                        if (reader.IsDBNull(reader.GetOrdinal("Color")))
+                        while (reader.Read())
                         {
-                            color = null;
+                            datasetLabel = reader.GetString(reader.GetOrdinal("Label"));
                         }
-                        else
-                        {
-                            color =  reader.GetString(reader.GetOrdinal("Color"));
-                        }
-
-                        seriesList.Add(new Series() {
-                            Id = reader.GetInt32(reader.GetOrdinal("SeriesId")),
-                            Label = reader.GetString(reader.GetOrdinal("Label")),
-                            Type = reader.GetString(reader.GetOrdinal("SeriesType")),
-                            Color = color
-                        });
                     }
                 }
 
                 // Create dataset instance
-                dataset = new Dataset(datasetLabel, seriesList);
+                dataset = new Dataset(datasetLabel);
 
 
-                // Get records with matching dataset id
-                cmd = new SqlCommand("GetRecords", conn) { CommandType = CommandType.StoredProcedure };
-                cmd.Parameters.Add(new SqlParameter("@Id", datasetId));
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                // Get dataset series list
+                using (SqlCommand cmd = new SqlCommand("GetSeries", conn) { CommandType = CommandType.StoredProcedure })
                 {
-                    while (reader.Read())
+                    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        Dictionary<string, object> props = new Dictionary<string, object>();
-
-                        DateTime dt = reader.GetDateTime(reader.GetOrdinal("DateTime"));
-                        string propString = reader.GetString(reader.GetOrdinal("Properties"));
-                        string note = "";
-                        if (!reader.IsDBNull(reader.GetOrdinal("Text")))
-                            note = reader.GetString(reader.GetOrdinal("Text"));
-
-                        var test = propString.Split(';');
-
-                        foreach (var p in test)
+                        while (reader.Read())
                         {
-                            int colon = p.IndexOf(':');
-                            string key = p.Substring(1, colon - 1);
-                            string val = p.Substring(colon + 1, p.Length - colon - 1);
-
-                            if (props.ContainsKey(key))
+                            string color;
+                            if (reader.IsDBNull(reader.GetOrdinal("Color")))
                             {
-                                props[key] = val;
+                                color = null;
                             }
                             else
                             {
-                                props.Add(key, val);
+                                color = reader.GetString(reader.GetOrdinal("Color"));
                             }
+
+                            dataset.addSeries(new Series()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("SeriesId")),
+                                Label = reader.GetString(reader.GetOrdinal("Label")),
+                                Type = reader.GetString(reader.GetOrdinal("SeriesType")),
+                                Color = color
+                            });
                         }
-
-                        if (!string.IsNullOrEmpty(note))
-                            dataset.createRecord(dt, props, note);
-                        else
-                            dataset.createRecord(dt, props);
-
                     }
                 }
-            }
+
+
+                // Get records with matching dataset id
+                //using (SqlCommand cmd = new SqlCommand("GetRecords", conn) { CommandType = CommandType.StoredProcedure })
+                //{
+                //    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+
+                //    using (SqlDataReader reader = cmd.ExecuteReader())
+                //    {
+                //        while (reader.Read())
+                //        {
+                //            Dictionary<string, object> props = new Dictionary<string, object>();
+
+                //            DateTime dt = reader.GetDateTime(reader.GetOrdinal("DateTime"));
+                //            string propString = reader.GetString(reader.GetOrdinal("Properties"));
+                //            string text = "";
+                //            if (!reader.IsDBNull(reader.GetOrdinal("Text")))
+                //                text = reader.GetString(reader.GetOrdinal("Text"));
+
+                //            var test = propString.Split(';');
+
+                //            foreach (var p in test)
+                //            {
+                //                int colon = p.IndexOf(':');
+                //                string key = p.Substring(1, colon - 1);
+                //                string val = p.Substring(colon + 1, p.Length - colon - 1);
+
+                //                if (props.ContainsKey(key))
+                //                {
+                //                    props[key] = val;
+                //                }
+                //                else
+                //                {
+                //                    props.Add(key, val);
+                //                }
+                //            }
+
+                //            if (!string.IsNullOrEmpty(text))
+                //                dataset.createRecord(dt, props, text);
+                //            else
+                //                dataset.createRecord(dt, props);
+
+                //        }
+                //    }
+                //}
+
+                // Get records
+                Dictionary<string, object> properties;
+
+                using (SqlCommand cmd = new SqlCommand("GetRecordsNew", conn) { CommandType = CommandType.StoredProcedure })
+                {
+                    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var temp = reader.GetString(reader.GetOrdinal("Properties")).Split(',').Select(s => s.Split(':'));
+
+                            properties = new Dictionary<string, object>();
+                            foreach (var prop in temp) properties.Add(prop[0], prop[1]);
+
+                            dataset.addRecord(new Record()
+                            {
+                                DateTime = reader.GetDateTime(reader.GetOrdinal("DateTime")),
+                                Properties = properties,
+                                Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString(reader.GetOrdinal("Note"))
+                            });
+                        }
+                    }
+                }
+
+            } // Dispose connection
 
             return dataset;
         }
