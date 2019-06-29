@@ -210,50 +210,6 @@ namespace track.Utils
 
 
                 // Get records with matching dataset id
-                //using (SqlCommand cmd = new SqlCommand("GetRecords", conn) { CommandType = CommandType.StoredProcedure })
-                //{
-                //    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
-
-                //    using (SqlDataReader reader = cmd.ExecuteReader())
-                //    {
-                //        while (reader.Read())
-                //        {
-                //            Dictionary<string, object> props = new Dictionary<string, object>();
-
-                //            DateTime dt = reader.GetDateTime(reader.GetOrdinal("DateTime"));
-                //            string propString = reader.GetString(reader.GetOrdinal("Properties"));
-                //            string text = "";
-                //            if (!reader.IsDBNull(reader.GetOrdinal("Text")))
-                //                text = reader.GetString(reader.GetOrdinal("Text"));
-
-                //            var test = propString.Split(';');
-
-                //            foreach (var p in test)
-                //            {
-                //                int colon = p.IndexOf(':');
-                //                string key = p.Substring(1, colon - 1);
-                //                string val = p.Substring(colon + 1, p.Length - colon - 1);
-
-                //                if (props.ContainsKey(key))
-                //                {
-                //                    props[key] = val;
-                //                }
-                //                else
-                //                {
-                //                    props.Add(key, val);
-                //                }
-                //            }
-
-                //            if (!string.IsNullOrEmpty(text))
-                //                dataset.createRecord(dt, props, text);
-                //            else
-                //                dataset.createRecord(dt, props);
-
-                //        }
-                //    }
-                //}
-
-                // Get records
                 Dictionary<string, object> properties;
 
                 using (SqlCommand cmd = new SqlCommand("GetRecordsNew", conn) { CommandType = CommandType.StoredProcedure })
@@ -264,11 +220,13 @@ namespace track.Utils
                     {
                         while (reader.Read())
                         {
+                            // Create property dictionary
                             var temp = reader.GetString(reader.GetOrdinal("Properties")).Split(',').Select(s => s.Split(':'));
 
                             properties = new Dictionary<string, object>();
                             foreach (var prop in temp) properties.Add(prop[0], prop[1]);
 
+                            // Add record to dataset
                             dataset.addRecord(new Record()
                             {
                                 DateTime = reader.GetDateTime(reader.GetOrdinal("DateTime")),
@@ -286,29 +244,38 @@ namespace track.Utils
 
         public static void saveRecord(int datasetId, List<string> labels, List<string> values, DateTime datetime, string note = "")
         {
+            int recordId;
+
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 conn.Open();
 
                 // Create record entry
-                SqlCommand cmd = new SqlCommand("CreateRecord", conn) { CommandType = CommandType.StoredProcedure };
+                using (SqlCommand cmd = new SqlCommand("CreateRecord", conn) { CommandType = CommandType.StoredProcedure })
+                {
+                    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+                    cmd.Parameters.Add(new SqlParameter("@DateTime", datetime.ToString()));
+                    if (!string.IsNullOrEmpty(note)) cmd.Parameters.Add(new SqlParameter("@Note", note));
 
-                cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
-                cmd.Parameters.Add(new SqlParameter("@DateTime", datetime.ToString()));
-                if (!string.IsNullOrEmpty(note)) cmd.Parameters.Add(new SqlParameter("@Note", note));
+                    recordId = Convert.ToInt32(cmd.ExecuteScalar());
+                }
 
-                int recordId = Convert.ToInt32(cmd.ExecuteScalar());
 
                 // Add properties
-                for (var i = 0; i < labels.Count; i++)
+                using (SqlCommand cmd = new SqlCommand("AddProperty", conn) { CommandType = CommandType.StoredProcedure })
                 {
-                    cmd = new SqlCommand("AddProperty", conn) { CommandType = CommandType.StoredProcedure };
+                    cmd.Parameters.Add(new SqlParameter("@RecordId", 0));
+                    cmd.Parameters.Add(new SqlParameter("@Label", ""));
+                    cmd.Parameters.Add(new SqlParameter("@Value", ""));
 
-                    cmd.Parameters.Add(new SqlParameter("@RecordId", recordId));
-                    cmd.Parameters.Add(new SqlParameter("@Label", labels[i]));
-                    cmd.Parameters.Add(new SqlParameter("@Value", values[i]));
+                    for (var i = 0; i < labels.Count; i++)
+                    {
+                        cmd.Parameters["@RecordId"].Value = recordId;
+                        cmd.Parameters["@Label"].Value = labels[i];
+                        cmd.Parameters["@Value"].Value = values[i];
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
                 }
 
             }

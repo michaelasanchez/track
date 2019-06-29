@@ -16,14 +16,11 @@ namespace track.Models
 
         private List<Series> SeriesList;
 
-        private List<int> SeriesIdList = new List<int>();
-        private List<string> SeriesLabelList = new List<string>();
-        private List<string> SeriesTypeList = new List<string>();
-        private List<string> SeriesColorList;
-
         private DateTime startDateTime { get; set; }
         private DateTime endDateTime { get; set; }
 
+
+        // Constructors
         public Dataset(string label)
         {
             Label = label;
@@ -40,30 +37,17 @@ namespace track.Models
             RecordList = new List<Record>();
         }
 
-        // Add record & update start/end datetimes
-        public void addRecord(Record record)
-        {
-            // Check if first record
-            //  Otherwise, check for new start/end datetime
-            if (recordCount() == 0)
-            {
-                startDateTime = record.DateTime;
-                endDateTime = record.DateTime;
-            } else
-            {
-                if (record.DateTime.CompareTo(startDateTime) < 0)
-                    startDateTime = record.DateTime;
-                if (record.DateTime.CompareTo(endDateTime) > 0)
-                    endDateTime = record.DateTime;
-            }
-
-            RecordList.Add(record);
-        }
 
         // Return number of records currently in dataset
         public int recordCount()
         {
             return RecordList.Count;
+        }
+
+        // Return length of time dataset spans
+        public TimeSpan getTimeSpan()
+        {
+            return new TimeSpan(endDateTime.Ticks - startDateTime.Ticks);
         }
 
 
@@ -96,8 +80,30 @@ namespace track.Models
         {
             return SeriesList.Select(x => x.Color).ToList();
         }
-        
-        // 
+
+
+        // Add record & update start/end datetimes
+        public void addRecord(Record record)
+        {
+            // Check if first record
+            //  Otherwise, check for new start/end datetime
+            if (recordCount() == 0)
+            {
+                startDateTime = record.DateTime;
+                endDateTime = record.DateTime;
+            }
+            else
+            {
+                if (record.DateTime.CompareTo(startDateTime) < 0)
+                    startDateTime = record.DateTime;
+                if (record.DateTime.CompareTo(endDateTime) > 0)
+                    endDateTime = record.DateTime;
+            }
+
+            RecordList.Add(record);
+        }
+
+        // Return list of datetime for every record in dataset
         public List<DateTime> getDateTimes()
         {
             List<DateTime> dtList = new List<DateTime>();
@@ -108,13 +114,7 @@ namespace track.Models
             return dtList;
         }
 
-        // 
-        public TimeSpan getTimeSpan()
-        {
-            return new TimeSpan(endDateTime.Ticks - startDateTime.Ticks);
-        }
-
-        // 
+        // Return single property list for every record in dataset
         public List<Object> getProperty(string prop)
         {
             List<Object>pList = new List<Object>();
@@ -127,7 +127,7 @@ namespace track.Models
             return pList;
         }
 
-        // 
+        // Return list of notes for every record in dataset
         public List<string> getNotes()
         {
             List<string> noteList = new List<string>();
