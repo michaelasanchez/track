@@ -140,7 +140,8 @@ namespace track.Utils
                         cmd.ExecuteNonQuery();
                     }
 
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Debug.WriteLine(ex.ToString());
                 }
@@ -155,6 +156,10 @@ namespace track.Utils
             Dataset dataset;
             string datasetLabel = "";
 
+            List<int> seriesIds;
+
+            Dictionary<int, object> properties;
+
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 conn.Open();
@@ -167,10 +172,8 @@ namespace track.Utils
                     // TODO: Fix so detects if null or more than 1
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
-                            datasetLabel = reader.GetString(reader.GetOrdinal("Label"));
-                        }
+                        reader.Read();
+                        datasetLabel = reader.GetString(reader.GetOrdinal("Label"));
                     }
                 }
 
@@ -187,32 +190,22 @@ namespace track.Utils
                     {
                         while (reader.Read())
                         {
-                            string color;
-                            if (reader.IsDBNull(reader.GetOrdinal("Color")))
-                            {
-                                color = null;
-                            }
-                            else
-                            {
-                                color = reader.GetString(reader.GetOrdinal("Color"));
-                            }
-
                             dataset.addSeries(new Series()
                             {
                                 Id = reader.GetInt32(reader.GetOrdinal("SeriesId")),
                                 Label = reader.GetString(reader.GetOrdinal("Label")),
                                 Type = reader.GetString(reader.GetOrdinal("SeriesType")),
-                                Color = color
+                                Color = reader.IsDBNull(reader.GetOrdinal("Color")) ? null : reader.GetString(reader.GetOrdinal("Color"))
                             });
                         }
                     }
                 }
 
+                // Get series id list for add properties
+                seriesIds = dataset.getSeriesIds();
 
                 // Get records with matching dataset id
-                Dictionary<string, object> properties;
-
-                using (SqlCommand cmd = new SqlCommand("GetRecordsNew", conn) { CommandType = CommandType.StoredProcedure })
+                using (SqlCommand cmd = new SqlCommand("GetRecordsFinal", conn) { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
 
@@ -220,18 +213,17 @@ namespace track.Utils
                     {
                         while (reader.Read())
                         {
-                            // Create property dictionary
-                            var temp = reader.GetString(reader.GetOrdinal("Properties")).Split(',').Select(s => s.Split(':'));
+                            var temp = reader.GetString(reader.GetOrdinal("Properties")).Split(',');
 
-                            properties = new Dictionary<string, object>();
-                            foreach (var prop in temp) properties.Add(prop[0], prop[1]);
+                            properties = new Dictionary<int, object>();
+                            for (int i = 0; i < temp.Count(); i++) properties.Add(seriesIds[i], temp[i]);
 
                             // Add record to dataset
                             dataset.addRecord(new Record()
                             {
                                 DateTime = reader.GetDateTime(reader.GetOrdinal("DateTime")),
                                 Properties = properties,
-                                Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString(reader.GetOrdinal("Note"))
+                                Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? null : reader.GetString(reader.GetOrdinal("Note"))
                             });
                         }
                     }

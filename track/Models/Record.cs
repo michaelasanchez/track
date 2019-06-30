@@ -11,7 +11,7 @@ namespace track.Models
     {
         public DateTime DateTime { get; set; }
 
-        public Dictionary<string, object> Properties = new Dictionary<string, object>();
+        public Dictionary<int, object> Properties = new Dictionary<int, object>();
 
         public string Note { get; set; }
 
@@ -29,7 +29,7 @@ namespace track.Models
             Note = note;
         }
 
-        public Record(DateTime dateTime, Dictionary<string, object> props)
+        public Record(DateTime dateTime, Dictionary<int, object> props)
         {
             DateTime = dateTime;
 
@@ -39,7 +39,7 @@ namespace track.Models
             }
         }
 
-        public Record(DateTime dateTime, Dictionary<string, object> props, string note)
+        public Record(DateTime dateTime, Dictionary<int, object> props, string note)
         {
             DateTime = dateTime;
 
@@ -51,18 +51,18 @@ namespace track.Models
             Note = note;
         }
 
-        public object this[string name]
+        public object this[int key]
         {
             get {
-                if (Properties.ContainsKey(name))
+                if (Properties.ContainsKey(key))
                 {
-                    return Properties[name];
+                    return Properties[key];
                 }
                 return null;
             }
             set
             {
-                Properties[name] = value;
+                Properties[key] = value;
             }
         }
 

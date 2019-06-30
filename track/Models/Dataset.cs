@@ -115,13 +115,27 @@ namespace track.Models
         }
 
         // Return single property list for every record in dataset
-        public List<Object> getProperty(string prop)
+        public List<Object> getProperty(int key)
         {
             List<Object>pList = new List<Object>();
 
             foreach (Record r in RecordList)
             {
-                pList.Add(r[prop]);
+                pList.Add(r[key]);
+            }
+
+            return pList;
+        }
+
+        public List<Object> getProperty(string key)
+        {
+            List<Object> pList = new List<Object>();
+
+            int id = SeriesList.Where(s => s.Label == key).First().Id;
+
+            foreach (Record r in RecordList)
+            {
+                pList.Add(r[id]);
             }
 
             return pList;
