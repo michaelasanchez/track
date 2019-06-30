@@ -34,6 +34,9 @@ namespace track
                         "~/Scripts/chartist.min.js",
                         "~/Scripts/chartist-plugin-tooltip.min.js",
                         "~/Scripts/bootstrap-datetimepicker.min.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/utils").Include(
+                      "~/Scripts/utils/populate.js"));
             
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
