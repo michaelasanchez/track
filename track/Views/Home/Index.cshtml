@@ -82,109 +82,22 @@
             // Custom hide/show tab behavior
             swapTabs(tabId);
 
-            // - SETTINGS ------------------------------------------------
             if (tabId == 'settings')
             {
                 $.get('@Url.Action("EditDatasetView", "Home")', function (html) {
                     $('#tab-settings').html(html);
                 })
             }
-
-            // - ADD -----------------------------------------------------
             else if (tabId == 'add')
             {
                 $.get('@Url.Action("CreateDatasetView", "Home")', function (html) {
                     $('#tab-add').html(html);
                 })
             }
-
-            // - SAVE ----------------------------------------------------
             else if (tabId == 'save')
             {
-
-                if (prevTabId == 'add') {
-
-                    var datasetLabel = $('#createDatasetLabel').val();
-
-                    var propLabels = [];
-                    var propTypes = [];
-
-                    $.each($('input[id^=label]'), function (index, value) {
-                        propLabels.push($(value).val());
-                    });
-                    $.each($('select[id^=type]'), function (index, value) {
-                        propTypes.push($(value).val());
-                    });
-
-                    var data = {
-                        datasetLabel: datasetLabel,
-                        labels: propLabels,
-                        types: propTypes
-                    };
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '@Url.Action("CreateDataset", "Home")',
-                        traditional: true,
-                        data: data
-                    })
-                        .done(function (id) {
-                            // Update select and focus new value
-                            refreshDatasetOptions($('#datasetSelect'), id);
-                        })
-
-                }
-                else if (prevTabId == 'settings')
-                {
-                    var datasetLabel;
-
-                    if ($('#edit-datasetLabel').hasClass('is-valid'))
-                        datasetLabel = $('#edit-datasetLabel').val();
-
-                    var propIds = [];
-                    var propLabels = []
-                    var propColors = [];
-
-                    $.each($('#editDataset .form-props .form-row'), function (index, value) {
-
-                        if ($('#edit-label-' + index, value).hasClass('is-valid') || $('#edit-color-' + index).hasClass('is-valid')) {
-                            var propId = $(value).attr('id');
-                            propIds.push(propId.substr(propId.indexOf('-') + 1));
-                            propLabels.push($('#edit-label-' + index, value).val());
-                            propColors.push($('#edit-color-' + index, value).val());
-                        }
-                    });
-
-                    var data = {
-                        datasetId: $('#datasetSelect').val(),
-                        datasetLabel: datasetLabel,
-                        ids: propIds,
-                        labels: propLabels,
-                        colors: propColors
-                    }
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '@Url.Action("UpdateDataset", "Home")',
-                        traditional: true,
-                        data: data
-                    })
-                        .done(function () {
-                            $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data) {
-                                currentDataset = JSON.parse(data);
-                                refreshForm(currentDataset);
-                                refreshChart(currentDataset, $('.ct-chart'));
-
-                                // Update Dataset Select
-                                $('#datasetSelect option:selected').html(currentDataset.label);
-
-                                // Reset Edit Dataset Form
-                                $('#editDataset .is-valid').removeClass('is-valid');
-                            });
-                        });
-                }
-
-            } // save
+                $('#save-tab').off('click');
+            }
             
         }) // On tab swap
 
