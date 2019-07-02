@@ -1,73 +1,26 @@
 ﻿
 // Add Property Button
-$('#createAddProperty').click(function (e) {
+$('#createAddProperty').on('click', function () {
+    addProperty();
+})
 
-    var clone = $('#create-dataset .form-row.init').last().clone();
-    console.log(clone);
-
-    var rowCount = $('#create-dataset .form-props > .form-row').length;
-    if (rowCount < maxProperties) {
-
-        // Increment clone input ids
-        var lastId = $('[id^=label]').attr('id');
-        var id = lastId.substr(lastId.length - 1);
-        var nextId = parseInt(id) + 1;
-        $('[id^=label]', clone).attr('id', 'label-' + nextId);
-        $('[id^=label]', clone).val('');
-
-        lastId = $('[id^=type]').attr('id');
-        id = lastId.substr(lastId.length - 1);
-        nextId = parseInt(id) + 1;
-        $('[id^=type]', clone).attr('id', 'type-' + nextId);
-
-        // Button - Remove Row
-        $('button.remove', clone).click(function (e) {
-            // TODO:  improve this
-            if ($(e.target).parent().parent().hasClass('form-row')) {
-                $(e.target).parent().parent().remove();
-            } else if ($(e.target).parent().parent().parent().hasClass('form-row')) {
-                $(e.target).parent().parent().parent().remove();
-            }
-            if ($('#createAddProperty').css('display') == 'none')
-                $('#createAddProperty').show();
-        });
-
-        $('#create-dataset .form-props').append(clone);
-
-        // Highlight first empty label
-        $('[id^=label]').each(function () {
-            if ($(this).val().length == 0) {
-                $(this).focus();
-                return false;
-            }
-        })
-
-        if (rowCount + 1 >= maxProperties) {
-            $('#createAddProperty').hide();
-        }
-    }
-});
-
-
+// Save Tab
 $('#save-tab').on('click', function () {
     createDataset();
 })
 
-function createDataset() {
+function createDataset () {
 
-    var datasetLabel = $('#createDatasetLabel').val();
+    var propLabels = [], propTypes = [];
 
-    var propLabels = [];
-    var propTypes = [];
+    var form = $('#create-dataset').serializeArray();
+    var datasetLabel = form[0].value;
 
-    $.each($('input[id^=label]'), function (index, value) {
-        propLabels.push($(value).val());
-    });
-    $.each($('select[id^=type]'), function (index, value) {
-        propTypes.push($(value).val());
-    });
-    console.log(propTypes);
-
+    $.each(form, function (i, val) {
+        if (val.name == 'label') propLabels.push(val.value);
+        if (val.name == 'type') propTypes.push(val.value);
+    })
+    
     var data = {
         datasetLabel: datasetLabel,
         labels: propLabels,
@@ -84,4 +37,37 @@ function createDataset() {
             // Update select and focus new value
             refreshDatasetOptions($('#datasetSelect'), id);
         })
+}
+
+function addProperty () {
+
+    var rowCount = $('#create-dataset .form-props .form-row').length;
+
+    // Hide add property button
+    if (rowCount + 1 == maxProperties) $('#createAddProperty').hide();
+
+    // Add property row
+    if (rowCount < maxProperties) {
+
+        // Clone form row and reset inputs
+        var $clone = $('#create-dataset .form-props .form-row:first-child').clone();
+        $('input', $clone).val('');
+        $('select', $clone).val(1);
+
+        // Remove Row button
+        $('button.remove', $clone).click(function (e) {
+            $(this).closest('.form-row').remove();
+            $('#createAddProperty').show();
+        });
+
+        $('#create-dataset .form-props').append($clone);
+
+        // Highlight first empty label input
+        $('#create-dataset [name=label]').each(function () {
+            if ($(this).val().length == 0) {
+                $(this).focus();
+                return false;
+            }
+        })
+    }
 }

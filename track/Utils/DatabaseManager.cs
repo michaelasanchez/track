@@ -151,7 +151,7 @@ namespace track.Utils
         }
 
         // Return dataset object by id
-        public static Dataset getDataset(int datasetId)
+        public static Dataset getDataset(int datasetId, bool loadData = true)
         {
             Dataset dataset;
             string datasetLabel = "";
@@ -201,30 +201,34 @@ namespace track.Utils
                     }
                 }
 
-                // Get series id list for add properties
-                seriesIds = dataset.getSeriesIds();
-
-                // Get records with matching dataset id
-                using (SqlCommand cmd = new SqlCommand("GetRecordsFinal", conn) { CommandType = CommandType.StoredProcedure })
+                // Only include records if requested (they are by default)
+                if (loadData)
                 {
-                    cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+                    // Get series id list for add properties
+                    seriesIds = dataset.getSeriesIds();
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    // Get records with matching dataset id
+                    using (SqlCommand cmd = new SqlCommand("GetRecordsFinal", conn) { CommandType = CommandType.StoredProcedure })
                     {
-                        while (reader.Read())
+                        cmd.Parameters.Add(new SqlParameter("@DatasetId", datasetId));
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            var temp = reader.GetString(reader.GetOrdinal("Properties")).Split(',');
-
-                            properties = new Dictionary<int, object>();
-                            for (int i = 0; i < temp.Count(); i++) properties.Add(seriesIds[i], temp[i]);
-
-                            // Add record to dataset
-                            dataset.addRecord(new Record()
+                            while (reader.Read())
                             {
-                                DateTime = reader.GetDateTime(reader.GetOrdinal("DateTime")),
-                                Properties = properties,
-                                Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? null : reader.GetString(reader.GetOrdinal("Note"))
-                            });
+                                var temp = reader.GetString(reader.GetOrdinal("Properties")).Split(',');
+
+                                properties = new Dictionary<int, object>();
+                                for (int i = 0; i < temp.Count(); i++) properties.Add(seriesIds[i], temp[i]);
+
+                                // Add record to dataset
+                                dataset.addRecord(new Record()
+                                {
+                                    DateTime = reader.GetDateTime(reader.GetOrdinal("DateTime")),
+                                    Properties = properties,
+                                    Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? null : reader.GetString(reader.GetOrdinal("Note"))
+                                });
+                            }
                         }
                     }
                 }
@@ -308,6 +312,31 @@ namespace track.Utils
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        // - ------------------------------------------------------------------------------------
+
+        public static Dictionary<int, string> getSeriesTypes()
+        {
+            var seriesTypes = new Dictionary<int, string>();
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand("GetSeriesTypes", conn) { CommandType = CommandType.StoredProcedure })
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            seriesTypes.Add(reader.GetInt32(reader.GetOrdinal("Id")), reader.GetString(reader.GetOrdinal("Name")));
+                        }
+                    }
+                }
+            }
+
+            return seriesTypes;
         }
 
         // Utility ------------------------------------------------------------------------------

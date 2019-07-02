@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Mvc;
 using track.Models;
 using track.Utils;
+using track.ViewModels;
 
 namespace track.Controllers
 {
@@ -34,7 +35,7 @@ namespace track.Controllers
 
         public PartialViewResult CreateDatasetView()
         {
-            return PartialView("Partials/_CreateDataset");
+            return PartialView("Partials/_CreateDataset", new CreateDatasetViewModel());
         }
 
         public PartialViewResult EditDatasetView()
@@ -105,14 +106,8 @@ namespace track.Controllers
 
             foreach (string type in typeStrings)
             {
-                if (type.ToLower() == "integer")
-                {
-                    typeIds.Add(1);
-                } else
-                {
-                    typeIds.Add(2);
-                }
-                Debug.WriteLine(type.ToString());
+                // For now, let's just create all props with type "1"
+                typeIds.Add(1);
             }
 
             // TODO : replace user id 
