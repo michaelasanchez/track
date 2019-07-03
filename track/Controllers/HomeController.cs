@@ -96,27 +96,10 @@ namespace track.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateDataset()
+        public JsonResult CreateDataset(string datasetLabel, List<string> propLabels, List<int> propTypes)
         {
-            string datasetLabel = Request["datasetLabel"];
-
-            List<string> labels = Request["labels"].Split(',').ToList<string>();
-            List<string> typeStrings = Request["types"].Split(',').ToList<string>();
-            List<int> typeIds = new List<int>();
-
-            foreach (string type in typeStrings)
-            {
-                // For now, let's just create all props with type "1"
-                typeIds.Add(1);
-            }
-
-            // TODO : replace user id 
-            int datasetId = DatabaseManager.createDataset(1, datasetLabel, labels, typeIds);
-
-            if (datasetId > 0)
-                return Json(datasetId);
-            else
-                return null;
+            // TODO : replace user id
+            return Json(DatabaseManager.createDataset(1, datasetLabel, propLabels, propTypes));
         }
 
         [HttpPost]
@@ -172,11 +155,5 @@ namespace track.Controllers
             return Json(true);
         }
 
-        [HttpPost]
-        public JsonResult UpdateSeries()
-        {
-
-            return Json(true);
-        }
     }
 }

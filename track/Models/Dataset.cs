@@ -21,6 +21,8 @@ namespace track.Models
 
 
         // Constructors
+        public Dataset() { }
+
         public Dataset(string label)
         {
             Label = label;
