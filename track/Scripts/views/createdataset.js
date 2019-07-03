@@ -1,15 +1,20 @@
 ﻿
-// Add Property Button
-$('#createAddProperty').on('click', function () {
-    addProperty();
-})
-
 // Save Tab
 $('#save-tab').on('click', function () {
     createDataset();
 })
 
-function createDataset () {
+// Add Property button
+$('#createAddProperty').on('click', function () {
+    showProperty();
+})
+
+// Remove Property buttons
+$('#create-dataset button.remove').click(function (e) {
+    hideProperty(e.target);
+});
+
+function createDataset() {
 
     var propLabels = [], propTypes = [];
 
@@ -20,7 +25,7 @@ function createDataset () {
         if (val.name == 'label') propLabels.push(val.value);
         if (val.name == 'type') propTypes.push(val.value);
     })
-    
+
     var data = {
         datasetLabel: datasetLabel,
         labels: propLabels,
@@ -39,35 +44,20 @@ function createDataset () {
         })
 }
 
-function addProperty () {
+function showProperty() {
+    var $row = $('#create-dataset .form-props .form-row:hidden').first();
 
-    var rowCount = $('#create-dataset .form-props .form-row').length;
+    $row.removeAttr('hidden');
+    $(':disabled', $row).removeAttr('disabled');
 
-    // Hide add property button
-    if (rowCount + 1 == maxProperties) $('#createAddProperty').hide();
+    if ($row.is($('#create-dataset .form-props .form-row').last())) $('#createAddProperty').hide();
+}
 
-    // Add property row
-    if (rowCount < maxProperties) {
+function hideProperty(target) {
+    var $row = $(target).closest('.form-row');
 
-        // Clone form row and reset inputs
-        var $clone = $('#create-dataset .form-props .form-row:first-child').clone();
-        $('input', $clone).val('');
-        $('select', $clone).val(1);
+    $row.attr('hidden', true);
+    $('input, select', $row).attr('disabled', true);
 
-        // Remove Row button
-        $('button.remove', $clone).click(function (e) {
-            $(this).closest('.form-row').remove();
-            $('#createAddProperty').show();
-        });
-
-        $('#create-dataset .form-props').append($clone);
-
-        // Highlight first empty label input
-        $('#create-dataset [name=label]').each(function () {
-            if ($(this).val().length == 0) {
-                $(this).focus();
-                return false;
-            }
-        })
-    }
+    $('#createAddProperty').show();
 }

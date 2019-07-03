@@ -24,24 +24,27 @@
                 </div>
             </div>
             <div class="form-props">
-                <div class="form-row">
-                    <div class="form-group col-6 col-md-4">
-                        <input type="text" class="form-control" name="label">
+                @for (int i = 0; i < maxProperties; i++)
+                {
+                    <div class="form-row" @(i > 0 ? "hidden" : "")>
+                        <div class="form-group col-6 col-md-4">
+                            <input type="text" class="form-control" name="label" @(i > 0 ? "disabled" : "")>
+                        </div>
+                        <div class="form-group col-5 col-md-3">
+                            <select class="form-control" name="type" @(i > 0 ? "disabled" : "")>
+                                @foreach (var type in Model.SeriesTypes)
+                                {
+                                    <option value="@type.Key">@type.Value</option>
+                                })
+                            </select>
+                        </div>
+                        <div class="form-group col-1">
+                            <button type="button" class="btn btn-link remove">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group col-5 col-md-3">
-                        <select class="form-control" name="type">
-                            @foreach (var type in Model.SeriesTypes)
-                            {
-                                <option value="@type.Key">@type.Value</option>
-                            })
-                        </select>
-                    </div>
-                    <div class="form-group col-1">
-                        <button type="button" class="btn btn-link remove">
-                            <i class="fas fa-times-circle"></i>
-                        </button>
-                    </div>
-                </div>
+                }
             </div>
             <input type="button" class="btn btn-secondary addProperty" id="createAddProperty" value="Add Property" />
 
