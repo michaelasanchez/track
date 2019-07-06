@@ -59,6 +59,12 @@ namespace track.Models
             SeriesList.Add(series);
         }
 
+        // Return list of series
+        public List<Series> getSeries()
+        {
+            return SeriesList;
+        }
+
         // Return list of series ids
         public List<int> getSeriesIds()
         {

@@ -38,9 +38,9 @@ namespace track.Controllers
             return PartialView("Partials/_CreateDataset", new CreateDatasetViewModel());
         }
 
-        public PartialViewResult EditDatasetView()
+        public PartialViewResult EditDatasetView(int id)
         {
-            return PartialView("Partials/_EditDataset");
+            return PartialView("Partials/_EditDataset", DatabaseManager.getDataset(id, false));
         }
 
         public PartialViewResult DatasetOptions()
@@ -56,8 +56,8 @@ namespace track.Controllers
             try
             {
                 dataset = DatabaseManager.getDataset(id);
-                
 
+                datasetJObject.id = id;
                 datasetJObject.label = dataset.Label;
                 datasetJObject.ids = new JArray(dataset.getSeriesIds());
                 datasetJObject.series = new JArray(dataset.getSeriesLabels());

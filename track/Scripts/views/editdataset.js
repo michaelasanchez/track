@@ -1,39 +1,6 @@
 ﻿
 var rowCount = $('#editDataset .form-props > .form-row').length;
 
-$('#editDataset .form-props .form-row:not(.init)').remove();
-$('#editDataset .form-props .form-row.init').attr('id', 'prop-' + currentDataset.ids[0]);
-$('#editDataset #edit-color-0').val(currentDataset.colors[0]);
-$('#editDataset #color-0').css('background-color', '#' + currentDataset.colors[0]);
-
-// Create property rows
-for (var i = 1; i < currentDataset.series.length; i++) {
-    clone = $('#editDataset .form-row.init').last().clone();
-    clone.removeClass('init');
-
-    // Increment clone input ids
-    $(clone).attr('id', 'prop-' + currentDataset.ids[i]);
-    $('[id^=edit-label]', clone).attr('id', 'edit-label-' + i);
-    $('[id^=edit-type]', clone).attr('id', 'edit-type-' + i);
-    $('[id^=edit-color]', clone).attr('id', 'edit-color-' + i);
-    $('[id^=edit-color]', clone).val(currentDataset.colors[i]);
-    $('[id^=color]', clone).attr('id', 'color-' + i);
-    $('[id^=color]', clone).css('background-color', '#' + currentDataset.colors[i]);
-
-    $('#editDataset .form-props').append(clone);
-
-    if (rowCount + 1 == maxProperties) {
-        $('#editAddProperty').hide();
-    }
-}
-
-// Populate values
-$('#edit-datasetLabel').val(currentDataset.label);
-for (var i = 0; i < currentDataset.series.length; i++) {
-    $('#editDataset #edit-label-' + i).val(currentDataset.series[i]);
-    $('#editDataset #edit-type-' + i + ' option[value=' + currentDataset.types[i] + ']').attr('selected', true);
-}
-
 // Input change events
 $('[id^=edit-color]').change(function (e) {
 
