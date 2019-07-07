@@ -1,4 +1,9 @@
 ﻿
+// Save dataset updates
+$('#save-tab').on('click', function () {
+    editDataset();
+})
+
 // Update changed input
 $('#editDataset [name]').on('change', function () {
     $(this).addClass('changed');
@@ -9,11 +14,6 @@ $('#editDataset [name=color]').change(function (e) {
     updateColor(e);
 });
 
-// Save dataset updates
-$('#save-tab').on('click', function () {
-    editDataset();
-})
-
 // Forms JSON based on changed inputs and post to home controller
 function editDataset() {
     var datasetLabel, propIds = [], propLabels = [], propColors = [];
@@ -21,11 +21,11 @@ function editDataset() {
     if ($('#edit-datasetLabel').hasClass('changed'))
         datasetLabel = $('#edit-datasetLabel').val();
 
-    $.each($('#editDataset .form-props .form-row'), function (index, value) {
+    $.each($('#editDataset .form-props .form-row'), function () {
         if ($(this).has('.changed').length) {
-            propIds.push($('[name=id]', value).val());
-            propLabels.push($('[name=label]', value).val());
-            propColors.push($('[name=color]', value).val());
+            propIds.push($('[name=id]', this).val());
+            propLabels.push($('[name=label]', this).val());
+            propColors.push($('[name=color]', this).val());
         }
     });
 
@@ -37,13 +37,10 @@ function editDataset() {
         propColors: propColors
     }
 
-
     // Update remote
     $.post('/Home/UpdateDataset', data, function (id) {
         // TODO: remove view coupling
-        if (datasetLabel) refreshDatasetOptions($('#datasetSelect'), id);
-
-        // TODO: this will not update chart colors!!
+        refreshDatasetOptions($('#datasetSelect'), id);
     })
 }
 

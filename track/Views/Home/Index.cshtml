@@ -149,6 +149,7 @@
     function refreshDatasetOptions($select, value) {
         if (!value) value = $select.val();
 
+        // TODO: create & edit use this to update form, & chart.  Not good!
         $.get('@Url.Action("DatasetOptions", "Home")', function (html) {
             $select.html(html).val(value).trigger('change');
         })

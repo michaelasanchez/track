@@ -1,18 +1,28 @@
-﻿.container {
-    padding: 20px 15px;
+﻿
+html, body {
+    height: 100%;
 }
 
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+body {
+    display: flex;
+    flex-direction: column;
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
-*/
-.dl-horizontal dt {
-    white-space: normal;
+main {
+    flex: 1 0 auto;
+    padding-top: 15px;
+}
+
+
+/* Bootstrap 4 - Overrides -----------------------------------------*/
+.btn-outline {
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+input.btn {
+    text-align: left;
+    max-width: none;
 }
 
 /* Basic HTML ------------------------------------------------------*/
@@ -30,16 +40,17 @@ h5 a {
     color: #dc3545;
 }
 
+/* Index - Sub-Nav -------------------------------------------------*/
+.nav {
 
-/* Bootstrap 4 - Overrides -----------------------------------------*/
-.btn-outline {
-    background-color: #fff;
-    border: 1px solid #ccc;
+    .nav-link {
+        //color:
+        padding-bottom: 12px;
+    }
 }
 
-input.btn {
-    text-align: left;
-    max-width: none;
+#datasetSelect {
+    min-width: 160px;
 }
 
 
@@ -73,7 +84,7 @@ button.remove {
     }
 }
 
-.addProperty {
+.btn.addProperty {
     opacity: .5;
     transition: 200ms;
 
@@ -83,23 +94,6 @@ button.remove {
 }
 
 
-/* Index - Sub-Nav -------------------------------------------------*/
-.nav {
-
-    .nav-link {
-        //color: 
-        padding-bottom: 12px;
-    }
-}
-.nav-link.active[href$=chart] {
-    //display: none;
-}
-
-
-/* Index - Tabs ----------------------------------------------------*/
-div[id^=tab] {
-    margin-top: 1rem;
-}
 
 
 /* Chartist ------------------------------------------------------- */
@@ -131,6 +125,7 @@ div[id^=tab] {
 
 /* Chartist - Vertical labels ----------------------------------------*/
 $label-width: 35px;
+
 #chart-labels {
     height: 100%;
     width: $label-width;
@@ -138,10 +133,6 @@ $label-width: 35px;
     top: 0;
     background-color: #f8f8f8;
 }
-.ct-chart-line {
-}
-
-
 
 .wrap {
     border: 10px solid #f8f8f8;
@@ -160,9 +151,6 @@ $label-width: 35px;
     transition: background 300ms;
 }
 
-#datasetSelect {
-    min-width: 160px;
-}
 
 
 @media (min-width: 576px) {
