@@ -48,14 +48,14 @@ namespace track.Controllers
             return PartialView("Partials/_DatasetOptions", DatabaseManager.getDatasetLabels());
         }
 
-        public JsonResult GetDataset(int id)
+        public JsonResult GetDataset(int id, bool loadData = true)
         {
             Dataset dataset;
             dynamic datasetJObject = new JObject();
 
             try
             {
-                dataset = DatabaseManager.getDataset(id);
+                dataset = DatabaseManager.getDataset(id, loadData);
 
                 datasetJObject.id = id;
                 datasetJObject.label = dataset.Label;
@@ -113,46 +113,30 @@ namespace track.Controllers
             List<string> values = Request["values"].Split(',').ToList<string>();
 
             string note = Request["note"];
-            
+
             DatabaseManager.saveRecord(datasetId, labels, values, dateTime, note);
 
             return Json(true);
         }
 
         [HttpPost]
-        public JsonResult UpdateDataset()
+        public JsonResult UpdateDataset(int datasetId,
+                                        string datasetLabel = null,
+                                        List<int> propIds = null,
+                                        List<string> propLabels = null,
+                                        List<string> propColors = null)
         {
+            if (datasetLabel != null) DatabaseManager.updateDataset(datasetId, datasetLabel);
 
-            if (Request["datasetLabel"] != null)
+            if (propIds != null)
             {
-                Debug.WriteLine(Request["datasetId"]);
-                Debug.WriteLine(Request["datasetLabel"]);
-
-                int datasetId = Int32.Parse(Request["datasetId"]);
-                string datasetLabel = Request["datasetLabel"];
-
-                DatabaseManager.updateDataset(datasetId, datasetLabel);
-            }
-
-            if (Request["labels"] != null)
-            {
-                Debug.WriteLine(Request["id"]);
-                Debug.WriteLine(Request["labels"]);
-                Debug.WriteLine(Request["colors"]);
-
-                List<string> ids = Request["ids"].Split(',').ToList<string>();
-                List<string> labels = Request["labels"].Split(',').ToList<string>();
-                List<string> colors = Request["colors"].Split(',').ToList<string>();
-
-                for (int i = 0; i < ids.Count; i++)
+                for (int i = 0; i < propIds.Count; i++)
                 {
-                    int seriesId = Int32.Parse(ids[i]);
-
-                    DatabaseManager.updateSeries(seriesId, labels[i], colors[i]);
+                    DatabaseManager.updateSeries(propIds[i], propLabels[i], propColors[i]);
                 }
             }
 
-            return Json(true);
+            return Json(datasetId);
         }
 
     }

@@ -77,6 +77,7 @@
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
             var tabId = $(e.target).prop('id');
+            var prevTabId = $(e.relatedTarget).prop('id');
 
             // Custom hide/show tab behavior
             swapTabs(tabId);
@@ -146,10 +147,10 @@
 
     // Refresh #DatasetSelect options.  Pass value to update selected option
     function refreshDatasetOptions($select, value) {
-        $.get('@Url.Action("DatasetOptions", "Home")', function (html) {
-            $select.html(html);
+        if (!value) value = $select.val();
 
-            if (value) $select.val(value).trigger('change');
+        $.get('@Url.Action("DatasetOptions", "Home")', function (html) {
+            $select.html(html).val(value).trigger('change');
         })
     }
 

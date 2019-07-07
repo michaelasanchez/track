@@ -1,74 +1,54 @@
 ﻿
-var rowCount = $('#editDataset .form-props > .form-row').length;
+// Update changed input
+$('#editDataset [name]').on('change', function () {
+    $(this).addClass('changed');
+})
 
-// Input change events
-$('[id^=edit-color]').change(function (e) {
-
-    var id = $(e.target).attr('id');
-
-
-    $('#color-' + id.substr(id.length - 1)).css('background-color', '#' + $(e.target).val());
-});
-$('#edit-datasetLabel').change(function (e) {
-    $(e.target).addClass('is-valid');
-});
-$('[id^=edit-label]').change(function (e) {
-    $(e.target).addClass('is-valid');
-});
-$('[id^=edit-color]').change(function (e) {
-    $(e.target).addClass('is-valid');
+// Update color input/display
+$('#editDataset [name=color]').change(function (e) {
+    updateColor(e);
 });
 
+// Save dataset updates
 $('#save-tab').on('click', function () {
     editDataset();
 })
 
+// Forms JSON based on changed inputs and post to home controller
 function editDataset() {
+    var datasetLabel, propIds = [], propLabels = [], propColors = [];
 
-    var datasetLabel;
-
-    if ($('#edit-datasetLabel').hasClass('is-valid'))
+    if ($('#edit-datasetLabel').hasClass('changed'))
         datasetLabel = $('#edit-datasetLabel').val();
 
-    var propIds = [];
-    var propLabels = []
-    var propColors = [];
-
     $.each($('#editDataset .form-props .form-row'), function (index, value) {
-
-        if ($('#edit-label-' + index, value).hasClass('is-valid') || $('#edit-color-' + index).hasClass('is-valid')) {
-            var propId = $(value).attr('id');
-            propIds.push(propId.substr(propId.indexOf('-') + 1));
-            propLabels.push($('#edit-label-' + index, value).val());
-            propColors.push($('#edit-color-' + index, value).val());
+        if ($(this).has('.changed').length) {
+            propIds.push($('[name=id]', value).val());
+            propLabels.push($('[name=label]', value).val());
+            propColors.push($('[name=color]', value).val());
         }
     });
 
     var data = {
-        datasetId: $('#datasetSelect').val(),
+        datasetId: $('#editDataset [name=dataset-id]').val(),
         datasetLabel: datasetLabel,
-        ids: propIds,
-        labels: propLabels,
-        colors: propColors
+        propIds: propIds,
+        propLabels: propLabels,
+        propColors: propColors
     }
 
-    $.ajax({
-        type: 'POST',
-        url: '/Home/UpdateDataset',
-        traditional: true,
-        data: data
+
+    // Update remote
+    $.post('/Home/UpdateDataset', data, function (id) {
+        // TODO: remove view coupling
+        if (datasetLabel) refreshDatasetOptions($('#datasetSelect'), id);
+
+        // TODO: this will not update chart colors!!
     })
-        .done(function () {
-            $.get('/Home/GetDataset/' + $('#datasetSelect').val(), function (data) {
-                currentDataset = JSON.parse(data);
-                refreshForm(currentDataset);
-                refreshChart(currentDataset, $('.ct-chart'));
+}
 
-                // Update Dataset Select
-                $('#datasetSelect option:selected').html(currentDataset.label);
-
-                // Reset Edit Dataset Form
-                $('#editDataset .is-valid').removeClass('is-valid');
-            });
-        });
+// Grabs color value from input & updates color display
+function updateColor(e) {
+    var $row = $(e.target).closest('.form-row');
+    $('.color-display', $row).css('background-color', '#' + $(e.target).val());
 }

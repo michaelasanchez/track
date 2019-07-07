@@ -9,7 +9,7 @@ namespace track.Models
 
     public class Dataset
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Label { get; set; }
 
         private List<Record> RecordList;
@@ -23,8 +23,9 @@ namespace track.Models
         // Constructors
         public Dataset() { }
 
-        public Dataset(string label)
+        public Dataset(int id, string label)
         {
+            Id = id;
             Label = label;
 
             SeriesList = new List<Series>();

@@ -6,31 +6,40 @@
         <!-- Edit Dataset ------------------------------- -->
         <h5>Edit Dataset</h5>
         <form id="editDataset">
+            <input type="hidden" name="dataset-id" value="@Model.Id" />
 
-            <div class="form-row mb-3">
-                <div class="col-6 col-md-4">
+            <div class="form-row">
+                <div class="form-group col-6 col-md-4">
                     <label>Label</label>
-                    <input type="text" class="form-control" id="edit-datasetLabel" value="@Model.Label" />
+                    <input type="text" class="form-control" name="dataset-label" value="@Model.Label" />
                 </div>
             </div>
 
             <h6>Properties</h6>
+            <div class="form-row">
+                <div class="col-6 col-md-4">
+                    <label>Label</label>
+                </div>
+                <div class="col-4 col-md-3">
+                    <label>Color</label>
+                </div>
+            </div>
             <div class="form-props">
                 @{
                     int i = 0;
                     foreach (var series in Model.getSeries())
                     {
                         <div class="form-row">
+                            <input type="hidden" value="@series.Id" name="id" />
                             <div class="form-group col-6 col-md-4">
-                                <input type="text" class="form-control" id="edit-label-@i" value="@series.Label">
+                                <input type="text" class="form-control" name="label" value="@series.Label">
                             </div>
                             <div class="form-group col-4 col-md-3">
-                                <span>#</span>&nbsp;<input type="text" class="form-control" id="edit-color-@i" value="@series.Color" />
+                                <span>#</span>&nbsp;<input type="text" class="form-control" name="color" value="@series.Color" />
                             </div>
                             <div class="form-group col-1">
-                                <div class="form-control" id="color-@i" style="background-color:#@series.Color"></div>
+                                <div class="form-control color-display" style="background-color:#@series.Color"></div>
                             </div>
-                            <span><strong></strong></span>
                         </div>
                         i++;
                     }

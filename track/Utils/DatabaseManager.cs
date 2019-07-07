@@ -178,7 +178,7 @@ namespace track.Utils
                 }
 
                 // Create dataset instance
-                dataset = new Dataset(datasetLabel);
+                dataset = new Dataset(datasetId, datasetLabel);
 
 
                 // Get dataset series list

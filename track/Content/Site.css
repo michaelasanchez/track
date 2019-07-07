@@ -36,11 +36,11 @@ input.btn {
 .form-row:first-child button.remove {
   display: none; }
 
-.form-control[id^=edit-color] {
+.form-control[name=color] {
   display: inline-block;
   width: calc(100% - 15px); }
 
-.form-control[id^=color] {
+.form-control.color-display {
   max-width: 36px; }
 
 button.remove {
