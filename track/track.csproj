@@ -210,6 +210,7 @@
     <Content Include="Scripts\utils\populate.js" />
     <Content Include="Scripts\views\createdataset.js" />
     <Content Include="Scripts\views\editdataset.js" />
+    <Content Include="Scripts\views\viewdataset.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -229,6 +230,8 @@
     <Content Include="Views\Home\Partials\_CreateDataset.cshtml" />
     <Content Include="Views\Home\Partials\_ViewDataset.cshtml" />
     <Content Include="Views\Home\Partials\_DatasetOptions.cshtml" />
+    <Content Include="Views\Home\Partials\_CreateRecordForm.cshtml" />
+    <Content Include="Views\Home\Partials\_Chart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

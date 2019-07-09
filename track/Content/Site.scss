@@ -43,6 +43,10 @@ h5 a {
 /* Index - Sub-Nav -------------------------------------------------*/
 .nav {
 
+    &.nav-tabs {
+        margin-bottom: 1rem;
+    }
+
     .nav-link {
         //color:
         padding-bottom: 12px;

@@ -30,7 +30,9 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-chart">@Html.Partial("Partials/_ViewDataset")</div>
+            <div class="tab-pane fade show active" id="tab-chart">
+                @Html.Partial("Partials/_ViewDataset")
+            </div>
             <div class="tab-pane fade" id="tab-add"></div>
             <div class="tab-pane fade" id="tab-settings"></div>
         </div>
@@ -44,8 +46,6 @@
     // Options ------------------------------------------------------------
     var chart;
     var currentDataset;
-
-    var maxProperties = 4;
 
 
     // Initialize page ----------------------------------------------------
