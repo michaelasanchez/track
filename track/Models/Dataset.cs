@@ -9,8 +9,8 @@ namespace track.Models
 
     public class Dataset
     {
-        public int Id { get; set; }
-        public string Label { get; set; }
+        public int Id { get; }
+        public string Label { get; }
 
         private List<Record> RecordList;
 

@@ -3,7 +3,18 @@
 <form id="createRecord" class="collapse show">
 
     <!-- Property Inputs -->
-    <div class="form-props"></div>
+    <div class="form-props">
+        @{
+            int i = 0;
+            foreach (var series in Model)
+            {
+                <div class="form-group">
+                    <label>@series.Label</label>
+                    <input type="number" class="form-control" id="prop-@i">
+                </div>
+            }
+        }
+    </div>
 
     <!-- DateTime Select -->
     <div class="form-group">

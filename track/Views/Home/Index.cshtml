@@ -30,9 +30,7 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-chart">
-                @Html.Partial("Partials/_ViewDataset")
-            </div>
+            <div class="tab-pane fade show active" id="tab-chart"></div>
             <div class="tab-pane fade" id="tab-add"></div>
             <div class="tab-pane fade" id="tab-settings"></div>
         </div>
@@ -56,13 +54,19 @@
     var curPropLabels = [];
     var curPropTypes = [];
 
-    $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
-    {
-        currentDataset = JSON.parse(data);
-        refreshForm(currentDataset);
-        refreshChart(currentDataset, $('.ct-chart'));
-    });
+    
 
+    $.get('@Url.Action("ViewDatasetView", "Home")', { id: $('#datasetSelect').val() }, function (html) {
+        $('#tab-chart').html(html);
+
+        $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
+        {
+            currentDataset = JSON.parse(data);
+            console.log(currentDataset);
+
+            refreshChart(currentDataset, $('.ct-chart'));
+        });
+    })
 
 
     // Init Tabs --------------------------------------------------------
@@ -111,8 +115,6 @@
         $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
         {
             currentDataset = JSON.parse(data);
-            refreshForm(currentDataset);
-
             refreshChart(currentDataset, $('.ct-chart'));
         });
     });

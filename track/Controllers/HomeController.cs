@@ -11,7 +11,6 @@ using System.Web;
 using System.Web.Mvc;
 using track.Models;
 using track.Utils;
-using track.ViewModels;
 
 namespace track.Controllers
 {
@@ -33,9 +32,14 @@ namespace track.Controllers
             return View(datasetDict);
         }
 
+        public PartialViewResult ViewDatasetView(int id)
+        {
+            return PartialView("Partials/_ViewDataset", DatabaseManager.getDataset(id));
+        }
+
         public PartialViewResult CreateDatasetView()
         {
-            return PartialView("Partials/_CreateDataset", new CreateDatasetViewModel());
+            return PartialView("Partials/_CreateDataset", DatabaseManager.getSeriesTypes());
         }
 
         public PartialViewResult EditDatasetView(int id)
@@ -90,7 +94,7 @@ namespace track.Controllers
 
         public JsonResult GetDatasetSeries(int id)
         {
-            Dataset cur = DatabaseManager.getDataset(id);
+            Dataset cur = DatabaseManager.getDataset(id, false);
 
             return Json(JsonConvert.SerializeObject(cur.getSeriesLabels()), JsonRequestBehavior.AllowGet);
         }

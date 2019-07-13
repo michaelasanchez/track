@@ -95,20 +95,6 @@ function refreshTime() {
     setTimeout(refreshTime, 1000);
 }
 
-// Refresh Create Record Form
-function refreshForm(dataset) {
-
-    var html = '';
-
-    for (var i = 0; i < dataset.series.length; i++) {
-
-        // Add series field
-        html += '<div class="form-group"><label>' + dataset.series[i] + '</label><input type="number" class="form-control" id="prop-' + i + '"></div>';
-    }
-
-    $('#createRecord .form-props').html(html);
-}
-
 // Refresh Chart
 function refreshChart(dataset, $chart) {
 

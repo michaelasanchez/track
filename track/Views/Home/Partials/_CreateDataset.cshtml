@@ -1,4 +1,5 @@
-﻿@{ 
+﻿@using track.Models
+@{ 
     int maxProperties = 4;
 }
 <div class="row">
@@ -32,7 +33,7 @@
                         </div>
                         <div class="form-group col-5 col-md-3">
                             <select class="form-control" name="type" @(i > 0 ? "disabled" : "")>
-                                @foreach (var type in Model.SeriesTypes)
+                                @foreach (var type in Model)
                                 {
                                     <option value="@type.Key">@type.Value</option>
                                 })
