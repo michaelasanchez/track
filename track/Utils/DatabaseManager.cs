@@ -238,7 +238,7 @@ namespace track.Utils
             return dataset;
         }
 
-        public static void saveRecord(int datasetId, List<string> labels, List<string> values, DateTime datetime, string note = "")
+        public static void createRecord(int datasetId, List<string> labels, List<string> values, DateTime datetime, string note = "")
         {
             int recordId;
 

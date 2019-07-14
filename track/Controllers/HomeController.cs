@@ -50,35 +50,6 @@ namespace track.Controllers
 
         public JsonResult GetDataset(int id, bool loadData = true)
         {
-            //Dataset dataset;
-            //dynamic datasetJObject = new JObject();
-
-            //try
-            //{
-            //    dataset = DatabaseManager.getDataset(id, loadData);
-
-            //    datasetJObject.id = id;
-            //    datasetJObject.label = dataset.Label;
-            //    datasetJObject.ids = new JArray(dataset.getSeriesIds());
-            //    datasetJObject.series = new JArray(dataset.getSeriesLabels());
-            //    datasetJObject.types = new JArray(dataset.getSeriesTypes());
-            //    datasetJObject.colors = new JArray(dataset.getSeriesColors());
-
-            //    datasetJObject.notes = new JArray(dataset.getNotes());
-            //    foreach (var s in dataset.getSeriesLabels())
-            //    {
-            //        datasetJObject[s] = new JArray(dataset.getProperty(s));
-            //    }
-            //    datasetJObject.records = new JArray(dataset.getDateTimes());
-            //    datasetJObject.span = dataset.getTimeSpan();
-
-
-            //}
-            //catch (SqlException ex)
-            //{
-            //    datasetJObject["error"] = ex.ToString();
-            //}
-
             // Set cookie
             HttpCookie lastId = new HttpCookie("lastDatasetId");
             lastId.Value = id.ToString();
@@ -104,18 +75,9 @@ namespace track.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveRecord()
+        public JsonResult CreateRecord(int datasetId, DateTime dateTime, List<string> labels, List<string> values, string note)
         {
-            // Store POST values
-            int datasetId = Int32.Parse(Request["id"]);
-            DateTime dateTime = DateTime.Parse(Request["datetime"]);
-
-            List<string> labels = Request["labels"].Split(',').ToList<string>();
-            List<string> values = Request["values"].Split(',').ToList<string>();
-
-            string note = Request["note"];
-
-            DatabaseManager.saveRecord(datasetId, labels, values, dateTime, note);
+            DatabaseManager.createRecord(datasetId, labels, values, dateTime, note);
 
             return Json(true);
         }

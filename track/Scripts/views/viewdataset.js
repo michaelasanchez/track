@@ -55,25 +55,23 @@ $('#addRecord').click(function (e) {
     $('#noteTextarea').val('');
 
     var data = {
-        "id": datasetId,
+        "datasetid": datasetId,
         "datetime": datetime,
         "labels": labels,
         "values": values,
         "note": note
     };
 
-    $.ajax({
-        type: 'POST',
-        url: '/Home/SaveRecord',
-        traditional: true,
-        data: data
-    })
-        .done(function (data) {
+    // Update remote
+    $.post('/Home/CreateRecord', data);
 
-            $.get('/Home/GetDataset/' + $('#datasetSelect').val(), function (data) {
-                refreshChart(JSON.parse(data), $('.ct-chart'));
-            });
-        });
+    // Update local
+    currentDataset.records.push(data.datetime);
+    for (var i in labels) currentDataset.properties[data.labels[i]].push(data.values[i]);
+    currentDataset.notes.push(data.note);
+
+    // Update view
+    refreshChart(currentDataset, $('.ct-chart'));
 
     return false;
 });
@@ -124,7 +122,7 @@ function refreshChart(dataset, $chart) {
         for (var i = 0; i < dataset.series.length; i++) {
 
             data.series.push({
-                name: dataset.series[i],
+                name: dataset.series[i].Label,
                 data: []
             });
 
@@ -137,7 +135,6 @@ function refreshChart(dataset, $chart) {
                     // Value
                     y: dataset.properties[dataset.series[i].Label][j]
                 });
-
             }
         }
     }
@@ -205,9 +202,9 @@ function refreshChart(dataset, $chart) {
     // Update chart colors
     var sp = 'abcdefghij';
     var css = '';
-    for (var s in currentDataset.series) {
+    for (var s in dataset.series) {
         var prefix = sp.substr(s, 1);
-        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + currentDataset.series[s].Color + '; }';
+        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + dataset.series[s].Color + '; }';
     }
     $('style#dynamic').html(css);
 

@@ -43,18 +43,12 @@
 
 <script>
 
-    // Options ------------------------------------------------------------
+    // Global -------------------------------------------------------------
     var chart;
     var currentDataset;
 
 
     // Initialize page ----------------------------------------------------
-
-
-    // Edit Dataset -----------
-    var curDatasetLabel;
-    var curPropLabels = [];
-    var curPropTypes = [];
 
     $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
     {
