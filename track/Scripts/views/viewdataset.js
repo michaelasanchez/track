@@ -96,7 +96,7 @@ function refreshTime() {
 }
 
 // Refresh Chart
-function refreshChart(dataset, $chart) {
+function refreshChart(test, $chart) {
 
     // Create Chartist data object
     var data = {
@@ -105,21 +105,24 @@ function refreshChart(dataset, $chart) {
     }
 
     // Chartist data
-    if (dataset != null) {
+    if (test != null) {
 
         // Populate first data object
-        for (var i = 0; i < dataset.series.length; i++) {
+        for (var i = 0; i < test.series.length; i++) {
 
             data.series.push({
-                name: dataset.series[i],
+                name: test.series[i].Label,
                 data: []
             });
 
-            for (var j = 0; j < dataset.records.length; j++) {
+            for (var j = 0; j < test.records.length; j++) {
                 data.series[i].data.push({
-                    meta: (dataset.notes[j] == null) ? '' : dataset.notes[j],
-                    x: new Date(dataset.records[j]),
-                    y: dataset[dataset.series[i]][j]
+                    // Notes text
+                    meta: (test.notes[j] == null) ? '' : test.notes[j],
+                    // DateTime
+                    x: new Date(test.records[j]),
+                    // Property
+                    y: test.properties[test.series[i].Label][j]
                 });
 
             }
@@ -130,7 +133,7 @@ function refreshChart(dataset, $chart) {
     var options = {
         axisX: {
             type: Chartist.FixedScaleAxis,
-            divisor: Math.round(Math.max(1, parseInt(dataset.span) / 30)),
+            divisor: Math.round(Math.max(1, parseInt(test.span) / 30)),
             labelInterpolationFnc: function (value) {
                 return moment(value).format('MMM');
             }
@@ -159,7 +162,7 @@ function refreshChart(dataset, $chart) {
 
 
     // Resize Chart
-    var span = parseInt(dataset.span);
+    var span = parseInt(test.span);
 
     //console.log("span: " + span + "; w: " + span * 2 + "; cw: " + $('.scroll')[0].clientWidth + "; d:" + Math.max(1, span / 30));
 
@@ -175,11 +178,11 @@ function refreshChart(dataset, $chart) {
 
 
     // Render new graph
-    if (!chart) {
+    //if (!chart) {
         chart = new Chartist.Line('.' + $chart.prop('class'), data, options);
-    } else {
-        chart.update(data, options);
-    }
+    //} else {
+    //    chart.update(data, options);
+    //}
 
     // Move vertical labels
     $.each($('#chart-labels g').children(), function (i, val) {
@@ -190,9 +193,9 @@ function refreshChart(dataset, $chart) {
     // Update chart colors
     var sp = 'abcdefghij';
     var css = '';
-    for (var c in currentDataset.colors) {
+    for (var c in test.colors) {
         var prefix = sp.substr(c, 1);
-        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + currentDataset.colors[c] + '; }';
+        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + test.colors[c] + '; }';
     }
     $('style#dynamic').html(css);
 

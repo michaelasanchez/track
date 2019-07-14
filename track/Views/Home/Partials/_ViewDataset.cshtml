@@ -1,6 +1,6 @@
 ﻿@using track.Models
-@{ 
-    List<Series> series = Model.getSeries();
+@{
+    List<Series> series = Model.series;
 }
 <div class="row">
 
@@ -20,5 +20,9 @@
     </div>
 
 </div>
+
+<script>
+    var currentDataset = @Html.Raw(Json.Encode(Model));
+</script>
 
 <script src="~/Scripts/views/viewdataset.js"></script>

@@ -43,7 +43,6 @@
 
     // Options ------------------------------------------------------------
     var chart;
-    var currentDataset;
 
 
     // Initialize page ----------------------------------------------------
@@ -53,19 +52,9 @@
     var curDatasetLabel;
     var curPropLabels = [];
     var curPropTypes = [];
-
-    
-
     $.get('@Url.Action("ViewDatasetView", "Home")', { id: $('#datasetSelect').val() }, function (html) {
         $('#tab-chart').html(html);
-
-        $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
-        {
-            currentDataset = JSON.parse(data);
-            console.log(currentDataset);
-
-            refreshChart(currentDataset, $('.ct-chart'));
-        });
+        refreshChart(currentDataset, $('.ct-chart'));
     })
 
 
@@ -88,7 +77,7 @@
 
             if (tabId == 'settings')
             {
-                $.get('@Url.Action("EditDatasetView", "Home")', { id: currentDataset.id }, function (html) {
+                $.get('@Url.Action("EditDatasetView", "Home")', { id: $('#datasetSelect').val() }, function (html) {
                     $('#tab-settings').html(html);
                 })
             }
@@ -112,11 +101,10 @@
 
     // Dataset Select - On Change
     $('#datasetSelect').change(function (e) {
-        $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
-        {
-            currentDataset = JSON.parse(data);
+        $.get('@Url.Action("ViewDatasetView", "Home")', { id: $('#datasetSelect').val() }, function (html) {
+            $('#tab-chart').html(html);
             refreshChart(currentDataset, $('.ct-chart'));
-        });
+        })
     });
 
 

@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Mvc;
 using track.Models;
 using track.Utils;
+using track.ViewModels;
 
 namespace track.Controllers
 {
@@ -34,7 +35,16 @@ namespace track.Controllers
 
         public PartialViewResult ViewDatasetView(int id)
         {
-            return PartialView("Partials/_ViewDataset", DatabaseManager.getDataset(id));
+            Dataset dataset = DatabaseManager.getDataset(id);
+
+            // Set cookie
+            HttpCookie lastId = new HttpCookie("lastDatasetId");
+            lastId.Value = id.ToString();
+            lastId.Expires = DateTime.Now.AddYears(10);
+
+            Response.Cookies.Add(lastId);
+
+            return PartialView("Partials/_ViewDataset", new ViewDatasetViewModel(dataset));
         }
 
         public PartialViewResult CreateDatasetView()
@@ -50,46 +60,6 @@ namespace track.Controllers
         public PartialViewResult DatasetOptions()
         {
             return PartialView("Partials/_DatasetOptions", DatabaseManager.getDatasetLabels());
-        }
-
-        public JsonResult GetDataset(int id, bool loadData = true)
-        {
-            Dataset dataset;
-            dynamic datasetJObject = new JObject();
-
-            try
-            {
-                dataset = DatabaseManager.getDataset(id, loadData);
-
-                datasetJObject.id = id;
-                datasetJObject.label = dataset.Label;
-                datasetJObject.ids = new JArray(dataset.getSeriesIds());
-                datasetJObject.series = new JArray(dataset.getSeriesLabels());
-                datasetJObject.types = new JArray(dataset.getSeriesTypes());
-                datasetJObject.colors = new JArray(dataset.getSeriesColors());
-
-                datasetJObject.notes = new JArray(dataset.getNotes());
-                foreach (var s in dataset.getSeriesLabels())
-                {
-                    datasetJObject[s] = new JArray(dataset.getProperty(s));
-                }
-                datasetJObject.records = new JArray(dataset.getDateTimes());
-                datasetJObject.span = dataset.getTimeSpan();
-            
-                // Set cookie
-                HttpCookie lastId = new HttpCookie("lastDatasetId");
-                lastId.Value = id.ToString();
-                lastId.Expires = DateTime.Now.AddYears(10);
-
-                Response.Cookies.Add(lastId);
-                
-            }
-            catch (SqlException ex)
-            {
-                datasetJObject["error"] = ex.ToString();
-            }
-
-            return Json(JsonConvert.SerializeObject(datasetJObject), JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetDatasetSeries(int id)
