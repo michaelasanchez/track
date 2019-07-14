@@ -58,7 +58,7 @@
 
     $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
     {
-        currentDataset = JSON.parse(data);
+        currentDataset = data;
         refreshForm(currentDataset);
         refreshChart(currentDataset, $('.ct-chart'));
     });
@@ -110,7 +110,7 @@
     $('#datasetSelect').change(function (e) {
         $.get('@Url.Action("GetDataset", "Home")/' + $('#datasetSelect').val(), function (data)
         {
-            currentDataset = JSON.parse(data);
+            currentDataset = data;
             refreshForm(currentDataset);
 
             refreshChart(currentDataset, $('.ct-chart'));

@@ -50,42 +50,43 @@ namespace track.Controllers
 
         public JsonResult GetDataset(int id, bool loadData = true)
         {
-            Dataset dataset;
-            dynamic datasetJObject = new JObject();
+            //Dataset dataset;
+            //dynamic datasetJObject = new JObject();
 
-            try
-            {
-                dataset = DatabaseManager.getDataset(id, loadData);
+            //try
+            //{
+            //    dataset = DatabaseManager.getDataset(id, loadData);
 
-                datasetJObject.id = id;
-                datasetJObject.label = dataset.Label;
-                datasetJObject.ids = new JArray(dataset.getSeriesIds());
-                datasetJObject.series = new JArray(dataset.getSeriesLabels());
-                datasetJObject.types = new JArray(dataset.getSeriesTypes());
-                datasetJObject.colors = new JArray(dataset.getSeriesColors());
+            //    datasetJObject.id = id;
+            //    datasetJObject.label = dataset.Label;
+            //    datasetJObject.ids = new JArray(dataset.getSeriesIds());
+            //    datasetJObject.series = new JArray(dataset.getSeriesLabels());
+            //    datasetJObject.types = new JArray(dataset.getSeriesTypes());
+            //    datasetJObject.colors = new JArray(dataset.getSeriesColors());
 
-                datasetJObject.notes = new JArray(dataset.getNotes());
-                foreach (var s in dataset.getSeriesLabels())
-                {
-                    datasetJObject[s] = new JArray(dataset.getProperty(s));
-                }
-                datasetJObject.records = new JArray(dataset.getDateTimes());
-                datasetJObject.span = dataset.getTimeSpan();
-            
-                // Set cookie
-                HttpCookie lastId = new HttpCookie("lastDatasetId");
-                lastId.Value = id.ToString();
-                lastId.Expires = DateTime.Now.AddYears(10);
+            //    datasetJObject.notes = new JArray(dataset.getNotes());
+            //    foreach (var s in dataset.getSeriesLabels())
+            //    {
+            //        datasetJObject[s] = new JArray(dataset.getProperty(s));
+            //    }
+            //    datasetJObject.records = new JArray(dataset.getDateTimes());
+            //    datasetJObject.span = dataset.getTimeSpan();
 
-                Response.Cookies.Add(lastId);
-                
-            }
-            catch (SqlException ex)
-            {
-                datasetJObject["error"] = ex.ToString();
-            }
 
-            return Json(JsonConvert.SerializeObject(datasetJObject), JsonRequestBehavior.AllowGet);
+            //}
+            //catch (SqlException ex)
+            //{
+            //    datasetJObject["error"] = ex.ToString();
+            //}
+
+            // Set cookie
+            HttpCookie lastId = new HttpCookie("lastDatasetId");
+            lastId.Value = id.ToString();
+            lastId.Expires = DateTime.Now.AddYears(10);
+
+            Response.Cookies.Add(lastId);
+
+            return Json(new DatasetViewModel(DatabaseManager.getDataset(id, loadData)), JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetDatasetSeries(int id)

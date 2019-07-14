@@ -101,9 +101,8 @@ function refreshForm(dataset) {
     var html = '';
 
     for (var i = 0; i < dataset.series.length; i++) {
-
         // Add series field
-        html += '<div class="form-group"><label>' + dataset.series[i] + '</label><input type="number" class="form-control" id="prop-' + i + '"></div>';
+        html += '<div class="form-group"><label>' + dataset.series[i].Label + '</label><input type="number" class="form-control" id="prop-' + i + '"></div>';
     }
 
     $('#createRecord .form-props').html(html);
@@ -131,14 +130,19 @@ function refreshChart(dataset, $chart) {
 
             for (var j = 0; j < dataset.records.length; j++) {
                 data.series[i].data.push({
+                    // Note
                     meta: (dataset.notes[j] == null) ? '' : dataset.notes[j],
+                    // DateTime
                     x: new Date(dataset.records[j]),
-                    y: dataset[dataset.series[i]][j]
+                    // Value
+                    y: dataset.properties[dataset.series[i].Label][j]
                 });
 
             }
         }
     }
+
+    var span = parseInt(dataset.span);
 
     // Chartist options
     var options = {
@@ -171,12 +175,9 @@ function refreshChart(dataset, $chart) {
         showGridBackground: false
     };
 
-
-    // Resize Chart
-    var span = parseInt(dataset.span);
-
     //console.log("span: " + span + "; w: " + span * 2 + "; cw: " + $('.scroll')[0].clientWidth + "; d:" + Math.max(1, span / 30));
 
+    // Resize Chart
     if (span) {
         if (span * 2 < $('.scroll')[0].clientWidth) {
             $chart.css('width', $('.scroll')[0].clientWidth);
@@ -204,9 +205,9 @@ function refreshChart(dataset, $chart) {
     // Update chart colors
     var sp = 'abcdefghij';
     var css = '';
-    for (var c in currentDataset.colors) {
-        var prefix = sp.substr(c, 1);
-        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + currentDataset.colors[c] + '; }';
+    for (var s in currentDataset.series) {
+        var prefix = sp.substr(s, 1);
+        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + currentDataset.series[s].Color + '; }';
     }
     $('style#dynamic').html(css);
 
