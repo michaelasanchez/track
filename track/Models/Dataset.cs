@@ -7,11 +7,8 @@ using System.Web;
 namespace track.Models
 {
 
-    public class Dataset
+    public partial class Dataset
     {
-        public int Id { get; set; }
-        public string Label { get; set; }
-
         private List<Record> RecordList;
 
         private List<Series> SeriesList;
@@ -21,7 +18,6 @@ namespace track.Models
 
 
         // Constructors
-        public Dataset() { }
 
         public Dataset(int id, string label)
         {

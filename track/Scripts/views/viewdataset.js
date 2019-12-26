@@ -56,10 +56,10 @@ $('#addRecord').click(function (e) {
 
     var data = {
         "datasetid": datasetId,
-        "datetime": datetime,
-        "labels": labels,
-        "values": values,
-        "note": note
+        datetime,
+        labels,
+        values,
+        note
     };
 
     // Update remote

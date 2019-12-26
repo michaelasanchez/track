@@ -75,6 +75,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -153,9 +154,14 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\DataClasses1.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataClasses1.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Models\Series.cs" />
     <Compile Include="Utils\DatabaseManager.cs" />
-    <Compile Include="Models\Dataset.cs" />
+    <Compile Include="Models\Dataset.ext.cs" />
     <Compile Include="Utils\JSONAdapter.cs" />
     <Compile Include="Models\Record.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -193,6 +199,14 @@
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
     <Content Include="Connected Services\Application Insights\ConnectedService.json" />
+    <Content Include="Models\DataClasses1.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>DataClasses1.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="Models\DataClasses1.dbml.layout">
+      <DependentUpon>DataClasses1.dbml</DependentUpon>
+    </None>
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\chartist.js" />
     <Content Include="Scripts\chartist.min.js" />
@@ -233,6 +247,7 @@
     <Content Include="Views\Home\Partials\_DatasetOptions.cshtml" />
     <Content Include="Views\Home\Partials\_CreateRecordForm.cshtml" />
     <Content Include="Views\Home\Partials\_Chart.cshtml" />
+    <Content Include="Views\Home\Partials\_ViewRecords.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -245,6 +260,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

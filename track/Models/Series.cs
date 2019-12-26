@@ -5,17 +5,9 @@ using System.Web;
 
 namespace track.Models
 {
-    public class Series
+    public partial class Series
     {
-        public int Id { get; set; }
-
-        public string Label { get; set; }
-
         public string Type { get; set; }
-
-        public string Color { get; set; }
-
-        public Series() { }
 
         public Series(int id, string label, string type, string color)
         {
