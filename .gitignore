@@ -3,8 +3,8 @@ bin/
 obj/
 packages/
 
-track/Web.config
-track/Web.*.config
+Web.config
+Web.*.config
 
 *.[Pp]ublish.xml
 *.azurePubxml

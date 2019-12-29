@@ -1,0 +1,622 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="trackModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Dataset">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="Archived" Type="bit" Nullable="false" />
+          <Property Name="Label" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Note">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RecordId" Type="int" Nullable="false" />
+          <Property Name="Text" Type="varchar" MaxLength="200" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Property">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RecordId" Type="int" Nullable="false" />
+          <Property Name="SeriesId" Type="int" Nullable="false" />
+          <Property Name="Value" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Record">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DatasetId" Type="int" Nullable="false" />
+          <Property Name="DateTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Series">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DatasetId" Type="int" Nullable="false" />
+          <Property Name="TypeId" Type="int" Nullable="false" />
+          <Property Name="Label" Type="varchar" MaxLength="50" />
+          <Property Name="Color" Type="char" MaxLength="6" />
+          <Property Name="Unit" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="SeriesType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Username" Type="varchar" MaxLength="50" />
+          <Property Name="Password" Type="varchar" MaxLength="32" />
+        </EntityType>
+        <Association Name="FK_Dataset_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Dataset" Type="Self.Dataset" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Dataset">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Note_Record">
+          <End Role="Record" Type="Self.Record" Multiplicity="1" />
+          <End Role="Note" Type="Self.Note" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Record">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Note">
+              <PropertyRef Name="RecordId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Property_Record">
+          <End Role="Record" Type="Self.Record" Multiplicity="1" />
+          <End Role="Property" Type="Self.Property" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Record">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Property">
+              <PropertyRef Name="RecordId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Property_Series">
+          <End Role="Series" Type="Self.Series" Multiplicity="1" />
+          <End Role="Property" Type="Self.Property" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Series">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Property">
+              <PropertyRef Name="SeriesId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Record_Dataset">
+          <End Role="Dataset" Type="Self.Dataset" Multiplicity="1" />
+          <End Role="Record" Type="Self.Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dataset">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Record">
+              <PropertyRef Name="DatasetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Series_Dataset">
+          <End Role="Dataset" Type="Self.Dataset" Multiplicity="1" />
+          <End Role="Series" Type="Self.Series" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dataset">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Series">
+              <PropertyRef Name="DatasetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Series_SeriesType">
+          <End Role="SeriesType" Type="Self.SeriesType" Multiplicity="1" />
+          <End Role="Series" Type="Self.Series" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SeriesType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Series">
+              <PropertyRef Name="TypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="AddProperty" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="RecordId" Type="int" Mode="In" />
+          <Parameter Name="Label" Type="varchar" Mode="In" />
+          <Parameter Name="Value" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="AddSeries" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="DatasetId" Type="int" Mode="In" />
+          <Parameter Name="TypeId" Type="int" Mode="In" />
+          <Parameter Name="Label" Type="varchar" Mode="In" />
+          <Parameter Name="Unit" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="ArchiveDataset" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="DatasetId" Type="int" Mode="In" />
+          <Parameter Name="Archive" Type="bit" Mode="In" />
+        </Function>
+        <Function Name="CreateDataset" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserId" Type="int" Mode="In" />
+          <Parameter Name="Label" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="CreateRecord" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="DatasetId" Type="int" Mode="In" />
+          <Parameter Name="DateTime" Type="datetime" Mode="In" />
+          <Parameter Name="Note" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="GetDatasets" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetRecords" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetSeries" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="DatasetId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="UpdateDataset" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="DatasetId" Type="int" Mode="In" />
+          <Parameter Name="Label" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="UpdateSeries" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="SeriesId" Type="int" Mode="In" />
+          <Parameter Name="Label" Type="varchar" Mode="In" />
+          <Parameter Name="Color" Type="char" Mode="In" />
+        </Function>
+        <EntityContainer Name="trackModelStoreContainer">
+          <EntitySet Name="Dataset" EntityType="Self.Dataset" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Note" EntityType="Self.Note" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Property" EntityType="Self.Property" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Record" EntityType="Self.Record" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Series" EntityType="Self.Series" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SeriesType" EntityType="Self.SeriesType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Dataset_User" Association="Self.FK_Dataset_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Dataset" EntitySet="Dataset" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Note_Record" Association="Self.FK_Note_Record">
+            <End Role="Record" EntitySet="Record" />
+            <End Role="Note" EntitySet="Note" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Property_Record" Association="Self.FK_Property_Record">
+            <End Role="Record" EntitySet="Record" />
+            <End Role="Property" EntitySet="Property" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Property_Series" Association="Self.FK_Property_Series">
+            <End Role="Series" EntitySet="Series" />
+            <End Role="Property" EntitySet="Property" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Record_Dataset" Association="Self.FK_Record_Dataset">
+            <End Role="Dataset" EntitySet="Dataset" />
+            <End Role="Record" EntitySet="Record" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Series_Dataset" Association="Self.FK_Series_Dataset">
+            <End Role="Dataset" EntitySet="Dataset" />
+            <End Role="Series" EntitySet="Series" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Series_SeriesType" Association="Self.FK_Series_SeriesType">
+            <End Role="SeriesType" EntitySet="SeriesType" />
+            <End Role="Series" EntitySet="Series" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="trackModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Dataset">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Archived" Type="Boolean" Nullable="false" />
+          <Property Name="Label" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Dataset_User" FromRole="Dataset" ToRole="User" />
+          <NavigationProperty Name="Records" Relationship="Self.FK_Record_Dataset" FromRole="Dataset" ToRole="Record" />
+          <NavigationProperty Name="Series" Relationship="Self.FK_Series_Dataset" FromRole="Dataset" ToRole="Series" />
+        </EntityType>
+        <EntityType Name="Note">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RecordId" Type="Int32" Nullable="false" />
+          <Property Name="Text" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Record" Relationship="Self.FK_Note_Record" FromRole="Note" ToRole="Record" />
+        </EntityType>
+        <EntityType Name="Property">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RecordId" Type="Int32" Nullable="false" />
+          <Property Name="SeriesId" Type="Int32" Nullable="false" />
+          <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Record" Relationship="Self.FK_Property_Record" FromRole="Property" ToRole="Record" />
+          <NavigationProperty Name="Series" Relationship="Self.FK_Property_Series" FromRole="Property" ToRole="Series" />
+        </EntityType>
+        <EntityType Name="Record">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DatasetId" Type="Int32" Nullable="false" />
+          <Property Name="DateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Dataset" Relationship="Self.FK_Record_Dataset" FromRole="Record" ToRole="Dataset" />
+          <NavigationProperty Name="Notes" Relationship="Self.FK_Note_Record" FromRole="Record" ToRole="Note" />
+          <NavigationProperty Name="Properties" Relationship="Self.FK_Property_Record" FromRole="Record" ToRole="Property" />
+        </EntityType>
+        <EntityType Name="Series">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DatasetId" Type="Int32" Nullable="false" />
+          <Property Name="TypeId" Type="Int32" Nullable="false" />
+          <Property Name="Label" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Color" Type="String" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="Unit" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Dataset" Relationship="Self.FK_Series_Dataset" FromRole="Series" ToRole="Dataset" />
+          <NavigationProperty Name="Properties" Relationship="Self.FK_Property_Series" FromRole="Series" ToRole="Property" />
+          <NavigationProperty Name="SeriesType" Relationship="Self.FK_Series_SeriesType" FromRole="Series" ToRole="SeriesType" />
+        </EntityType>
+        <EntityType Name="SeriesType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Series" Relationship="Self.FK_Series_SeriesType" FromRole="SeriesType" ToRole="Series" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Password" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Datasets" Relationship="Self.FK_Dataset_User" FromRole="User" ToRole="Dataset" />
+        </EntityType>
+        <Association Name="FK_Dataset_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Dataset" Type="Self.Dataset" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Dataset">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Record_Dataset">
+          <End Role="Dataset" Type="Self.Dataset" Multiplicity="1" />
+          <End Role="Record" Type="Self.Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dataset">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Record">
+              <PropertyRef Name="DatasetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Series_Dataset">
+          <End Role="Dataset" Type="Self.Dataset" Multiplicity="1" />
+          <End Role="Series" Type="Self.Series" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dataset">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Series">
+              <PropertyRef Name="DatasetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Note_Record">
+          <End Role="Record" Type="Self.Record" Multiplicity="1" />
+          <End Role="Note" Type="Self.Note" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Record">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Note">
+              <PropertyRef Name="RecordId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Property_Record">
+          <End Role="Record" Type="Self.Record" Multiplicity="1" />
+          <End Role="Property" Type="Self.Property" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Record">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Property">
+              <PropertyRef Name="RecordId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Property_Series">
+          <End Role="Series" Type="Self.Series" Multiplicity="1" />
+          <End Role="Property" Type="Self.Property" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Series">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Property">
+              <PropertyRef Name="SeriesId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Series_SeriesType">
+          <End Role="SeriesType" Type="Self.SeriesType" Multiplicity="1" />
+          <End Role="Series" Type="Self.Series" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SeriesType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Series">
+              <PropertyRef Name="TypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TrackContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Datasets" EntityType="Self.Dataset" />
+          <EntitySet Name="Notes" EntityType="Self.Note" />
+          <EntitySet Name="Properties" EntityType="Self.Property" />
+          <EntitySet Name="Records" EntityType="Self.Record" />
+          <EntitySet Name="Series" EntityType="Self.Series" />
+          <EntitySet Name="SeriesTypes" EntityType="Self.SeriesType" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Dataset_User" Association="Self.FK_Dataset_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Dataset" EntitySet="Datasets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Record_Dataset" Association="Self.FK_Record_Dataset">
+            <End Role="Dataset" EntitySet="Datasets" />
+            <End Role="Record" EntitySet="Records" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Series_Dataset" Association="Self.FK_Series_Dataset">
+            <End Role="Dataset" EntitySet="Datasets" />
+            <End Role="Series" EntitySet="Series" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Note_Record" Association="Self.FK_Note_Record">
+            <End Role="Record" EntitySet="Records" />
+            <End Role="Note" EntitySet="Notes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Property_Record" Association="Self.FK_Property_Record">
+            <End Role="Record" EntitySet="Records" />
+            <End Role="Property" EntitySet="Properties" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Property_Series" Association="Self.FK_Property_Series">
+            <End Role="Series" EntitySet="Series" />
+            <End Role="Property" EntitySet="Properties" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Series_SeriesType" Association="Self.FK_Series_SeriesType">
+            <End Role="SeriesType" EntitySet="SeriesTypes" />
+            <End Role="Series" EntitySet="Series" />
+          </AssociationSet>
+          <FunctionImport Name="AddProperty">
+            <Parameter Name="RecordId" Mode="In" Type="Int32" />
+            <Parameter Name="Label" Mode="In" Type="String" />
+            <Parameter Name="Value" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="AddSeries">
+            <Parameter Name="DatasetId" Mode="In" Type="Int32" />
+            <Parameter Name="TypeId" Mode="In" Type="Int32" />
+            <Parameter Name="Label" Mode="In" Type="String" />
+            <Parameter Name="Unit" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="ArchiveDataset">
+            <Parameter Name="DatasetId" Mode="In" Type="Int32" />
+            <Parameter Name="Archive" Mode="In" Type="Boolean" />
+          </FunctionImport>
+          <FunctionImport Name="CreateDataset">
+            <Parameter Name="UserId" Mode="In" Type="Int32" />
+            <Parameter Name="Label" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="CreateRecord">
+            <Parameter Name="DatasetId" Mode="In" Type="Int32" />
+            <Parameter Name="DateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="Note" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GetDatasets" ReturnType="Collection(trackModel.GetDatasets_Result)" />
+          <FunctionImport Name="GetRecords" ReturnType="Collection(trackModel.GetRecords_Result)">
+            <Parameter Name="Id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetSeries" ReturnType="Collection(trackModel.GetSeries_Result)">
+            <Parameter Name="DatasetId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateDataset">
+            <Parameter Name="DatasetId" Mode="In" Type="Int32" />
+            <Parameter Name="Label" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateSeries">
+            <Parameter Name="SeriesId" Mode="In" Type="Int32" />
+            <Parameter Name="Label" Mode="In" Type="String" />
+            <Parameter Name="Color" Mode="In" Type="String" />
+          </FunctionImport>
+        </EntityContainer>
+        <ComplexType Name="GetDatasets_Result">
+          <Property Type="Int32" Name="Id" Nullable="false" />
+          <Property Type="Int32" Name="UserId" Nullable="false" />
+          <Property Type="Boolean" Name="Archived" Nullable="false" />
+          <Property Type="String" Name="Label" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="GetRecords_Result">
+          <Property Type="DateTime" Name="DateTime" Nullable="false" Precision="23" />
+          <Property Type="String" Name="Properties" Nullable="true" />
+          <Property Type="String" Name="Text" Nullable="true" MaxLength="200" />
+        </ComplexType>
+        <ComplexType Name="GetSeries_Result">
+          <Property Type="Int32" Name="SeriesId" Nullable="false" />
+          <Property Type="String" Name="Label" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Unit" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Color" Nullable="true" MaxLength="6" />
+          <Property Type="Int32" Name="TypeId" Nullable="false" />
+          <Property Type="String" Name="SeriesType" Nullable="false" MaxLength="50" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="trackModelStoreContainer" CdmEntityContainer="TrackContext">
+          <EntitySetMapping Name="Datasets">
+            <EntityTypeMapping TypeName="trackModel.Dataset">
+              <MappingFragment StoreEntitySet="Dataset">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Archived" ColumnName="Archived" />
+                <ScalarProperty Name="Label" ColumnName="Label" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Notes">
+            <EntityTypeMapping TypeName="trackModel.Note">
+              <MappingFragment StoreEntitySet="Note">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="RecordId" ColumnName="RecordId" />
+                <ScalarProperty Name="Text" ColumnName="Text" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Properties">
+            <EntityTypeMapping TypeName="trackModel.Property">
+              <MappingFragment StoreEntitySet="Property">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="RecordId" ColumnName="RecordId" />
+                <ScalarProperty Name="SeriesId" ColumnName="SeriesId" />
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Records">
+            <EntityTypeMapping TypeName="trackModel.Record">
+              <MappingFragment StoreEntitySet="Record">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="DatasetId" ColumnName="DatasetId" />
+                <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Series">
+            <EntityTypeMapping TypeName="trackModel.Series">
+              <MappingFragment StoreEntitySet="Series">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="DatasetId" ColumnName="DatasetId" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="Label" ColumnName="Label" />
+                <ScalarProperty Name="Color" ColumnName="Color" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SeriesTypes">
+            <EntityTypeMapping TypeName="trackModel.SeriesType">
+              <MappingFragment StoreEntitySet="SeriesType">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="trackModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="AddProperty" FunctionName="trackModel.Store.AddProperty" />
+          <FunctionImportMapping FunctionImportName="AddSeries" FunctionName="trackModel.Store.AddSeries" />
+          <FunctionImportMapping FunctionImportName="ArchiveDataset" FunctionName="trackModel.Store.ArchiveDataset" />
+          <FunctionImportMapping FunctionImportName="CreateDataset" FunctionName="trackModel.Store.CreateDataset" />
+          <FunctionImportMapping FunctionImportName="CreateRecord" FunctionName="trackModel.Store.CreateRecord" />
+          <FunctionImportMapping FunctionImportName="GetDatasets" FunctionName="trackModel.Store.GetDatasets">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="trackModel.GetDatasets_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Archived" ColumnName="Archived" />
+                <ScalarProperty Name="Label" ColumnName="Label" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetRecords" FunctionName="trackModel.Store.GetRecords">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="trackModel.GetRecords_Result">
+                <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+                <ScalarProperty Name="Properties" ColumnName="Properties" />
+                <ScalarProperty Name="Text" ColumnName="Text" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetSeries" FunctionName="trackModel.Store.GetSeries">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="trackModel.GetSeries_Result">
+                <ScalarProperty Name="SeriesId" ColumnName="SeriesId" />
+                <ScalarProperty Name="Label" ColumnName="Label" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
+                <ScalarProperty Name="Color" ColumnName="Color" />
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="SeriesType" ColumnName="SeriesType" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="UpdateDataset" FunctionName="trackModel.Store.UpdateDataset" />
+          <FunctionImportMapping FunctionImportName="UpdateSeries" FunctionName="trackModel.Store.UpdateSeries" />
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
