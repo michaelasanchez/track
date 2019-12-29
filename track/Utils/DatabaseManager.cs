@@ -13,8 +13,12 @@ namespace track.Utils
 
     public static class DatabaseManager
     {
-        private static string connString = ConfigurationManager.ConnectionStrings["track"].ConnectionString;
+        private static string connString = getConnectionString();
 
+        public static string getConnectionString()
+        {
+            return ConfigurationManager.ConnectionStrings["track"].ConnectionString;
+        }
 
         // *TEMP* - make sure database d
         public static string testConnection()

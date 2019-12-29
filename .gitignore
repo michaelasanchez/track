@@ -6,6 +6,14 @@ packages/
 track/Web.config
 track/Web.*.config
 
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+*.pubxml.user
+*.csproj.user
+
 
 backup/
 
