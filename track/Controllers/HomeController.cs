@@ -19,18 +19,10 @@ namespace track.Controllers
     {
         public ActionResult Index()
         {
-            Dictionary<int, string> datasetDict = DatabaseManager.getDatasetLabels();
-            
             // Cookie for last viewed dataset id
-            HttpCookie lastId = Request.Cookies["lastDatasetId"];
-
-            if (lastId != null)
-            {
-                ViewData["lastId"] = lastId.Value;
-            }
-
-            // Returns List of Label strings
-            return View(datasetDict);
+            ViewData["lastId"] = Request.Cookies["lastDatasetId"]?.Value;
+            
+            return View();
         }
 
         public PartialViewResult CreateDatasetView()
@@ -45,7 +37,10 @@ namespace track.Controllers
 
         public PartialViewResult DatasetOptions()
         {
-            return PartialView("Partials/_DatasetOptions", DatabaseManager.getDatasetLabels());
+            // Cookie for last viewed dataset id
+            ViewData["lastId"] = Request.Cookies["lastDatasetId"]?.Value;
+
+            return PartialView("Partials/_DatasetOptions");
         }
 
         public JsonResult GetDataset(int id, bool loadData = true)

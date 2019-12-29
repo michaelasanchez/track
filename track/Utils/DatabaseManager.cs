@@ -88,35 +88,6 @@ namespace track.Utils
             return userId;
         }
 
-        // Return dictionary <id, label> of all datasets
-        public static Dictionary<int, string> getDatasetLabels()
-        {
-            Dictionary<int, string> datasetDict = new Dictionary<int, string>();
-
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                try
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand("GetDatasets", conn) { CommandType = CommandType.StoredProcedure };
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            datasetDict.Add(reader.GetInt32(reader.GetOrdinal("Id")), reader.GetString(reader.GetOrdinal("Label")));
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                }
-            }
-
-            return datasetDict;
-        }
-
         // Create dataset & associated series
         public static int createDataset(int userId, string label, List<string> seriesLabels, List<int> typeIds)
         {
