@@ -43,25 +43,6 @@ namespace track.Controllers
             return PartialView("Partials/_DatasetOptions");
         }
 
-        public JsonResult GetDataset(int id, bool loadData = true)
-        {
-            // Set cookie
-            HttpCookie lastId = new HttpCookie("lastDatasetId");
-            lastId.Value = id.ToString();
-            lastId.Expires = DateTime.Now.AddYears(10);
-
-            Response.Cookies.Add(lastId);
-
-            return Json(new DatasetViewModel(DatabaseManager.getDataset(id, loadData)), JsonRequestBehavior.AllowGet);
-        }
-
-        public JsonResult GetDatasetSeries(int id)
-        {
-            Dataset cur = DatabaseManager.getDataset(id);
-
-            return Json(JsonConvert.SerializeObject(cur.getSeriesLabels()), JsonRequestBehavior.AllowGet);
-        }
-
         [HttpPost]
         public JsonResult CreateDataset(string datasetLabel, List<string> propLabels, List<int> propTypes)
         {

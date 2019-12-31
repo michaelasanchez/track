@@ -44,10 +44,17 @@
 <script>
 
     // Global -------------------------------------------------------------
+    const LAST_DATASET_ID_KEY = 'lastDatasetId';
+
     var chart;
     var currentDataset;
 
     var dataId;
+
+    // - Queries -------------------------------------------------------------
+    function getDatasetQuery(id) {
+        return `https://localhost:44311/odata/Datasets(${id})?$expand=Records/Properties,Records/Notes,Series/SeriesType`;
+    }
 
     // Initialize page ----------------------------------------------------
     updateDataset();
@@ -68,7 +75,7 @@
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
             var tabId = $(e.target).prop('id');
-            var prevTabId = $(e.relatedTarget).prop('id');
+            //var prevTabId = $(e.relatedTarget).prop('id');
 
             // Custom hide/show tab behavior
             swapTabs(tabId);
@@ -94,18 +101,37 @@
 
     })
 
-    // - Queries -------------------------------------------------------------
-    function getDatasetQuery(id) {
-        return `https://localhost:44311/odata/Datasets(${id})?$expand=Records/Properties,Records/Notes,Series/SeriesType`;
-    }
-
 
     // - Global Functions ----------------------------------------------------
+    function getCookie(key)
+    {
+        const cookies = document.cookie.split(';');
+        var result = cookies
+            .map(pair => pair.trim().split('='))
+            .filter(pair => pair[0] == key)[0];
+        return result ? result[1] : null;
+    }
+
+    function setCookie(key, value, days) {
+        var expires;
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 *1000));
+            expires = "; expires=" + date.toGMTString();
+        } else {
+            expires = "";
+        }
+        document.cookie = key + "=" + value + expires + "; path=/";
+    }
+
     
-    // Update current dataset
-    function updateDataset()
+    // Update current dataset (& cookie)
+    function updateDataset(updateCookie = true)
     {
         const dataId = $('#datasetSelect').val();
+
+        if (updateCookie) setCookie(LAST_DATASET_ID_KEY, dataId, 100);
+
         $.get(getDatasetQuery(dataId), (data) => {
             currentDataset = data;
             refreshForm(currentDataset);
