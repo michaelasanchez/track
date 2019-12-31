@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,22 +12,12 @@ using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
 using track_api.Models;
+using System.Web.Http.Cors;
+
 
 namespace track_api.Controllers
 {
-    /*
-    The WebApiConfig class may require additional changes to add a route for this controller. Merge these statements into the Register method of the WebApiConfig class as applicable. Note that OData URLs are case sensitive.
-
-    using System.Web.Http.OData.Builder;
-    using System.Web.Http.OData.Extensions;
-    using track_api.Models;
-    ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-    builder.EntitySet<Dataset>("Datasets");
-    builder.EntitySet<User>("Users"); 
-    builder.EntitySet<Record>("Records"); 
-    builder.EntitySet<Series>("Series"); 
-    config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
-    */
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class DatasetsController : ODataController
     {
         private TrackContext db = new TrackContext();
@@ -42,7 +33,17 @@ namespace track_api.Controllers
         [EnableQuery]
         public SingleResult<Dataset> GetDataset([FromODataUri] int key)
         {
-            return SingleResult.Create(db.Datasets.Where(dataset => dataset.Id == key));
+            var query = db.Datasets.Where(dataset => dataset.Id == key);
+
+            // Computed Properties
+            // (Not really sure where to put this, so it goes here for now)
+            foreach (var ds in query)
+            {
+                var records = db.Records.Where(r => r.DatasetId == key);
+                ds.Span = records.Any() ? records.Max(r => r.DateTime) - records.Min(r => r.DateTime) : new TimeSpan();
+            }
+
+            return SingleResult.Create(query);
         }
 
         // PUT: odata/Datasets(5)

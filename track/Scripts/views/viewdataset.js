@@ -81,6 +81,12 @@ $('#addRecord').click(function (e) {
 
 // - Page Functions ---------------------------------------------
 
+function convertTimeSpan(timespan) {
+    var parts = timespan.split(/[A-Z]+/).map(x => parseInt(x)).filter(x => !isNaN(x));
+    //return parts[0] + (parts[1] / 24) + ...  This could be much more precise!
+    return parts[0];
+}
+
 // Refresh Create Record Form DateTime field
 function refreshTime() {
 
@@ -98,9 +104,8 @@ function refreshForm(dataset) {
 
     var html = '';
 
-    for (var i = 0; i < dataset.series.length; i++) {
-        // Add series field
-        html += '<div class="form-group"><label>' + dataset.series[i].Label + '</label><input type="number" class="form-control" id="prop-' + i + '"></div>';
+    for (var s in dataset.Series) {
+        html += '<div class="form-group"><label>' + dataset.Series[s].Label + '</label><input type="number" class="form-control" id="prop-' + s + '"></div>';
     }
 
     $('#createRecord .form-props').html(html);
@@ -118,34 +123,34 @@ function refreshChart(dataset, $chart) {
     // Chartist data
     if (dataset != null) {
 
-        // Populate first data object
-        for (var i = 0; i < dataset.series.length; i++) {
+        for (var s in dataset.Series) {
 
             data.series.push({
-                name: dataset.series[i].Label,
+                name: dataset.Series[s].Label,
                 data: []
             });
 
-            for (var j = 0; j < dataset.records.length; j++) {
-                data.series[i].data.push({
-                    // Note
-                    meta: (dataset.notes[j] == null) ? '' : dataset.notes[j],
-                    // DateTime
-                    x: new Date(dataset.records[j]),
-                    // Value
-                    y: dataset.properties[dataset.series[i].Label][j]
+            for (var r in dataset.Records) {
+                var seriesId = dataset.Series[s].Id;
+                var prop = dataset.Records[r].Properties.find((p) => p.SeriesId == seriesId) || null;
+
+                // meta: Note, x: DateTime, y: Property
+                data.series[s].data.push({
+                    //meta: (dataset.notes[j] == null) ? '' : dataset.notes[j],
+                    x: new Date(dataset.Records[r].DateTime),
+                    y: prop ? prop.Value : prop
                 });
             }
         }
     }
 
-    var span = parseInt(dataset.span);
+    var span = convertTimeSpan(dataset.Span);
 
     // Chartist options
     var options = {
         axisX: {
             type: Chartist.FixedScaleAxis,
-            divisor: Math.round(Math.max(1, parseInt(dataset.span) / 30)),
+            divisor: Math.round(Math.max(1, span/ 30)),
             labelInterpolationFnc: function (value) {
                 return moment(value).format('MMM');
             }
@@ -202,9 +207,9 @@ function refreshChart(dataset, $chart) {
     // Update chart colors
     var sp = 'abcdefghij';
     var css = '';
-    for (var s in dataset.series) {
+    for (var s in dataset.Series) {
         var prefix = sp.substr(s, 1);
-        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + dataset.series[s].Color + '; }';
+        css += '.ct-series-' + prefix + ' .ct-point, .ct-series-' + prefix + ' .ct-line { stroke: #' + dataset.Series[s].Color + '; }';
     }
     $('style#dynamic').html(css);
 
