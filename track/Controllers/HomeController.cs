@@ -11,7 +11,6 @@ using System.Web;
 using System.Web.Mvc;
 using track.Models;
 using track.Utils;
-using track.ViewModels;
 using track_api.Controllers;
 using track_api.Models;
 
@@ -19,6 +18,8 @@ namespace track.Controllers
 {
     public class HomeController : Controller
     {
+        TrackContext db = new TrackContext();
+
         public ActionResult Index()
         {
             // Cookie for last viewed dataset id
@@ -29,12 +30,11 @@ namespace track.Controllers
 
         public PartialViewResult CreateDatasetView()
         {
-            return PartialView("Partials/_CreateDataset", new CreateDatasetViewModel());
+            return PartialView("Partials/_CreateDataset", db.SeriesTypes.ToList());
         }
 
         public PartialViewResult EditDatasetView(int id)
         {
-            TrackContext db = new TrackContext();
             return PartialView("Partials/_EditDataset", db.Datasets.Single(ds => ds.Id == id));
         }
 

@@ -201,31 +201,6 @@ namespace track.Utils
             }
         }
 
-        // - ------------------------------------------------------------------------------------
-
-        public static Dictionary<int, string> getSeriesTypes()
-        {
-            var seriesTypes = new Dictionary<int, string>();
-
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                conn.Open();
-
-                using (SqlCommand cmd = new SqlCommand("GetSeriesTypes", conn) { CommandType = CommandType.StoredProcedure })
-                {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            seriesTypes.Add(reader.GetInt32(reader.GetOrdinal("Id")), reader.GetString(reader.GetOrdinal("Name")));
-                        }
-                    }
-                }
-            }
-
-            return seriesTypes;
-        }
-
         // Utility ------------------------------------------------------------------------------
 
         private static string CalculateMD5Hash(string input)
