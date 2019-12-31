@@ -12,6 +12,8 @@ using System.Web.Mvc;
 using track.Models;
 using track.Utils;
 using track.ViewModels;
+using track_api.Controllers;
+using track_api.Models;
 
 namespace track.Controllers
 {
@@ -32,7 +34,8 @@ namespace track.Controllers
 
         public PartialViewResult EditDatasetView(int id)
         {
-            return PartialView("Partials/_EditDataset", DatabaseManager.getDataset(id, false));
+            TrackContext db = new TrackContext();
+            return PartialView("Partials/_EditDataset", db.Datasets.Single(ds => ds.Id == id));
         }
 
         public PartialViewResult DatasetOptions()

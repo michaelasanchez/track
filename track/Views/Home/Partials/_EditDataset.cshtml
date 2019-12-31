@@ -27,7 +27,7 @@
             <div class="form-props">
                 @{
                     int i = 0;
-                    foreach (var series in Model.getSeries())
+                    foreach (var series in Model.Series)
                     {
                         <div class="form-row">
                             <input type="hidden" value="@series.Id" name="id" />
