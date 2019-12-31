@@ -82,7 +82,7 @@
 
             if (tabId == 'settings')
             {
-                $.get('@Url.Action("EditDatasetView", "Home")', { id: currentDataset.id }, function (html) {
+                $.get('@Url.Action("EditDatasetView", "Home")', { id: currentDataset.Id }, function (html) {
                     $('#tab-settings').html(html);
                 })
             }
