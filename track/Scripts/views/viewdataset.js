@@ -66,8 +66,8 @@ $('#addRecord').click(function (e) {
     $.post('/Home/CreateRecord', data);
 
     // Update local
-    currentDataset.records.push(data.datetime);
-    for (var i in labels) currentDataset.properties[data.labels[i]].push(data.values[i]);
+    currentDataset.Records.push(data.datetime);
+    for (var i in labels) currentDataset.Properties[data.labels[i]].push(data.values[i]);
     currentDataset.notes.push(data.note);
 
     // Update view

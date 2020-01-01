@@ -10,18 +10,19 @@ $('#editDataset [name]').on('change', function () {
 })
 
 // Update color input/display
-$('#editDataset [name=color]').change(function (e) {
-    updateColor(e);
-});
+$('#editDataset [name=color]').change(updateColor);
 
 // Forms JSON based on changed inputs and post to home controller
 function editDataset() {
+    const $datasetId = $('#editDataset [name=dataset-id]');
+    const $datasetLabel = $('#editDataset [name=dataset-label]');
+    const $datasetProperties = $('#editDataset .form-props .form-row');
+
     var datasetLabel, propIds = [], propLabels = [], propColors = [];
 
-    if ($('#edit-datasetLabel').hasClass('changed'))
-        datasetLabel = $('#edit-datasetLabel').val();
+    if ($datasetLabel.hasClass('changed')) datasetLabel = $datasetLabel.val();
 
-    $.each($('#editDataset .form-props .form-row'), function () {
+    $.each($datasetProperties, function () {
         if ($(this).has('.changed').length) {
             propIds.push($('[name=id]', this).val());
             propLabels.push($('[name=label]', this).val());
@@ -30,11 +31,11 @@ function editDataset() {
     });
 
     var data = {
-        datasetId: $('#editDataset [name=dataset-id]').val(),
-        datasetLabel: datasetLabel,
-        propIds: propIds,
-        propLabels: propLabels,
-        propColors: propColors
+        datasetId: $datasetId.val(),
+        datasetLabel,
+        propIds,
+        propLabels,
+        propColors
     }
 
     // Update remote
