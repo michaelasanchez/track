@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.IO;
-using track.Models;
-using System.Diagnostics;
 using System.Data.SqlClient;
-using System.Data;
 using System.Configuration;
 using System.Text;
-using System.Security.Cryptography;
-using Newtonsoft.Json;
-using track.Utils;
+
+using track.Utils;  // JSONAdapater
 
 namespace track.Controllers
 {
@@ -20,43 +12,6 @@ namespace track.Controllers
     {
         // GET: Test
         public ActionResult Index()
-        {
-            /*
-            List<string> returnValues = new List<string>() { "Can you see me" };
-
-            string connString = ConfigurationManager.ConnectionStrings["track-remote"].ConnectionString;
-            string sql = "SELECT * FROM [Dataset]";
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connString))
-                {
-                    conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    {
-                        using (SqlDataReader r = cmd.ExecuteReader())
-                        {
-
-                            while (r.Read())
-                            {
-                                returnValues.Add(r.GetString(r.GetOrdinal("Label")));
-                            }
-                        }
-                    }
-                }
-            }
-            catch (SqlException ex)
-            {
-                Debug.WriteLine(ex.ToString());
-                returnValues.Add(ex.ToString());
-            }*/
-
-
-            return View();
-        }
-
-        public ActionResult Chart()
         {
             return View();
         }
@@ -104,6 +59,24 @@ namespace track.Controllers
     public static class DatabaseManager
     {
         private static string connString = ConfigurationManager.ConnectionStrings["track"].ConnectionString;
+
+        private static string CalculateMD5Hash(string input)
+        {
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convert the byte array to hexadecimal string
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("X2"));
+                }
+
+                return sb.ToString();
+            }
+        }
 
         // *TEMP* - make sure database d
         public static string testConnection()
@@ -171,26 +144,6 @@ namespace track.Controllers
             }
 
             return userId;
-        }
-
-        // Utility ------------------------------------------------------------------------------
-
-        private static string CalculateMD5Hash(string input)
-        {
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-                // Convert the byte array to hexadecimal string
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("X2"));
-                }
-
-                return sb.ToString();
-            }
         }
     }
 

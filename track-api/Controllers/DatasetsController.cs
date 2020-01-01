@@ -35,8 +35,8 @@ namespace track_api.Controllers
         {
             var query = db.Datasets.Where(dataset => dataset.Id == key);
 
-            // Computed Properties
-            // (Not really sure where to put this, so it goes here for now)
+            // Calculate timespan property
+            // TODO: Figure out where this goes
             foreach (var ds in query)
             {
                 var records = db.Records.Where(r => r.DatasetId == key);
