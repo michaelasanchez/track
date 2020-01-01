@@ -22,17 +22,26 @@ function createDataset() {
     $.each(form, function (i, input) {
         if (input.name == 'label') propLabels.push(input.value);
         if (input.name == 'type') propTypes.push(input.value);
-    })
+    });
 
-    var data = {
-        datasetLabel: form[0].value,
-        propLabels: propLabels,
-        propTypes: propTypes
+
+    var dataset = {
+        User: 1,
+        Label: form[0].value
     };
 
-    $.post('/Home/CreateDataset', data, function (id) {
-        // TODO: remove view coupling
-        refreshDatasetOptions($('#datasetSelect'), id);
+    $.post('https://localhost:44311/odata/Datasets', dataset, (data) => {
+
+        for (var i in propLabels) {
+            var series = {
+                DatasetId: data.Id,
+                TypeId: propTypes[i],
+                Label: propLabels[i]
+            };
+            $.post('https://localhost:44311/odata/Series', series, (data) => {
+                //refreshDatasetOptions($('#datasetSelect'), data.Id);
+            });
+        }
     });
 }
 

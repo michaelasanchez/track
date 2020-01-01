@@ -46,39 +46,6 @@ namespace track.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateDataset(string datasetLabel, List<string> propLabels, List<int> propTypes)
-        {
-            TrackContext db = new TrackContext();
-            var datasets = db.Set<Dataset>();
-
-            // Dataset
-            datasets.Add(new Dataset
-            {
-                UserId = 1,
-                Label = datasetLabel
-            });
-            db.SaveChanges();
-
-            // Series
-            var datasetId = db.Datasets.Single(ds => ds.Label == datasetLabel).Id;
-
-            var series = db.Set<Series>();
-            
-            for (var s = 0; s < propLabels.Count; s++)
-            {
-                series.Add(new Series
-                {
-                    DatasetId = datasetId,
-                    TypeId = propTypes[s],
-                    Label = propLabels[s]
-                });
-            }
-            db.SaveChanges();
-
-            return Json(datasetId);
-        }
-
-        [HttpPost]
         public JsonResult CreateRecord(int datasetId, DateTime dateTime, List<string> labels, List<string> values, string note)
         {
             TrackContext db = new TrackContext();
