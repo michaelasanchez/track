@@ -51,25 +51,52 @@
 
     var dataId;
 
+    // - Global Functions ----------------------------------------------------
+    function getCookie(key)
+    {
+        const cookies = document.cookie.split(';');
+        var result = cookies
+            .map(pair => pair.trim().split('='))
+            .filter(pair => pair[0] == key)[0];
+        return result ? result[1] : null;
+    }
+    function setCookie(key, value, days) {
+        var expires;
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 *1000));
+            expires = "; expires=" + date.toGMTString();
+        } else {
+            expires = "";
+        }
+        document.cookie = key + "=" + value + expires + "; path=/";
+    }
+
     // - Queries -------------------------------------------------------------
     function getDatasetQuery(id) {
         return `https://localhost:44311/odata/Datasets(${id})?$expand=Records/Properties,Records/Notes,Series/SeriesType`;
     }
 
+
     // Initialize page ----------------------------------------------------
     updateDataset();
 
     // Dataset Select - On Change
-    $('#datasetSelect').change(updateDataset);
+    $('#datasetSelect').change(() => updateDataset());
 
 
-    // Init Tabs --------------------------------------------------------
+    // Init UI ----------------------------------------------------------
     var $addTab = $('#add-tab');
     var $settingsTab = $('#settings-tab');
     var $saveTab = $('#save-tab');
     var $cancelTab = $('#cancel-tab');
 
     $(function () {
+        initTabs();
+    });
+
+    // - UI ------------------------------------------------------------------
+    function initTabs() {
 
         // On tab swap
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -98,48 +125,7 @@
             }
             
         })
-
-    })
-
-
-    // - Global Functions ----------------------------------------------------
-    function getCookie(key)
-    {
-        const cookies = document.cookie.split(';');
-        var result = cookies
-            .map(pair => pair.trim().split('='))
-            .filter(pair => pair[0] == key)[0];
-        return result ? result[1] : null;
     }
-
-    function setCookie(key, value, days) {
-        var expires;
-        if (days) {
-            var date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 *1000));
-            expires = "; expires=" + date.toGMTString();
-        } else {
-            expires = "";
-        }
-        document.cookie = key + "=" + value + expires + "; path=/";
-    }
-
-    
-    // Update current dataset (& cookie)
-    function updateDataset(updateCookie = true)
-    {
-        const dataId = $('#datasetSelect').val();
-
-        if (updateCookie) setCookie(LAST_DATASET_ID_KEY, dataId, 100);
-
-        $.get(getDatasetQuery(dataId), (data) => {
-            currentDataset = data;
-            refreshForm(currentDataset);
-            refreshChart(currentDataset, $('.ct-chart'));
-        });
-    }
-
-    // Show/hide tabs for pane swap
     function swapTabs(tabId)
     {
         if (['add', 'settings'].indexOf(tabId) >= 0) {
@@ -164,14 +150,30 @@
         }
     }
 
+    
+    // Update current dataset (& cookie)
+    function updateDataset(id = null, updateCookie = true)
+    {
+        const dataId = id || $('#datasetSelect').val();
+
+        if (updateCookie) setCookie(LAST_DATASET_ID_KEY, dataId, 100);
+
+        $.get(getDatasetQuery(dataId), (data) => {
+            currentDataset = data;
+            refreshForm(currentDataset);
+            refreshChart(currentDataset, $('.ct-chart'));
+        });
+    }
+
     // Refresh #DatasetSelect options.  Pass value to update selected option
-    function refreshDatasetOptions($select, value) {
+    function refreshDatasetOptions(value = null, $select = null) {
         if (!$select) $select = $('#datasetSelect');
         if (!value) value = $select.val();
 
         // TODO: create & edit use this to update form, & chart.  Not good!
         $.get('@Url.Action("DatasetOptions", "Home")', function (html) {
-            $select.html(html).val(value).trigger('change');
+            $select.html(html).val(value);
+            updateDataset(value);
         })
     }
 

@@ -12,69 +12,63 @@ $('#editDataset [name]').on('change', function () {
 // Update color input/display
 $('#editDataset [name=color]').change(updateColor);
 
+function updateColor(e) {
+    var $row = $(e.target).closest('.form-row');
+    $('.color-display', $row).css('background-color', '#' + $(e.target).val());
+}
+
 // Forms JSON based on changed inputs and post to home controller
 function editDataset() {
     const $datasetLabel = $('#editDataset [name=dataset-label]');
     const $datasetProperties = $('#editDataset .form-props .form-row');
 
-    var datasetLabel, propIds = [], propLabels = [], propColors = [];
-
-    if ($datasetLabel.hasClass('changed')) datasetLabel = $datasetLabel.val();
-
-    $.each($datasetProperties, function () {
-        if ($(this).has('.changed').length) {
-            propIds.push($('[name=id]', this).val());
-            propLabels.push($('[name=label]', this).val());
-            propColors.push($('[name=color]', this).val());
-        }
-    });
-
-
-    var dataset = {
-        Label: datasetLabel || ''
-    };
-
-    $.ajax({
-        type: "patch",
-        async: false,
-        contentType: 'application/json',
-        url: `https://localhost:44311/odata/Datasets(${currentDataset.Id})`,
-        data: JSON.stringify(dataset),
-        dataType: 'json',
-        success: () => refreshDatasetOptions(),
-        error: function (xhr, textStatus, errorMessage) {
-            console.log('error', xhr, textStatus, errorMessage);
-        }
-    });
-
-    var updatesLeft = propLabels.length;
-
-    for (var i in propIds) {
-        var series = {
-            DatasetId: currentDataset.Id,
-            Label: propLabels[i] || '',
-            Color: propColors[i] || null
+    if ($datasetLabel.hasClass('changed')) {
+        var dataset = {
+            Label: $datasetLabel.val()
         };
 
         $.ajax({
             type: "patch",
             async: false,
             contentType: 'application/json',
-            url: `https://localhost:44311/odata/Series(${propIds[i]})`,
-            data: JSON.stringify(series),
+            url: `https://localhost:44311/odata/Datasets(${currentDataset.Id})`,
+            data: JSON.stringify(dataset),
             dataType: 'json',
-            success: () => {
-                if (--updatesLeft <= 0) updateDataset();
-            },
+            success: () => refreshDatasetOptions(),
             error: function (xhr, textStatus, errorMessage) {
                 console.log('error', xhr, textStatus, errorMessage);
             }
         });
     }
-}
 
-// Grabs color value from input & updates color display
-function updateColor(e) {
-    var $row = $(e.target).closest('.form-row');
-    $('.color-display', $row).css('background-color', '#' + $(e.target).val());
+
+    var updatesLeft = 0;
+
+    $.each($datasetProperties, function () {
+        if ($(this).has('.changed').length) {
+            updatesLeft++;
+
+            var seriesId = $('[name=id]', this).val();
+            var series = {
+                DatasetId: currentDataset.Id,
+                Label: $('[name=label]', this).val(),
+                Color: $('[name=color]', this).val() || null
+            };
+
+            $.ajax({
+                type: "patch",
+                async: false,
+                contentType: 'application/json',
+                url: `https://localhost:44311/odata/Series(${seriesId})`,
+                data: JSON.stringify(series),
+                dataType: 'json',
+                success: () => {
+                    if (--updatesLeft <= 0) updateDataset();
+                },
+                error: function (xhr, textStatus, errorMessage) {
+                    console.log('error', xhr, textStatus, errorMessage);
+                }
+            });
+        }
+    });
 }

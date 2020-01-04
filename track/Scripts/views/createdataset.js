@@ -16,14 +16,7 @@ $('#create-dataset button.remove').click(function (e) {
 
 // Serialize create dataset form and post to home controller
 function createDataset() {
-    var form = $('#create-dataset').serializeArray();
-
-    var propLabels = [], propTypes = [];
-    $.each(form, function (i, input) {
-        if (input.name == 'label') propLabels.push(input.value);
-        if (input.name == 'type') propTypes.push(input.value);
-    });
-
+    const form = $('#create-dataset').serializeArray();
 
     var dataset = {
         User: 1,
@@ -32,14 +25,25 @@ function createDataset() {
 
     $.post('https://localhost:44311/odata/Datasets', dataset, (data) => {
 
+        var propLabels = [], propTypes = [];
+        $.each(form, function (i, input) {
+            if (input.name == 'label') propLabels.push(input.value);
+            if (input.name == 'type') propTypes.push(input.value);
+        });
+
+        var datasetId = data.Id;
+        var updatesLeft = 0;
+
         for (var i in propLabels) {
+            updatesLeft++;
+
             var series = {
-                DatasetId: data.Id,
+                DatasetId: datasetId,
                 TypeId: propTypes[i],
                 Label: propLabels[i]
             };
-            $.post('https://localhost:44311/odata/Series', series, (data) => {
-                //refreshDatasetOptions($('#datasetSelect'), data.Id);
+            $.post('https://localhost:44311/odata/Series', series, () => {
+                if (--updatesLeft <= 0) refreshDatasetOptions(datasetId);
             });
         }
     });
@@ -61,7 +65,7 @@ function showProperty() {
             $(this).focus();
             return false;
         }
-    })
+    });
 }
 
 // Hide/disable last property row.
