@@ -166,6 +166,7 @@
 
     // Refresh #DatasetSelect options.  Pass value to update selected option
     function refreshDatasetOptions($select, value) {
+        if (!$select) $select = $('#datasetSelect');
         if (!value) value = $select.val();
 
         // TODO: create & edit use this to update form, & chart.  Not good!

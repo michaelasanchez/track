@@ -45,36 +45,5 @@ namespace track.Controllers
             return PartialView("Partials/_DatasetOptions");
         }
 
-        [HttpPost]
-        public JsonResult UpdateDataset(int datasetId, string datasetLabel = null, List<int> propIds = null, List<string> propLabels = null, List<string> propColors = null)
-        {
-            TrackContext db = new TrackContext();
-
-            // Dataset
-            var dataset = db.Datasets.Single(ds => ds.Id == datasetId);
-
-            if (!String.IsNullOrEmpty(datasetLabel)) dataset.Label = datasetLabel;
-
-            db.SaveChanges();
-
-            // Series
-            var series = db.Series.Where(s => s.DatasetId == datasetId);
-
-            var test = series.ToList();
-
-            if (propIds != null)
-            {
-                for (var i = 0; i < propIds.Count; i++)
-                {
-                    var current = test.Single(s => s.Id == propIds[i]);
-                    if (propLabels[i] != null) current.Label = propLabels[i];
-                    if (propColors[i] != null) current.Color = propColors[i];
-                }
-            }
-            db.SaveChanges();
-
-            return Json(datasetId);
-        }
-
     }
 }

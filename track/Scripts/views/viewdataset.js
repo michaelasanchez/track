@@ -77,9 +77,7 @@ $('#addRecord').click(function (e) {
                 Value: values[p]
             };
 
-            $.post('https://localhost:44311/odata/Properties', property, () => {
-                updateDataset();
-            });
+            $.post('https://localhost:44311/odata/Properties', property, updateDataset);
         }
     });
 });
