@@ -51,29 +51,37 @@ $('#addRecord').click(function (e) {
     }
 
     // Grab note value & clear
-    var note = $('#noteTextarea').val();
+    var noteText = $('#noteTextarea').val();
     $('#noteTextarea').val('');
 
-    var data = {
-        "datasetid": datasetId,
-        "datetime": datetime,
-        "labels": labels,
-        "values": values,
-        "note": note
-    };
+    var record = {
+        DatasetId: datasetId,
+        DateTime: datetime
+    }
 
-    // Update remote
-    $.post('/Home/CreateRecord', data);
+    $.post('https://localhost:44311/odata/Records', record, (resp) => {
 
-    // Update local
-    currentDataset.Records.push(data.datetime);
-    for (var i in labels) currentDataset.Properties[data.labels[i]].push(data.values[i]);
-    currentDataset.notes.push(data.note);
+        if (noteText != '') {
+            $.post('https://localhost:44311/odata/Notes', {
+                RecordId: resp.Id,
+                Text: noteText
+            });
+        }
 
-    // Update view
-    refreshChart(currentDataset, $('.ct-chart'));
+        for (var p in labels) {
+            var series = currentDataset.Series.filter((s) => s.Label == labels[p])[0];
 
-    return false;
+            var property = {
+                RecordId: resp.Id,
+                SeriesId: series.Id,
+                Value: values[p]
+            };
+
+            $.post('https://localhost:44311/odata/Properties', property, () => {
+                updateDataset();
+            });
+        }
+    });
 });
 
 

@@ -46,50 +46,6 @@ namespace track.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateRecord(int datasetId, DateTime dateTime, List<string> labels, List<string> values, string note)
-        {
-            TrackContext db = new TrackContext();
-
-            // Record
-            var records = db.Set<Record>();
-            var newRecord = new Record
-            {
-                DatasetId = datasetId,
-                DateTime = dateTime,
-            };
-
-            records.Add(newRecord);
-            db.SaveChanges();
-
-            // Note
-            var notes = db.Set<Note>();
-            notes.Add(new Note
-            {
-                RecordId = newRecord.Id,
-                Text = note
-            });
-            db.SaveChanges();
-
-            // Properties
-            var properties = db.Set<Property>();
-
-            var series = db.Series.Where(s => s.DatasetId == datasetId).ToList();
-
-            for (var p = 0; p < labels.Count; p++)
-            {
-                properties.Add(new Property
-                {
-                    RecordId = newRecord.Id,
-                    SeriesId = series.Single(s => s.Label == labels[p]).Id,
-                    Value = values[p]
-                });
-            }
-            db.SaveChanges();
-
-            return Json(newRecord.Id);
-        }
-
-        [HttpPost]
         public JsonResult UpdateDataset(int datasetId, string datasetLabel = null, List<int> propIds = null, List<string> propLabels = null, List<string> propColors = null)
         {
             TrackContext db = new TrackContext();
