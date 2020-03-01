@@ -1,4 +1,5 @@
-// import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'chartist/dist/chartist.css';
 // import './style/app.scss';
 
 import * as React from "react";
