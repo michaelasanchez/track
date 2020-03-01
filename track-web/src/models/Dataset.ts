@@ -6,6 +6,7 @@ export class Dataset {
   public UserId: number;
   public Archived: boolean;
   public Label: string;
+  public Span: string;
 
   // TODO: Make these private
   private records: Record[];

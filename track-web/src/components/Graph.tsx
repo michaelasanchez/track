@@ -4,7 +4,6 @@ import { Dataset } from "../models/Dataset";
 import { ChartistData } from "../models/ChartistData";
 import { each, map, times } from 'lodash';
 import { ILineChartOptions, FixedScaleAxis } from "chartist";
-import { Moment } from 'moment';
 import moment = require("moment");
 
 type GraphProps = {
@@ -29,7 +28,7 @@ export const Graph: React.FunctionComponent<GraphProps> = ({ dataset, type = "Li
           })
       })
     });
-    console.log('chartistData', chartistData);
+    
     return chartistData;
   }
 
@@ -38,23 +37,16 @@ export const Graph: React.FunctionComponent<GraphProps> = ({ dataset, type = "Li
     var data = convertDatasetToData(dataset);
 
     var options = {
+      height: 500,
+      fullWidth: true,
       axisX: {
         type: FixedScaleAxis,
-        // divisor: Math.round(Math.max(1, 300/ 30)),
+        divisor: 3,
         labelInterpolationFnc: function (value: any) {
-          console.log(value);
-          return value;
+          return moment(value).format("h:mm a");
         }
       },
-      fullWidth: true,
-      chartPadding: {
-        right: 50
-      },
-      // axisX: {
-      //   labelInterpolationFnc: function (value: any, index: any) {
-      //     return index % 2 === 0 ? value : null;
-      //   }
-      // }
+      // chartPadding: { right: 50 },
     } as ILineChartOptions;
 
     return (
