@@ -4,6 +4,7 @@ import { Dropdown } from "react-bootstrap";
 import { first, each, map } from 'lodash';
 import { Graph } from "./Graph";
 import { Dataset } from "../models/Dataset";
+import { Record } from "../models/Record";
 
 const API_URL = 'https://localhost:44311/odata/';
 
@@ -26,8 +27,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           setDatasetLabel(defaultDataset.Label);
           setDatasetList(datasets);
 
-          loadDataset(defaultDataset.Id);
-          setDataset(defaultDataset);
+          loadDataset(53);
+          // loadDataset(defaultDataset.Id);
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -42,7 +43,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     fetch(`${API_URL}Datasets(${id})?$expand=Records/Properties,Series/SeriesType`)
       .then(res => res.json())
       .then((result) => {
-        console.log(result);
+        setDataset(result as Dataset);
       },
       (error) => {
         console.log('ERROR:', error);

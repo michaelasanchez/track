@@ -15,12 +15,14 @@
     "bootstrap": "^4.4.1",
     "chartist": "^0.11.4",
     "lodash": "^4.17.15",
+    "moment": "^2.24.0",
     "popper.js": "^1.16.1",
     "react": "^16.13.0",
     "react-chartist": "^0.14.3",
     "react-dom": "^16.13.0"
   },
   "devDependencies": {
+    "@types/chartist": "^0.9.47",
     "@types/lodash": "^4.14.149",
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
