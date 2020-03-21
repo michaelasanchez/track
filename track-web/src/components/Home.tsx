@@ -1,10 +1,13 @@
-import * as React from "react"
+import { useState, useEffect } from "react"
+import * as React from 'react';
 import { Navbar } from "./Navbar";
-import { Dropdown, Form } from "react-bootstrap";
-import { first, each, map } from 'lodash';
+import { Form } from "react-bootstrap";
+import { map } from 'lodash';
 import { Graph } from "./Graph";
 import { Dataset } from "../models/Dataset";
-import * as $ from 'jquery';
+import Toolbar from "./Toolbar";
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Edit from "./Edit";
 
 const API_URL = 'https://localhost:44311/odata/';
 
@@ -12,19 +15,30 @@ type HomeProps = {
   datasetId?: number;
 };
 
+export enum UserMode {
+  View,
+  Edit
+}
+
+const defaultUserMode = (): UserMode => {
+  const path = window.location.pathname.replace('/', '');
+  return UserMode.View;
+}
+
+
 export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => {
-  const [init, setInit] = React.useState<boolean>(false);
-  const [loaded, setLoaded] = React.useState<boolean>(false);
-  const [dataset, setDataset] = React.useState<Dataset>();
-  const [datasetList, setDatasetList] = React.useState<Dataset[]>();
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const [dataset, setDataset] = useState<Dataset>();
+  const [datasetList, setDatasetList] = useState<Dataset[]>();
+  const [mode, setMode] = useState<UserMode>(defaultUserMode());
+
 
   const loadDataset = (id: number | string | string[]) => {
     fetch(`${API_URL}Datasets(${id})?$expand=Records/Properties,Series/SeriesType`)
       .then(res => res.json())
       .then((result) => {
-        const dataset = result as Dataset;
-        setDataset(dataset);
-        if (!loaded) setLoaded(true); // TODO: make better
+        setDataset(result as Dataset);
+        if (!loaded) setLoaded(true); // TODO: make this better
       },
         (error) => {
           console.log('ERROR:', error);
@@ -36,48 +50,52 @@ export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => 
       .then(res => res.json())
       .then((result) => {
         var datasets = result.value as Dataset[];
-
+        // console.log(datasets)
         setDatasetList(datasets);
       },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
         (error) => {
           console.log('ERROR:', error);
         })
   }
 
-  if (!init) {
-    setInit(true);
+  useEffect(() => {
     loadDataset(datasetId);
     loadDatasetList();
+  }, []);
+
+  const renderRoutes = () => {
+    return (
+      <>
+        <Route exact path="/">
+          <Graph dataset={dataset} />
+        </Route>
+        <Route path="/edit">
+          <Edit dataset={dataset} />
+        </Route>
+      </>
+    );
   }
 
-  return (
-    <>
-      <Navbar />
-      <div className="container">
-        <div className="row mt-3 mb-3">
-          <div className="col-12">
-            <Form>
-              <Form.Control as="select" className="custom-select" onChange={(e: any) => loadDataset($(e.target).val())} value={loaded ? dataset.Id.toString() : ''}>
-                {loaded ? map(datasetList, (d, i) =>
-                  <option key={i} value={d.Id.toString()}>
-                    {d.Label}
-                  </option>
-                ) :
-                  <option>Loading...</option>
-                }
-              </Form.Control>
-            </Form>
+  if (loaded) {
+    return (
+      <Router>
+        <Navbar />
+        <div className="container">
+          <div className="row mt-3">
+            <div className="col-12">
+              <Toolbar datasetId={dataset.Id} datasetList={datasetList} mode={mode} updateMode={setMode} updateDataset={loadDataset} />
+            </div>
+          </div>
+          <hr />
+          <div className="row">
+            <div className="col-12">
+              {renderRoutes()}
+            </div>
           </div>
         </div>
-        <div className="row">
-          <div className="col-12">
-            <Graph dataset={dataset} />
-          </div>
-        </div>
-      </div>
-    </>
-  );
+      </Router>
+    );
+  }
+
+  return null;
 }

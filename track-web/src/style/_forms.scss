@@ -1,0 +1,16 @@
+// .col,
+// .col-md-6,
+[class*=col] {
+  &.flex {
+    display: flex;
+
+    // TODO: var
+    .form-control {
+      margin-right: 1rem;
+    }
+
+    .color-picker {
+      width: 100%;
+    }
+  }
+}

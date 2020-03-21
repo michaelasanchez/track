@@ -1,0 +1,11 @@
+
+.icon {
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 150ms;
+
+  &.active,
+  &:hover {
+    opacity: 1;
+  }
+}

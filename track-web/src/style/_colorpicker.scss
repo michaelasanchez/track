@@ -1,0 +1,29 @@
+.picker-container {
+  position: absolute;
+  transform: translateX(-255px);
+  left: 50%;
+  top: 48px;
+  z-index: 1;
+}
+
+.color-picker {
+  position: relative;
+  max-width: 46px;
+
+  input {
+    cursor: pointer;
+  }
+
+  .block-picker {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px !important;
+  }
+
+  .twitter-picker {
+    border: 1px solid #ced4da !important;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 2px !important;
+    width: 278px !important;
+    // div:nth-child(1) {
+    //   left: calc(12px - 90%)
+    // }
+  }
+}

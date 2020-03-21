@@ -1,0 +1,42 @@
+.custom-select {
+  width: auto;
+  margin-right: 0.6rem;
+}
+
+// TODO: Convert to flex once we move other inputs
+.toolbar {
+  display: flex;
+  align-items: stretch;
+
+  a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    &:hover {
+
+      svg {
+        opacity: 1;
+        transform: scale(1.05);
+        transition: all 150ms;
+      
+        &.save {
+          color: green;
+        }
+        // &.cancel,
+        &.delete {
+          color: red;
+        }
+      }
+    }
+  }
+
+  .divider {
+    border: 1px solid rgb(232, 232, 232);
+    margin: 10px .5rem;
+  }
+
+  .icon {
+    margin: 0 0.5rem;
+  }
+}
