@@ -10,21 +10,22 @@ import Request from '../../models/Request';
 
 type EditDatasetProps = {
   dataset: Dataset;
+  refreshList: Function;
+  refreshDataset: Function;
 };
 
-const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset }) => {
+const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset, refreshList, refreshDataset }) => {
 
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
     const updatedDataset = {
       Id: datasetId,
       Label: e.nativeEvent.srcElement.value
     } as Dataset;
-    // new Request('Datasets', datasetId);
-    var test = updateDataset(updatedDataset);
-    test.then((x: any) => {
-      console.log('XXXX', x, x.body, x.json());
-    })
-    // console.log('TESTER', test);
+    const req = updateDataset(updatedDataset);
+    req.then(_ => {
+      refreshList();
+      refreshDataset(dataset.Id, true);
+    });
   }
 
   const handleColorChange = (e: any, seriesId: number) => {
@@ -32,7 +33,8 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset }) => 
       Id: seriesId,
       Color: e.hex.replace('#', '')
     } as Series;
-    updateSeries(updatedSeries);
+    const req = updateSeries(updatedSeries);
+    req.then(_ => refreshDataset(dataset.Id, true));
   }
 
   const handleLabelChange = (e: any, seriesId: number) => {
@@ -40,38 +42,13 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset }) => 
       Id: seriesId,
       Label: e.nativeEvent.srcElement.value
     } as Series;
-    updateSeries(updatedSeries);
+    const req = updateSeries(updatedSeries);
+    req.then(_ => refreshDataset(dataset.Id, true));
   }
 
-  async function updateDataset(dataset: Dataset) {
-    const response = await fetch(`${API_URL}Datasets(${dataset.Id})`, {
-      method: 'PATCH',
-      mode: 'cors', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrerPolicy: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(dataset)
-    });
-    return await response;
-  }
+  const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
 
-  async function updateSeries(series: Series) {
-    console.log('SERIES', series, typeof(series));
-    const response = await fetch(`${API_URL}Series(${series.Id})`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      referrerPolicy: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(series)
-    });
-    return await response;
-  }
+  const updateSeries = (series: Series) => new Request('Series').Patch(series);
 
   return (
     <Form className="center">

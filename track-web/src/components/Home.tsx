@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import * as React from 'react';
 import { Navbar } from "./Navbar";
 import { Form, Row, Col } from "react-bootstrap";
-import { map } from 'lodash';
+import { map, filter, findIndex } from 'lodash';
 import { Graph } from "./Graph";
 import { Dataset } from "../models/Dataset";
 import Toolbar from "./Toolbar";
@@ -13,9 +13,7 @@ import Request from "../models/Request";
 
 export const API_URL = 'https://localhost:44311/odata/';
 
-type HomeProps = {
-  datasetId?: number;
-};
+type HomeProps = {};
 
 export enum UserMode {
   View,
@@ -23,24 +21,40 @@ export enum UserMode {
 }
 
 const defaultUserMode = (): UserMode => {
-  const path = window.location.pathname.replace('/', '');
-  return UserMode.View;
+  return window.location.pathname.replace('/', '') == 'edit' ?
+    UserMode.Edit : UserMode.View;
 }
 
+const defaultDatasetId = (): number => {
+  const parsed = parseInt(window.localStorage.getItem('datasetId'));
+  return isNaN(parsed) ? 53 : parsed;
+}
 
-export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => {
+export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [dataset, setDataset] = useState<Dataset>();
   const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
+  const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
 
-
-  const loadDataset = (id: number) => {
-    new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get()
-      .then((d: Dataset) => {
-        setDataset(d);
-        if (!loaded) setLoaded(true);
-      });
+  const loadDataset = (id: number, force: boolean = false) => {
+    const cachedIndex = findIndex(datasetCache, c => c.Id == id);
+    
+    if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
+    else
+      new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get()
+        .then((d: Dataset) => {
+          setDataset(d);
+          window.localStorage.setItem('datasetId', d.Id.toString());
+          
+          if (cachedIndex < 0) {
+            datasetCache.push(d);
+          } else {
+            datasetCache[cachedIndex] = d;
+          }
+          setDatasetCache(datasetCache);
+          if (!loaded) setLoaded(true);
+        });
   }
 
   const loadDatasetList = () => {
@@ -48,9 +62,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => 
       .then(d => setDatasetList(d.value as Dataset[]));
   }
 
+  // Init
   useEffect(() => {
-    loadDataset(datasetId);
     loadDatasetList();
+    loadDataset(defaultDatasetId());
   }, []);
 
   const renderRoutes = () => {
@@ -65,13 +80,13 @@ export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => 
                 )}
               </ul>
             </Col>
-            <Col lg={9} className="order-1 order-md-1 order-lg-2">
+            <Col lg={9} className="order-1 order-lg-2">
               <Graph dataset={dataset} />
             </Col>
           </Row>
         </Route>
         <Route path="/edit">
-          <EditDataset dataset={dataset} />
+          <EditDataset dataset={dataset} refreshList={loadDatasetList} refreshDataset={loadDataset} />
         </Route>
       </>
     );
@@ -84,7 +99,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => 
         <div className="container">
           <div className="row mt-3">
             <div className="col-12">
-              <Toolbar datasetId={dataset.Id} datasetList={datasetList} mode={mode} updateMode={setMode} updateDataset={loadDataset} />
+              <Toolbar dataset={dataset} datasetList={datasetList} mode={mode} updateMode={setMode} updateDataset={loadDataset} />
             </div>
           </div>
           <hr />

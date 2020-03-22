@@ -31,8 +31,9 @@ class Request {
     this.filterString = '';
   }
 
-  private getUrl(): string {
-    const idString = this.id ? `(${this.id})` : '';
+  private getUrl(idOverride: number = null): string {
+    const id = idOverride || this.id;
+    const idString = id ? `(${id})` : '';
     const expandString = this.expands.length ? `?$expand=${this.expands.join(',')}` : '';
     return `${this.API_URL}${this.entity}${idString}${expandString}`;
   }
@@ -67,22 +68,11 @@ class Request {
     return this.execute(this.getUrl());
   }
 
-  public Patch = (id: number, entity: Dataset | Series) => {
-
-    const response = fetch(this.getUrl(), {
-      method: 'PATCH',
-      mode: 'cors', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrerPolicy: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(entity)
-    });
-    return response;
+  public Patch = (entity: Dataset | Series) => {
+    return this.execute(this.getUrl(this.id || entity.Id),
+      {
+        ...this.DEF_PATCH_PARAMS, body: JSON.stringify(entity)
+      } as RequestInit);
   }
 }
 

@@ -17,14 +17,14 @@ import { Dataset } from '../models/Dataset';
 
 
 type ToolbarProps = {
-  datasetId: number;
+  dataset: Dataset;
   datasetList: Dataset[];
   mode: UserMode;
   updateMode: Function;
   updateDataset: Function;
 };
 
-const Toolbar: React.FunctionComponent<ToolbarProps> = ({ mode, updateMode, updateDataset, datasetList, datasetId }) => {
+const Toolbar: React.FunctionComponent<ToolbarProps> = ({ mode, updateMode, updateDataset, datasetList, dataset }) => {
 
   const handleClick = (e: any) => {
     console.log('Toolbar handleClick', e);
@@ -56,13 +56,12 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({ mode, updateMode, upda
 
   return (
     <Form className="toolbar">
-      <Form.Control as="select" className="custom-select" disabled={mode == UserMode.Edit} onChange={(e: React.FormEvent) => updateDataset($(e.target).val())} value={datasetId.toString()}>
+      <Form.Control as="select" className="custom-select" disabled={mode == UserMode.Edit} onChange={(e: React.FormEvent) => updateDataset($(e.target).val())} value={dataset.Id.toString()}>
         {map(datasetList, (d, i) =>
           <option key={i} value={d.Id.toString()}>
             {d.Label}
           </option>
-        )
-        }
+        )}
       </Form.Control>
       {renderRouteAction()}
     </Form>

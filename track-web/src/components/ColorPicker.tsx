@@ -3,6 +3,7 @@ import { Form } from 'react-bootstrap';
 import { BlockPicker, Color, TwitterPicker } from 'react-color';
 import { useState } from 'react';
 
+const DEF_COLOR = 'd70206';
 
 type ColorPickerProps = {
   defaultColor: Color;
@@ -23,7 +24,9 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
     setShowing(!showing);
   }
 
-  var colorString = color.toString();
+  console.log(color);
+
+  var colorString = color ? color.toString() : DEF_COLOR;
   colorString = colorString.length == 6 ? `#${colorString}` : colorString;
 
   const notsure = (e: any) => {
