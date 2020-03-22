@@ -10,7 +10,10 @@ import {
   faCheck as saveIcon,
   faEdit as editActive,
   faTimes as cancelIcon,
-  faTrash as deleteIcon
+  faTrash as deleteIcon,
+  faPlus,
+  faPlusSquare,
+  faPlusCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { Form } from 'react-bootstrap';
 import { Dataset } from '../models/Dataset';
@@ -34,13 +37,13 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({ mode, updateMode, upda
     return (
       <>
         <Route exact path="/">
-          <Link to="edit" >
-            <FontAwesomeIcon icon={editIcon} color="gray" className="icon" onClick={() => updateMode(UserMode.Edit)} />
+          <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
+            <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
           </Link>
         </Route>
         <Route path="/edit">
-          <Link to="/">
-            <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" onClick={() => updateMode(UserMode.View)} />
+          <Link to="/" onClick={() => updateMode(UserMode.View)} >
+            <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
           </Link>
           {/* <Link to="/">
             <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />

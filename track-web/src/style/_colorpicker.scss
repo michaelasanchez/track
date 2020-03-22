@@ -20,7 +20,7 @@
 
   .twitter-picker {
     border: 1px solid #ced4da !important;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 2px !important;
+    box-shadow: $picker-box-shadow !important;
     width: 278px !important;
     // div:nth-child(1) {
     //   left: calc(12px - 90%)

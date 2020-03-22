@@ -12,7 +12,7 @@ type ColorPickerProps = {
 
 const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, onChange }) => {
   const [showing, setShowing] = useState<boolean>(false);
-  const [color, setColor] = useState<Color>(defaultColor);
+  const [color, setColor] = useState<Color>(defaultColor || DEF_COLOR);
 
   const handleChange = (e: any) => {
     setColor(e.hex);
@@ -24,9 +24,7 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
     setShowing(!showing);
   }
 
-  console.log(color);
-
-  var colorString = color ? color.toString() : DEF_COLOR;
+  var colorString = color.toString();
   colorString = colorString.length == 6 ? `#${colorString}` : colorString;
 
   const notsure = (e: any) => {
@@ -36,14 +34,14 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
 
   return (
     <div className="color-picker">
-      <Form.Control type="color" onChange={notsure} value={colorString} onClick={(e: any) => handleClick(e)}/>
+      <Form.Control type="color" onChange={notsure} value={colorString} onClick={(e: any) => handleClick(e)} />
       {showing && <div className="picker-container">
         <TwitterPicker
           color={color}
           colors={['#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#ABB8C3', '#EB144C', '#F78DA7', '#9900EF']}
           onChange={handleChange}
           triangle={'hide'}
-          // onChangeComplete={testing}
+        // onChangeComplete={testing}
         />
       </div>}
     </div>

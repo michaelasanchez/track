@@ -1,12 +1,12 @@
 import { Dataset } from "./Dataset";
 import { Series } from "./Series";
+import { Record } from "./Record";
 
 class Request {
 
   private API_URL: string = 'https://localhost:44311/odata/';
 
   private DEF_PATCH_PARAMS = {
-    method: 'PATCH',
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     credentials: 'same-origin', // include, *same-origin, omit
@@ -15,16 +15,16 @@ class Request {
       // 'Content-Type': 'application/x-www-form-urlencoded',
     },
     redirect: 'follow', // manual, *follow, error
-    referrerPolicy: 'no-referrer', // no-referrer, *client
+    // referrerPolicy: 'no-referrer', // no-referrer, *client
   };
 
-  private entity: 'Datasets' | 'Series';
+  private entity: 'Datasets' | 'Series' | 'Records';
   private id: number;
   private expands: string[];
 
   private filterString: string;
 
-  constructor(entity: 'Datasets' | 'Series', id: number = null) {
+  constructor(entity: 'Datasets' | 'Series' | 'Records', id: number = null) {
     this.entity = entity;
     if (id) this.id = id;
     this.expands = [];
@@ -32,10 +32,16 @@ class Request {
   }
 
   private getUrl(idOverride: number = null): string {
+    return `${this.API_URL}${this.entity}${this.getIdArg(idOverride)}${this.getExpandArg()}`;
+  }
+
+  private getIdArg(idOverride: number = null): string {
     const id = idOverride || this.id;
-    const idString = id ? `(${id})` : '';
-    const expandString = this.expands.length ? `?$expand=${this.expands.join(',')}` : '';
-    return `${this.API_URL}${this.entity}${idString}${expandString}`;
+    return id ? `(${id})` : '';
+  }
+
+  private getExpandArg(): string {
+    return this.expands.length ? `?$expand=${this.expands.join(',')}` : '';
   }
 
   private async execute(url: string, params: RequestInit = {}, toJson: boolean = true) {
@@ -68,10 +74,25 @@ class Request {
     return this.execute(this.getUrl());
   }
 
-  public Patch = (entity: Dataset | Series) => {
+  public Post = (entity: Dataset | Series | Record) => {
+    return this.execute(this.getUrl(),
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      redirect: 'follow', // manual, *follow, error
+      body: JSON.stringify(entity)
+    } as RequestInit);
+  }
+
+  public Patch = (entity: Dataset | Series | Record) => {
+    // TODO: is this weird?
     return this.execute(this.getUrl(this.id || entity.Id),
       {
-        ...this.DEF_PATCH_PARAMS, body: JSON.stringify(entity)
+        ...this.DEF_PATCH_PARAMS,
+        method: 'PATCH',
+        body: JSON.stringify(entity)
       } as RequestInit);
   }
 }

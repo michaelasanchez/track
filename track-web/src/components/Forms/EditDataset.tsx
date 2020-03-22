@@ -5,7 +5,6 @@ import { Color } from 'react-color';
 import { Dataset } from '../../models/Dataset';
 import { Series } from '../../models/Series';
 import ColorPicker from '../ColorPicker';
-import { API_URL } from '../Home';
 import Request from '../../models/Request';
 
 type EditDatasetProps = {
@@ -68,6 +67,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset, refre
             <Col md={8} lg={6} className="flex">
               <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => handleLabelChange(e, s.Id)} />
               <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => handleColorChange(e, s.Id)} />
+              {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}
             </Col>
           </Row>
         </Form.Group>

@@ -10,8 +10,10 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import EditDataset from "./Forms/EditDataset";
 import { Series } from "../models/Series";
 import Request from "../models/Request";
+import EditRecord from "./Forms/EditRecord";
 
 export const API_URL = 'https://localhost:44311/odata/';
+const DEF_DATASET_ID = 53;
 
 type HomeProps = {};
 
@@ -27,7 +29,7 @@ const defaultUserMode = (): UserMode => {
 
 const defaultDatasetId = (): number => {
   const parsed = parseInt(window.localStorage.getItem('datasetId'));
-  return isNaN(parsed) ? 53 : parsed;
+  return isNaN(parsed) ? DEF_DATASET_ID : parsed;
 }
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
@@ -39,14 +41,14 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const loadDataset = (id: number, force: boolean = false) => {
     const cachedIndex = findIndex(datasetCache, c => c.Id == id);
-    
+
     if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
     else
       new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get()
         .then((d: Dataset) => {
           setDataset(d);
           window.localStorage.setItem('datasetId', d.Id.toString());
-          
+
           if (cachedIndex < 0) {
             datasetCache.push(d);
           } else {
@@ -73,12 +75,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       <>
         <Route exact path="/">
           <Row>
-            <Col xs={12} md={4} lg={3} className="order-2 order-lg-1">
-              <ul>
-                {map(dataset.Series, (s: Series) =>
-                  <li key={s.Id}>{s.Label}</li>
-                )}
-              </ul>
+            <Col xs={12} lg={3} className="order-2 order-lg-1">
+              <EditRecord dataset={dataset} />
             </Col>
             <Col lg={9} className="order-1 order-lg-2">
               <Graph dataset={dataset} />
