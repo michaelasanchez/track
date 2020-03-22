@@ -132,7 +132,11 @@ namespace track_api.Controllers
                 }
             }
 
-            return Updated(dataset);
+            return Json(new
+            {
+                Id = dataset.Id,
+                Label = dataset.Label,
+            });
         }
 
         // DELETE: odata/Datasets(5)

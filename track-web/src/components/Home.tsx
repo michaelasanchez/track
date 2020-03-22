@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react"
 import * as React from 'react';
 import { Navbar } from "./Navbar";
-import { Form } from "react-bootstrap";
+import { Form, Row, Col } from "react-bootstrap";
 import { map } from 'lodash';
 import { Graph } from "./Graph";
 import { Dataset } from "../models/Dataset";
 import Toolbar from "./Toolbar";
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Edit from "./Edit";
+import EditDataset from "./Forms/EditDataset";
+import { Series } from "../models/Series";
+import Request from "../models/Request";
 
-const API_URL = 'https://localhost:44311/odata/';
+export const API_URL = 'https://localhost:44311/odata/';
 
 type HomeProps = {
   datasetId?: number;
@@ -33,29 +35,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => 
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
 
 
-  const loadDataset = (id: number | string | string[]) => {
-    fetch(`${API_URL}Datasets(${id})?$expand=Records/Properties,Series/SeriesType`)
-      .then(res => res.json())
-      .then((result) => {
-        setDataset(result as Dataset);
-        if (!loaded) setLoaded(true); // TODO: make this better
-      },
-        (error) => {
-          console.log('ERROR:', error);
-        })
+  const loadDataset = (id: number) => {
+    new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get()
+      .then((d: Dataset) => {
+        setDataset(d);
+        if (!loaded) setLoaded(true);
+      });
   }
 
   const loadDatasetList = () => {
-    fetch(`${API_URL}Datasets?$filter=Archived eq false`)
-      .then(res => res.json())
-      .then((result) => {
-        var datasets = result.value as Dataset[];
-        // console.log(datasets)
-        setDatasetList(datasets);
-      },
-        (error) => {
-          console.log('ERROR:', error);
-        })
+    new Request('Datasets').Filter('Archived eq false').Get()
+      .then(d => setDatasetList(d.value as Dataset[]));
   }
 
   useEffect(() => {
@@ -67,10 +57,21 @@ export const Home: React.FunctionComponent<HomeProps> = ({ datasetId = 53 }) => 
     return (
       <>
         <Route exact path="/">
-          <Graph dataset={dataset} />
+          <Row>
+            <Col xs={12} md={4} lg={3} className="order-2 order-lg-1">
+              <ul>
+                {map(dataset.Series, (s: Series) =>
+                  <li key={s.Id}>{s.Label}</li>
+                )}
+              </ul>
+            </Col>
+            <Col lg={9} className="order-1 order-md-1 order-lg-2">
+              <Graph dataset={dataset} />
+            </Col>
+          </Row>
         </Route>
         <Route path="/edit">
-          <Edit dataset={dataset} />
+          <EditDataset dataset={dataset} />
         </Route>
       </>
     );

@@ -42,9 +42,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({ mode, updateMode, upda
           <Link to="/">
             <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" onClick={() => updateMode(UserMode.View)} />
           </Link>
-          <Link to="/">
+          {/* <Link to="/">
             <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
-          </Link>
+          </Link> */}
           <div className="divider" />
           <Link to="/">
             <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />

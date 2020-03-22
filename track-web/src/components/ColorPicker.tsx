@@ -15,8 +15,7 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
 
   const handleChange = (e: any) => {
     setColor(e.hex);
-    onChange(e.hex);
-    // console.log('who', e.hex);
+    onChange(e);
   }
 
   const handleClick = (e: any) => {

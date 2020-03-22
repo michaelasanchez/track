@@ -72,6 +72,7 @@ namespace track_api.Controllers
         }
 
         // POST: odata/Series
+        [EnableQuery]
         public IHttpActionResult Post(Series series)
         {
             if (!ModelState.IsValid)
@@ -120,7 +121,12 @@ namespace track_api.Controllers
                 }
             }
 
-            return Updated(series);
+            return Json(new Series
+            {
+                Id = series.Id,
+                Label = series.Label,
+                Color = series.Color
+            });
         }
 
         // DELETE: odata/Series(5)
