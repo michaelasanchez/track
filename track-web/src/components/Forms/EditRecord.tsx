@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dataset } from '../../models/Dataset';
-import { map, findIndex } from 'lodash';
+import { map, findIndex, each } from 'lodash';
 import { Series } from '../../models/Series';
 import { Form, Button } from 'react-bootstrap';
 import DateTimePicker from '../DateTimePicker';
@@ -12,12 +12,12 @@ import Request from '../../models/Request';
 
 type EditRecordProps = {
   dataset: Dataset;
+  refreshDataset: Function;
 };
 
-const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset }) => {
+const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refreshDataset }) => {
   const [date, setDate] = useState<Date>(new Date());
   const [record, setRecord] = useState<Record>(new Record(dataset.Id));
-
 
   const updateDate = (d: Date) => {
     record.DateTime = d;
@@ -35,7 +35,8 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset }) => {
   }
 
   const updateNote = (e: any) => {
-    record.Notes = [new Note(e.target.value)];
+    const val = e.target.value;
+    if (val.length) record.Notes = [new Note(val)];
     setRecord(record);
   }
 
@@ -46,11 +47,33 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset }) => {
         DateTime: date
       } as Record);
 
-    req.then((r: any) => {
-      console.log(r);
+    req.then((r: Record) => {
+      const numProps = record.Properties.length;
+      const numNotes = record.Notes.length;
+      var loaded = 1;
+      var total = loaded + numProps + numNotes;
+      
+      if (numProps) {
+        each(record.Properties, p => {
+          var propReq = new Request('Properties').Post({ ...p, RecordId: r.Id } as Property);
+          propReq.then(_ => checkLoaded(++loaded, total));
+        })
+      }
+      if (numNotes) {
+        each(record.Notes, n => {
+          var noteReq = new Request('Notes').Post({ ...n, RecordId: r.Id } as Note);
+          noteReq.then(_ => checkLoaded(++loaded, total));
+        })
+      }
     });
   }
-  
+
+  const checkLoaded = (loaded:number, total: number) => {
+    console.log(`${loaded} / ${total}`);
+    if (loaded >= total) refreshDataset(dataset.Id, true);
+  }
+
+  console.log('RERENDERED');
 
   return (
     <Form>

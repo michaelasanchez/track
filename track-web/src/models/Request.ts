@@ -1,6 +1,8 @@
 import { Dataset } from "./Dataset";
 import { Series } from "./Series";
 import { Record } from "./Record";
+import { Property } from "./Property";
+import { Note } from "./Note";
 
 class Request {
 
@@ -18,13 +20,13 @@ class Request {
     // referrerPolicy: 'no-referrer', // no-referrer, *client
   };
 
-  private entity: 'Datasets' | 'Series' | 'Records';
+  private entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties';
   private id: number;
   private expands: string[];
 
   private filterString: string;
 
-  constructor(entity: 'Datasets' | 'Series' | 'Records', id: number = null) {
+  constructor(entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties', id: number = null) {
     this.entity = entity;
     if (id) this.id = id;
     this.expands = [];
@@ -74,19 +76,18 @@ class Request {
     return this.execute(this.getUrl());
   }
 
-  public Post = (entity: Dataset | Series | Record) => {
+  public Post = (entity: Record | Property | Note) => {
     return this.execute(this.getUrl(),
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      redirect: 'follow', // manual, *follow, error
       body: JSON.stringify(entity)
     } as RequestInit);
   }
 
-  public Patch = (entity: Dataset | Series | Record) => {
+  public Patch = (entity: Dataset | Series) => {
     // TODO: is this weird?
     return this.execute(this.getUrl(this.id || entity.Id),
       {

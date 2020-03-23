@@ -40,6 +40,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
 
   const loadDataset = (id: number, force: boolean = false) => {
+    window.localStorage.setItem('datasetId', id.toString());
     const cachedIndex = findIndex(datasetCache, c => c.Id == id);
 
     if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
@@ -47,7 +48,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get()
         .then((d: Dataset) => {
           setDataset(d);
-          window.localStorage.setItem('datasetId', d.Id.toString());
 
           if (cachedIndex < 0) {
             datasetCache.push(d);
@@ -76,7 +76,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         <Route exact path="/">
           <Row>
             <Col xs={12} lg={3} className="order-2 order-lg-1">
-              <EditRecord dataset={dataset} />
+              <EditRecord dataset={dataset} refreshDataset={loadDataset} />
             </Col>
             <Col lg={9} className="order-1 order-lg-2">
               <Graph dataset={dataset} />

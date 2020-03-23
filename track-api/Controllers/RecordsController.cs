@@ -72,6 +72,7 @@ namespace track_api.Controllers
         }
 
         // POST: odata/Records
+        [EnableQuery]
         public IHttpActionResult Post(Record record)
         {
             if (!ModelState.IsValid)
