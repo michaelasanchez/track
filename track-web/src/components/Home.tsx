@@ -98,7 +98,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
               <Toolbar
                 dataset={dataset}
                 datasetList={datasetList}
-                mode={mode} updateMode={setMode}
+                mode={mode}
+                updateMode={setMode}
                 updateDataset={loadDataset}
                 updateDatasetList={loadDatasetList}
               />

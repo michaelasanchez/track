@@ -8,7 +8,7 @@ class Request {
 
   private API_URL: string = 'https://localhost:44311/odata/';
 
-  private DEF_PATCH_PARAMS = {
+  private DEF_PARAMS = {
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     credentials: 'same-origin', // include, *same-origin, omit
@@ -32,7 +32,7 @@ class Request {
     this.filters = [];
   }
 
-  private getUrl(idOverride: number = null): string {
+  private buildUrlString(idOverride: number = null): string {
     var urlString = `${this.API_URL}${this.entity}${this.getIdArg(idOverride)}`;
     if (this.expands.length || this.filters.length)
       return `${urlString}?${this.getExpandArg()}${this.getFilterArg()}`;
@@ -79,11 +79,11 @@ class Request {
   }
 
   public Get = () => {
-    return this.execute(this.getUrl());
+    return this.execute(this.buildUrlString());
   }
 
   public Post = (entity: Record | Property | Note) => {
-    return this.execute(this.getUrl(),
+    return this.execute(this.buildUrlString(),
     {
       method: 'POST',
       headers: {
@@ -95,20 +95,18 @@ class Request {
 
   public Patch = (entity: Dataset | Series) => {
     // TODO: this is tied to caching. feels odd here
-    return this.execute(this.getUrl(this.id || entity.Id),
+    return this.execute(this.buildUrlString(this.id || entity.Id),
       {
-        ...this.DEF_PATCH_PARAMS,
+        ...this.DEF_PARAMS,
         method: 'PATCH',
         body: JSON.stringify(entity)
       } as RequestInit);
   }
 
   public Delete = (entity: Dataset) => {
-    console.log('delete this', entity);
-    console.log('query', this.getUrl(this.id || entity.Id));
-    return this.execute(this.getUrl(this.id || entity.Id),
+    return this.execute(this.buildUrlString(this.id || entity.Id),
       {
-        ...this.DEF_PATCH_PARAMS,
+        ...this.DEF_PARAMS,
         method: 'DELETE',
         body: JSON.stringify(entity)
       } as RequestInit,
