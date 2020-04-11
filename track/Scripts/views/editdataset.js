@@ -4,6 +4,28 @@ $('#save-tab').on('click', function () {
     editDataset();
 })
 
+//$('#archiveDataset').on('click', (e) => {
+//    var dataset = {
+//        Archived: true
+//    };
+//    $.ajax({
+//        type: "patch",
+//        async: false,
+//        contentType: 'application/json',
+//        url: `https://localhost:44311/odata/Datasets(${currentDataset.Id})`,
+//        data: JSON.stringify(dataset),
+//        dataType: 'json',
+//        success: () => {
+//            console.log($)
+//            refreshDatasetOptions();
+//            $('a', $cancelTab).trigger('click');
+//        },
+//        error: function (xhr, textStatus, errorMessage) {
+//            console.log('error', xhr, textStatus, errorMessage);
+//        }
+//    });
+//});
+
 // Update changed input
 $('#editDataset [name]').on('change', function () {
     $(this).addClass('changed');

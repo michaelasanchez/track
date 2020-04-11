@@ -18,6 +18,10 @@
                     <i class="fas fa-plus"></i>
                 </a>
             </li>
+
+            <li class="nav-item ml-auto" id="archive-tab" style="display: none;">
+                <a class="btn btn-sm btn-outline-danger float-right" id="archive" data-toggle="tab" href="#tab-chat">Archive</a>
+            </li>
             <li class="nav-item ml-auto" id="save-tab" style="display: none;">
                 <a class="nav-link" id="save" data-toggle="tab" href="#tab-chart">Save</a>
             </li>
@@ -78,22 +82,22 @@
     }
 
 
-    // Initialize page ----------------------------------------------------
-    updateDataset();
 
-    // Dataset Select - On Change
-    $('#datasetSelect').change(() => updateDataset());
+    // Init -------------------------------------------------------------
+    const $datasetSelect = $('#datasetSelect');
 
-
-    // Init UI ----------------------------------------------------------
-    var $addTab = $('#add-tab');
-    var $settingsTab = $('#settings-tab');
-    var $saveTab = $('#save-tab');
-    var $cancelTab = $('#cancel-tab');
+    const $addTab = $('#add-tab');
+    const $settingsTab = $('#settings-tab');
+    const $saveTab = $('#save-tab');
+    const $cancelTab = $('#cancel-tab');
 
     $(function () {
         initTabs();
+        updateDataset();
     });
+
+    // Dataset Select - On Change
+    $datasetSelect.change(() => updateDataset());
 
     // - UI ------------------------------------------------------------------
     function initTabs() {
@@ -159,6 +163,7 @@
         if (updateCookie) setCookie(LAST_DATASET_ID_KEY, dataId, 100);
 
         $.get(getDatasetQuery(dataId), (data) => {
+            console.log(data);
             currentDataset = data;
             refreshForm(currentDataset);
             refreshChart(currentDataset, $('.ct-chart'));
