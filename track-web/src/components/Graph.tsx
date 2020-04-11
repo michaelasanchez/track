@@ -11,7 +11,7 @@ type GraphProps = {
   type?: string;
 };
 
-export const Graph: React.FunctionComponent<GraphProps> = ({ dataset, type = "Line" }) => {
+const Graph: React.FunctionComponent<GraphProps> = ({ dataset, type = "Line" }) => {
 
   const convertDatasetToData = (dataset: Dataset): ChartistData => {
     var chartistData = new ChartistData(dataset.Series.length);
@@ -66,3 +66,5 @@ export const Graph: React.FunctionComponent<GraphProps> = ({ dataset, type = "Li
 
   return null;
 }
+
+export default Graph;

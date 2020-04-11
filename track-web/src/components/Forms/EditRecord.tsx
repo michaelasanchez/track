@@ -3,7 +3,7 @@ import { Dataset } from '../../models/Dataset';
 import { map, findIndex, each } from 'lodash';
 import { Series } from '../../models/Series';
 import { Form, Button } from 'react-bootstrap';
-import DateTimePicker from '../DateTimePicker';
+import DateTimePicker from '../utils/DateTimePicker';
 import { useState } from 'react';
 import { Record } from '../../models/Record';
 import { Note } from '../../models/Note';
@@ -69,7 +69,7 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refresh
   }
 
   const checkLoaded = (loaded:number, total: number) => {
-    console.log(`${loaded} / ${total}`);
+    // console.log(`${loaded} / ${total}`);
     if (loaded >= total) refreshDataset(dataset.Id, true);
   }
 

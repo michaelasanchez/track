@@ -3,15 +3,13 @@ import * as React from 'react';
 import { Navbar } from "./Navbar";
 import { Form, Row, Col } from "react-bootstrap";
 import { map, filter, findIndex } from 'lodash';
-import { Graph } from "./Graph";
 import { Dataset } from "../models/Dataset";
 import Toolbar from "./Toolbar";
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import EditDataset from "./Forms/EditDataset";
-import { Series } from "../models/Series";
+import EditDataset from "./forms/EditDataset";
 import Request from "../models/Request";
-import EditRecord from "./Forms/EditRecord";
-
+import EditRecord from "./forms/EditRecord";
+import Graph from "./Graph";
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
 
@@ -70,25 +68,25 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     loadDataset(defaultDatasetId());
   }, []);
 
-  const renderRoutes = () => {
-    return (
-      <>
-        <Route exact path="/">
-          <Row>
-            <Col xs={12} lg={3} className="order-2 order-lg-1">
-              <EditRecord dataset={dataset} refreshDataset={loadDataset} />
-            </Col>
-            <Col lg={9} className="order-1 order-lg-2">
-              <Graph dataset={dataset} />
-            </Col>
-          </Row>
-        </Route>
-        <Route path="/edit">
-          <EditDataset dataset={dataset} refreshList={loadDatasetList} refreshDataset={loadDataset} />
-        </Route>
-      </>
-    );
-  }
+  const renderGraph = () =>
+    <Row>
+      <Col xs={12} lg={3} className="order-2 order-lg-1">
+        <EditRecord dataset={dataset} refreshDataset={loadDataset} />
+      </Col>
+      <Col lg={9} className="order-1 order-lg-2">
+        <Graph dataset={dataset} />
+      </Col>
+    </Row>;
+
+  const renderRoutes = () =>
+    <>
+      <Route exact path="/">
+        {renderGraph()}
+      </Route>
+      <Route path="/edit">
+        <EditDataset dataset={dataset} refreshList={loadDatasetList} refreshDataset={loadDataset} />
+      </Route>
+    </>;
 
   if (loaded) {
     return (
@@ -97,7 +95,13 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         <div className="container">
           <div className="row mt-3">
             <div className="col-12">
-              <Toolbar dataset={dataset} datasetList={datasetList} mode={mode} updateMode={setMode} updateDataset={loadDataset} />
+              <Toolbar
+                dataset={dataset}
+                datasetList={datasetList}
+                mode={mode} updateMode={setMode}
+                updateDataset={loadDataset}
+                updateDatasetList={loadDatasetList}
+              />
             </div>
           </div>
           <hr />

@@ -4,7 +4,7 @@ import { Form, Row, Col } from 'react-bootstrap';
 import { Color } from 'react-color';
 import { Dataset } from '../../models/Dataset';
 import { Series } from '../../models/Series';
-import ColorPicker from '../ColorPicker';
+import ColorPicker from '../utils/ColorPicker';
 import Request from '../../models/Request';
 
 type EditDatasetProps = {

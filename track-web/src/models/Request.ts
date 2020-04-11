@@ -23,18 +23,20 @@ class Request {
   private entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties';
   private id: number;
   private expands: string[];
-
-  private filterString: string;
+  private filters: string[];
 
   constructor(entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties', id: number = null) {
     this.entity = entity;
     if (id) this.id = id;
     this.expands = [];
-    this.filterString = '';
+    this.filters = [];
   }
 
   private getUrl(idOverride: number = null): string {
-    return `${this.API_URL}${this.entity}${this.getIdArg(idOverride)}${this.getExpandArg()}`;
+    var urlString = `${this.API_URL}${this.entity}${this.getIdArg(idOverride)}`;
+    if (this.expands.length || this.filters.length)
+      return `${urlString}?${this.getExpandArg()}${this.getFilterArg()}`;
+    return urlString;
   }
 
   private getIdArg(idOverride: number = null): string {
@@ -43,7 +45,11 @@ class Request {
   }
 
   private getExpandArg(): string {
-    return this.expands.length ? `?$expand=${this.expands.join(',')}` : '';
+    return this.expands.length ? `$expand=${this.expands.join(',')}` : '';
+  }
+
+  private getFilterArg(): string { 
+    return this.filters.length ? `$filter=${this.filters.join(',')}` : '';
   }
 
   private async execute(url: string, params: RequestInit = {}, toJson: boolean = true) {
@@ -62,8 +68,8 @@ class Request {
     return this;
   }
 
-  public Filter = (filterString: string): Request => {
-    this.filterString = filterString;
+  public Filter = (filter: string): Request => {
+    this.filters.push(filter);
     return this;
   }
 
@@ -88,13 +94,25 @@ class Request {
   }
 
   public Patch = (entity: Dataset | Series) => {
-    // TODO: is this weird?
+    // TODO: this is tied to caching. feels odd here
     return this.execute(this.getUrl(this.id || entity.Id),
       {
         ...this.DEF_PATCH_PARAMS,
         method: 'PATCH',
         body: JSON.stringify(entity)
       } as RequestInit);
+  }
+
+  public Delete = (entity: Dataset) => {
+    console.log('delete this', entity);
+    console.log('query', this.getUrl(this.id || entity.Id));
+    return this.execute(this.getUrl(this.id || entity.Id),
+      {
+        ...this.DEF_PATCH_PARAMS,
+        method: 'DELETE',
+        body: JSON.stringify(entity)
+      } as RequestInit,
+      false);
   }
 }
 
