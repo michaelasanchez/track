@@ -1,9 +1,9 @@
 ﻿@using track_api.Controllers;
 @using track_api.Models;
 @{
-    int lastId = Int32.Parse(ViewData["lastId"].ToString());
+    int lastId = 60; // Int32.Parse(ViewData["lastId"].ToString());
 
-    foreach (Dataset ds in new DatasetsController().GetDatasets().ToList())
+    foreach (Dataset ds in new DatasetsController().GetDatasets().Where(ds => !ds.Archived).ToList())
     {
         <option value="@ds.Id" @((ds.Id == lastId) ? "selected=\"selected\"" : "")>@ds.Label</option>
     }

@@ -26,46 +26,48 @@ $('#datetimeSelect').focusout(function (e) {
     focusValue = null;
 });
 
-// Add Record Button
 $('#addRecord').click(function (e) {
-    var datasetId = $('#datasetSelect').val();
-    var datetime = $('#datetimeSelect').val();
-    var labels = [];
-    var values = [];
 
-    // Use current time is input in unchanged
+    $datasetSelect = $('#datasetSelect');
+    $datetimeSelect = $('#datetimeSelect');
+    $noteTextarea = $('#noteTextarea');
+
+    // Record
+    var datetime = $datetimeSelect.val();
     var now = new Date();
     if (datetime == moment(now).format("MM/DD/YYYY h:mm A")) {
         datetime = moment(now).format("MM/DD/YYYY hh:mm:ss a");
     }
 
-    var formProps = $('#createRecord .form-props .form-group');
-
-    for (var i = 0; i < formProps.length; i++) {
-        var label = $('label', formProps[i]).html();
-        var value = $('.form-control', formProps[i]).val();
-        $('.form-control', formProps[i]).val('');
-
-        labels.push(label);
-        values.push(value);
-    }
-
-    // Grab note value & clear
-    var noteText = $('#noteTextarea').val();
-    $('#noteTextarea').val('');
-
     var record = {
-        DatasetId: datasetId,
+        DatasetId: $datasetSelect.val(),
         DateTime: datetime
     }
 
     $.post('https://localhost:44311/odata/Records', record, (resp) => {
+
+        // Note
+        var noteText = $noteTextarea.val();
+        $noteTextarea.val('');
 
         if (noteText != '') {
             $.post('https://localhost:44311/odata/Notes', {
                 RecordId: resp.Id,
                 Text: noteText
             });
+        }
+
+        // Properties
+        var labels = [], values = [];
+        var formProps = $('#createRecord .form-props .form-group');
+
+        for (var i = 0; i < formProps.length; i++) {
+            var label = $('label', formProps[i]).html();
+            var value = $('.form-control', formProps[i]).val();
+            $('.form-control', formProps[i]).val('');
+
+            labels.push(label);
+            values.push(value);
         }
 
         for (var p in labels) {
