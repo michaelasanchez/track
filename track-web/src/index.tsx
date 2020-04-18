@@ -4,11 +4,9 @@ import './style/app.scss';
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-
-import { Home } from './components/Home';
-
+import App from './App';
 
 ReactDOM.render(
-  <Home />,
+  <App />,
   document.querySelector('main')
 )

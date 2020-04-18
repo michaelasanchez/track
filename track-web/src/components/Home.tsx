@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import * as React from 'react';
 import { Navbar } from "./Navbar";
-import { Form, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { map, filter, findIndex } from 'lodash';
 import { Dataset } from "../models/Dataset";
 import Toolbar from "./Toolbar";
@@ -10,6 +10,8 @@ import EditDataset from "./forms/EditDataset";
 import Request from "../models/Request";
 import EditRecord from "./forms/EditRecord";
 import Graph from "./Graph";
+
+
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
 
@@ -90,7 +92,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   if (loaded) {
     return (
-      <Router>
+      <>
         <Navbar />
         <div className="container">
           <div className="row mt-3">
@@ -112,7 +114,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
             </div>
           </div>
         </div>
-      </Router>
+      </>
     );
   }
 

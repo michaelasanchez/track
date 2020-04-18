@@ -16,6 +16,8 @@
     "@fortawesome/free-regular-svg-icons": "^5.12.1",
     "@fortawesome/free-solid-svg-icons": "^5.12.1",
     "@fortawesome/react-fontawesome": "^0.1.8",
+    "@okta/okta-auth-js": "^3.0.1",
+    "@okta/okta-signin-widget": "^3.9.1",
     "@types/react-color": "^3.0.1",
     "@types/react-router-dom": "^5.1.3",
     "bootstrap": "^4.4.1",
@@ -33,6 +35,7 @@
     "react-router-dom": "^5.1.2"
   },
   "devDependencies": {
+    "@okta/okta-react": "^3.0.0",
     "@types/chartist": "^0.9.47",
     "@types/jquery": "^3.3.33",
     "@types/lodash": "^4.14.149",
@@ -40,6 +43,7 @@
     "@types/react-dom": "^16.9.5",
     "autoprefixer": "^9.7.4",
     "css-loader": "^3.4.2",
+    "dotenv": "^8.2.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.9.0",
     "node-sass": "^4.13.1",
