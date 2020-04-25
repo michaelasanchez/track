@@ -73,8 +73,6 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refresh
     if (loaded >= total) refreshDataset(dataset.Id, true);
   }
 
-  console.log('RERENDERED');
-
   return (
     <Form>
       {map(dataset.Series, (s: Series) =>

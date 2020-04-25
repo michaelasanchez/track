@@ -18,7 +18,7 @@ const App: React.FunctionComponent<AppProps> = ({ }) => {
         clientId={CLIENT_ID}
         redirectUri={`${window.location.origin}/callback`}
       >
-        <Route path="/" exact={true} component={Home} />
+        <Route path="/" component={Home} />
         {/* <Route path="/login" render={() => <Login baseUrl={BASE_URL} />} /> */}
         <Route path="/callback" component={LoginCallback} />
       </Security>

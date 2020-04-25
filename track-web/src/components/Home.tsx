@@ -1,21 +1,19 @@
-import { useState, useEffect } from "react"
-import * as React from 'react';
+import React, { useState, useEffect } from 'react'
 import { Navbar } from "./Navbar";
 import { Row, Col } from "react-bootstrap";
 import { map, filter, findIndex } from 'lodash';
 import { Dataset } from "../models/Dataset";
 import Toolbar from "./Toolbar";
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import EditDataset from "./forms/EditDataset";
 import Request from "../models/Request";
 import EditRecord from "./forms/EditRecord";
 import Graph from "./Graph";
 
+import { useOktaAuth } from '@okta/okta-react';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
-
-type HomeProps = {};
 
 export enum UserMode {
   View,
@@ -23,7 +21,7 @@ export enum UserMode {
 }
 
 const defaultUserMode = (): UserMode => {
-  return window.location.pathname.replace('/', '') == 'edit' ?
+  return window.location.pathname.includes('edit') ?
     UserMode.Edit : UserMode.View;
 }
 
@@ -32,12 +30,16 @@ const defaultDatasetId = (): number => {
   return isNaN(parsed) ? DEF_DATASET_ID : parsed;
 }
 
+type HomeProps = {};
+
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [dataset, setDataset] = useState<Dataset>();
   const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
+
+  const { authState, authService } = useOktaAuth();
 
   const loadDataset = (id: number, force: boolean = false) => {
     window.localStorage.setItem('datasetId', id.toString());
@@ -60,15 +62,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const loadDatasetList = () => {
-    new Request('Datasets').Filter('Archived eq false').Get()
+    new Request('Datasets').Filter('Archived eq false').Get(authState.accessToken)
       .then(d => setDatasetList(d.value as Dataset[]));
   }
 
   // Init
   useEffect(() => {
-    loadDatasetList();
-    loadDataset(defaultDatasetId());
-  }, []);
+    // if (authState.isAuthenticated) {
+      loadDatasetList();
+      loadDataset(defaultDatasetId());
+    // }
+  }, [authState.accessToken])
 
   const renderGraph = () =>
     <Row>
@@ -93,7 +97,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   if (loaded) {
     return (
       <>
-        <Navbar />
+        <Navbar authState={authState} authService={authService} />
         <div className="container">
           <div className="row mt-3">
             <div className="col-12">
@@ -118,5 +122,5 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     );
   }
 
-  return null;
+  return <div>Loading...</div>;
 }

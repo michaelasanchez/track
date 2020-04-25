@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as DateTime from 'react-datetime';
+import DateTime from 'react-datetime';
 import { Moment } from 'moment';
 
 

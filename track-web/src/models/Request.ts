@@ -78,8 +78,13 @@ class Request {
     return this;
   }
 
-  public Get = () => {
-    return this.execute(this.buildUrlString());
+  public Get = (token: any | null = null) => {
+    return this.execute(this.buildUrlString(),
+    !token ? null : {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
   public Post = (entity: Record | Property | Note) => {

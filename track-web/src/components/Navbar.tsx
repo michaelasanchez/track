@@ -1,11 +1,21 @@
-import * as React from 'react';
 import { Navbar as BootstrapNavbar, Nav } from 'react-bootstrap';
-import { useOktaAuth } from '@okta/okta-react';
+import React, { useState, useEffect } from 'react';
+import { OktaUser as User } from '../models/OktaUser';
 
-type TrackNavbarProps = {};
+type TrackNavbarProps = {
+  authState: any;
+  authService: any;
+};
 
-export const Navbar: React.FunctionComponent<TrackNavbarProps> = ({ }) => {
-  const { authState, authService } = useOktaAuth();
+export const Navbar: React.FunctionComponent<TrackNavbarProps> = ({ authState, authService }) => {
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    authService.getUser().then((d: User) => {
+      console.log('Navbar - getUser', d);
+    })
+  }, [])
 
   const login = async () => {
     // Redirect to '/' after login

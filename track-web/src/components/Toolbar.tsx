@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as $ from 'jquery';
+import $ from 'jquery';
 import { map } from 'lodash';
 import { Link, Route } from 'react-router-dom';
 import { UserMode } from './Home';
