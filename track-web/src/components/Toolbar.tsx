@@ -17,7 +17,7 @@ import {
   faTrash as deleteIcon,
   faPlus,
   faPlusSquare,
-  faPlusCircle
+  faPlusCircle as createIcon
 } from '@fortawesome/free-solid-svg-icons'
 
 
@@ -38,14 +38,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   datasetList,
   dataset
 }) => {
+  const [show, setShow] = useState(false);
 
   const archiveDataset = (dataset: Dataset) => new Request('Datasets').Delete(dataset);
-
-  // const handleClick = (e: any) => {
-  //   console.log('Toolbar handleClick', e);
-  // }
-
-  const [show, setShow] = useState(false);
 
   const handleClose = (confirm: boolean = false) => {
     setShow(false);
@@ -75,25 +70,50 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </Modal.Footer>
     </Modal>
 
+  const renderDefault = () =>
+    <Route exact path="/">
+      <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
+        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+      </Link>
+      <div className="divider" />
+      <Link to="/create">
+        <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
+      </Link>
+    </Route>
+
+  const renderEdit = () =>
+    <Route path="/edit">
+      <Link to="/" onClick={() => updateMode(UserMode.View)} >
+        <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
+      </Link>
+      {/* <Link to="/">
+        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
+      </Link> */}
+      <div className="divider" />
+      <Link to="/edit" onClick={handleShow}>
+        <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
+      </Link>
+    </Route>
+
+  const renderCreate = () =>
+    <Route path="/create">
+      <Link to="edit" onClick={() => updateMode(UserMode.Edit)}  >
+        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+      </Link>
+      <div className="divider" />
+      <Link to="/">
+        <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
+      </Link>
+      <Link to="/">
+        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
+      </Link>
+    </Route>
+
   const renderRouteAction = () =>
     <>
-      <Route exact path="/">
-        <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
-          <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
-        </Link>
-      </Route>
-      <Route path="/edit">
-        <Link to="/" onClick={() => updateMode(UserMode.View)} >
-          <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
-        </Link>
-        {/* <Link to="/">
-            <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
-          </Link> */}
-        <div className="divider" />
-        <Link to="/edit" onClick={handleShow}>
-          <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
-        </Link>
-      </Route>
+      {renderDefault()}
+      {renderEdit()}
+      {renderCreate()}
     </>
 
   return (

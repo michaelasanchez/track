@@ -18,8 +18,9 @@
       svg {
         opacity: 1;
         transform: scale(1.05);
-        transition: all 150ms;
+        transition: all 300ms;
       
+        &.create,
         &.save {
           color: green;
         }

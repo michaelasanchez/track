@@ -12,14 +12,12 @@ type AppProps = {};
 const App: React.FunctionComponent<AppProps> = ({ }) => {
   return (
     <Router>
-      {/* <Security onAuthRequired={onAuthRequired} {...config}> */}
       <Security
         issuer={`${BASE_URL}/oauth2/default`}
         clientId={CLIENT_ID}
         redirectUri={`${window.location.origin}/callback`}
       >
         <Route path="/" component={Home} />
-        {/* <Route path="/login" render={() => <Login baseUrl={BASE_URL} />} /> */}
         <Route path="/callback" component={LoginCallback} />
       </Security>
     </Router>

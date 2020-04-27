@@ -14,3 +14,19 @@
     }
   }
 }
+
+form {
+  input {
+    transition: opacity .3s;
+  }
+  input.pending {
+    opacity: .5;
+
+    &:focus {
+      opacity: 1;
+    }
+  }
+  .icon.pending {
+    opacity: 0;
+  }
+}

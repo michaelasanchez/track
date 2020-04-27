@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { map } from 'lodash';
-import { Form, Row, Col } from 'react-bootstrap';
-import { Color } from 'react-color';
 import { Dataset } from '../../models/Dataset';
 import { Series } from '../../models/Series';
-import ColorPicker from '../utils/ColorPicker';
 import Request from '../../models/Request';
+import DatasetForm from './DatasetForm';
 
 type EditDatasetProps = {
   dataset: Dataset;
@@ -14,6 +11,9 @@ type EditDatasetProps = {
 };
 
 const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset, refreshList, refreshDataset }) => {
+  
+  const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
+  const updateSeries = (series: Series) => new Request('Series').Patch(series);
 
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
     const updatedDataset = {
@@ -45,34 +45,13 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset, refre
     req.then(_ => refreshDataset(dataset.Id, true));
   }
 
-  const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
-
-  const updateSeries = (series: Series) => new Request('Series').Patch(series);
-
   return (
-    <Form className="center">
-      <h5>Label</h5>
-      <Form.Group>
-        <Row>
-          <Col sm={12} md={8} lg={6}>
-            {/* <Form.Label>Label</Form.Label> */}
-            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => handleDatasetLabelChange(e, dataset.Id)} />
-          </Col>
-        </Row>
-      </Form.Group>
-      <h5>Properties</h5>
-      {map(dataset.Series, (s: Series) =>
-        <Form.Group key={s.Id}>
-          <Row>
-            <Col md={8} lg={6} className="flex">
-              <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => handleLabelChange(e, s.Id)} />
-              <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => handleColorChange(e, s.Id)} />
-              {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}
-            </Col>
-          </Row>
-        </Form.Group>
-      )}
-    </Form>
+    <DatasetForm
+      dataset={dataset}
+      onDatasetLabelChange={handleDatasetLabelChange}
+      onLabelChange={handleLabelChange}
+      onColorChange={handleColorChange}
+    />
   );
 }
 

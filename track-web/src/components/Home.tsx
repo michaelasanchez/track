@@ -11,6 +11,7 @@ import EditRecord from "./forms/EditRecord";
 import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
+import CreateDataset from './Forms/CreateDataset';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
@@ -68,10 +69,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   // Init
   useEffect(() => {
-    // if (authState.isAuthenticated) {
+    // console.log('AUTH STATE', authState);
+    if (!authState.isPending) {
       loadDatasetList();
       loadDataset(defaultDatasetId());
-    // }
+    }
   }, [authState.accessToken])
 
   const renderGraph = () =>
@@ -91,6 +93,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       </Route>
       <Route path="/edit">
         <EditDataset dataset={dataset} refreshList={loadDatasetList} refreshDataset={loadDataset} />
+      </Route>
+      <Route path="/create">
+        <CreateDataset refreshList={loadDatasetList} refreshDataset={loadDataset} />
       </Route>
     </>;
 

@@ -7,10 +7,11 @@ const DEF_COLOR = 'd70206';
 
 type ColorPickerProps = {
   defaultColor: Color;
+  className?: string;
   onChange: Function;
 };
 
-const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, onChange }) => {
+const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, className = null, onChange }) => {
   const [showing, setShowing] = useState<boolean>(false);
   const [color, setColor] = useState<Color>(defaultColor || DEF_COLOR);
 
@@ -34,7 +35,7 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
 
   return (
     <div className="color-picker">
-      <Form.Control type="color" onChange={notsure} value={colorString} onClick={(e: any) => handleClick(e)} />
+      <Form.Control type="color" onChange={notsure} value={colorString} onClick={(e: any) => handleClick(e)} className={className} />
       {showing && <div className="picker-container">
         <TwitterPicker
           color={color}

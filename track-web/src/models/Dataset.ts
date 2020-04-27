@@ -10,7 +10,12 @@ export class Dataset {
 
   // TODO: Make these private
   private records: Record[];
-  public Series: Series[];
+  private series: Series[];
+
+  constructor() {
+    this.records = [];
+    this.series = [];
+  }
 
   public get Records() {
     return this.records;
@@ -18,5 +23,13 @@ export class Dataset {
 
   public set Records(value: Record[]) {
     this.records = value;
+  }
+
+  public get Series() {
+    return this.series;
+  }
+
+  public set Series(value: Series[]) {
+    this.series = value;
   }
 }
