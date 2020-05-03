@@ -16,7 +16,6 @@ module.exports = function makeWebpackConfig() {
   };
 
   config.resolve = {
-    // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: ['.tsx', '.ts', '.js']
   };
 
@@ -41,6 +40,7 @@ module.exports = function makeWebpackConfig() {
     //   chunkFilename: isProd ? '[name].[hash].js' : '[name].bundle.js'
   };
 
+  // loaders
   config.module = {
     rules: [
       {
@@ -83,6 +83,13 @@ module.exports = function makeWebpackConfig() {
       }
     ]
   };
+
+  // create a nice object from the env variable
+  // const envKeys = Object.keys(process.env).reduce((prev, next) => {
+  //   prev[`process.env.${next}`] = JSON.stringify(process.env[next]);
+  //   return prev;
+  // }, {});
+
   config.plugins = [
     new HtmlWebpackPlugin({
       template: './src/public/index.html',

@@ -87,7 +87,8 @@ class Request {
     })
   }
 
-  public Post = (entity: Record | Property | Note) => {
+  public Post = (entity: Dataset | Record | Property | Note) => {
+    console.log('who who who', entity)
     return this.execute(this.buildUrlString(),
     {
       method: 'POST',
@@ -99,6 +100,7 @@ class Request {
   }
 
   public Patch = (entity: Dataset | Series) => {
+    // Entity id is used as fallback when id has been manually set
     // TODO: this is tied to caching. feels odd here
     return this.execute(this.buildUrlString(this.id || entity.Id),
       {

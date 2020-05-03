@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Navbar } from "./Navbar";
 import { Row, Col } from "react-bootstrap";
-import { map, filter, findIndex } from 'lodash';
+import { map, filter, findIndex, each } from 'lodash';
 import { Dataset } from "../models/Dataset";
-import Toolbar from "./Toolbar";
+import Toolbar, { ToolbarAction } from "./Toolbar";
 import { Route } from 'react-router-dom';
 import EditDataset from "./forms/EditDataset";
 import Request from "../models/Request";
@@ -12,6 +12,7 @@ import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
 import CreateDataset from './Forms/CreateDataset';
+import { Series } from '../models/Series';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
@@ -35,12 +36,16 @@ type HomeProps = {};
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [dataset, setDataset] = useState<Dataset>();
-  const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
+
+  const [dataset, setDataset] = useState<Dataset>();
+  const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset());
+
+  const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
 
   const { authState, authService } = useOktaAuth();
+
 
   const loadDataset = (id: number, force: boolean = false) => {
     window.localStorage.setItem('datasetId', id.toString());
@@ -67,6 +72,31 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       .then(d => setDatasetList(d.value as Dataset[]));
   }
 
+  /* Toolbar Actions */
+  const handleToolbarAction = (action: ToolbarAction, whoa?: Dataset) => {
+    switch (action) {
+      case ToolbarAction.Create:
+        createDataset(pendingDataset);
+        break;
+    }
+  }
+
+  const createDataset = (dataset: Dataset) => {
+    dataset.Series.pop();
+    each(dataset.Series, (s: Series) => s.TypeId = 2);
+
+    const newDataset = {
+      UserId: 1,
+      Label: dataset.Label,
+      Series: dataset.Series,
+    } as Dataset;
+
+    console.log('gonna make this shit', newDataset);
+
+    var req = new Request('Datasets').Post(newDataset);
+  }
+
+
   // Init
   useEffect(() => {
     // console.log('AUTH STATE', authState);
@@ -92,10 +122,19 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         {renderGraph()}
       </Route>
       <Route path="/edit">
-        <EditDataset dataset={dataset} refreshList={loadDatasetList} refreshDataset={loadDataset} />
+        <EditDataset
+          dataset={dataset}
+          refreshList={loadDatasetList}
+          refreshDataset={loadDataset}
+        />
       </Route>
       <Route path="/create">
-        <CreateDataset refreshList={loadDatasetList} refreshDataset={loadDataset} />
+        <CreateDataset
+          dataset={pendingDataset}
+          updateDataset={setPendingDataset}
+          refreshList={loadDatasetList}
+          refreshDataset={loadDataset}
+        />
       </Route>
     </>;
 
@@ -113,6 +152,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
                 updateMode={setMode}
                 updateDataset={loadDataset}
                 updateDatasetList={loadDatasetList}
+                onAction={handleToolbarAction}
               />
             </div>
           </div>

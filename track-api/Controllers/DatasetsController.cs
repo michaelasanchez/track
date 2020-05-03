@@ -7,22 +7,24 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
 using track_api.Models;
 using System.Web.Http.Cors;
-
+using System.Web.Http;
+using System.Web;
 
 namespace track_api.Controllers
 {
+    //[Authorize]
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class DatasetsController : ODataController
     {
         private TrackContext db = new TrackContext();
 
         // GET: odata/Datasets
+        //[Authorize]
         [EnableQuery]
         public IQueryable<Dataset> GetDatasets()
         {
@@ -92,7 +94,16 @@ namespace track_api.Controllers
             }
 
             db.Datasets.Add(dataset);
-            db.SaveChanges();
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                while (ex.InnerException != null) ex = ex.InnerException;
+                return BadRequest(ex.Message);
+            }
 
             return Created(dataset);
         }
@@ -132,11 +143,7 @@ namespace track_api.Controllers
                 }
             }
 
-            return Json(new
-            {
-                Id = dataset.Id,
-                Label = dataset.Label,
-            });
+            return Updated(dataset);
         }
 
         // DELETE: odata/Datasets(5)

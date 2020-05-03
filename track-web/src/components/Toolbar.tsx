@@ -20,6 +20,9 @@ import {
   faPlusCircle as createIcon
 } from '@fortawesome/free-solid-svg-icons'
 
+export enum ToolbarAction {
+  Create,
+}
 
 type ToolbarProps = {
   dataset: Dataset;
@@ -28,6 +31,7 @@ type ToolbarProps = {
   updateMode: Function;
   updateDataset: Function;
   updateDatasetList: Function;
+  onAction: Function;
 };
 
 const Toolbar: React.FunctionComponent<ToolbarProps> = ({
@@ -36,11 +40,14 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   updateDataset,
   updateDatasetList,
   datasetList,
-  dataset
+  dataset,
+  onAction
 }) => {
   const [show, setShow] = useState(false);
 
   const archiveDataset = (dataset: Dataset) => new Request('Datasets').Delete(dataset);
+
+  const handleShow = () => setShow(true);
 
   const handleClose = (confirm: boolean = false) => {
     setShow(false);
@@ -50,8 +57,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       req.then(() => updateDatasetList());
     }
   };
-  const handleShow = () => setShow(true);
 
+  /* Delete Modal */
   const renderModal = () =>
     <Modal show={show} onHide={handleClose} animation={false}>
       <Modal.Header closeButton>
@@ -70,6 +77,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </Modal.Footer>
     </Modal>
 
+  /* Home */
   const renderDefault = () =>
     <Route exact path="/">
       <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
@@ -79,8 +87,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <Link to="/create">
         <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
       </Link>
-    </Route>
+    </Route>;
 
+  /* Edit */
   const renderEdit = () =>
     <Route path="/edit">
       <Link to="/" onClick={() => updateMode(UserMode.View)} >
@@ -93,8 +102,10 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <Link to="/edit" onClick={handleShow}>
         <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
       </Link>
-    </Route>
+    </Route>;
 
+
+  /* Create */
   const renderCreate = () =>
     <Route path="/create">
       <Link to="edit" onClick={() => updateMode(UserMode.Edit)}  >
@@ -104,10 +115,10 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <Link to="/">
         <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
       </Link>
-      <Link to="/">
+      <Link to="/" onClick={() => onAction(ToolbarAction.Create)}>
         <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
       </Link>
-    </Route>
+    </Route>;
 
   const renderRouteAction = () =>
     <>

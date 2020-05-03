@@ -5,14 +5,16 @@ import Request from '../../models/Request';
 import DatasetForm from './DatasetForm';
 import { useState, useEffect } from 'react';
 import { times } from 'lodash';
+import { Route } from 'react-router-dom';
 
 type CreateDatasetProps = {
+  dataset: Dataset;
+  updateDataset: Function;
   refreshList: Function;
   refreshDataset: Function;
 };
 
-const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ refreshList, refreshDataset }) => {
-  const [dataset, setDataset] = useState<Dataset>(new Dataset());
+const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, updateDataset, refreshList, refreshDataset }) => {
   const [nextSeriesIndex, setNextSeriesIndex] = useState<number>(2);
 
   if (!dataset.Series.length) {
@@ -25,11 +27,11 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ refreshLis
     });
   }
 
-  const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
-  const updateSeries = (series: Series) => new Request('Series').Patch(series);
+  // const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
+  // const updateSeries = (series: Series) => new Request('Series').Patch(series);
 
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
-    setDataset({
+    updateDataset({
       ...dataset,
       Series: dataset.Series,
       Label: e.nativeEvent.srcElement.value
@@ -43,7 +45,7 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ refreshLis
     dataset.Series[seriesIndex].Color = hex;
     addSeries(seriesIndex, hex);
 
-    setDataset({
+    updateDataset({
       ...dataset,
       Series: dataset.Series,
     } as Dataset);
@@ -56,7 +58,7 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ refreshLis
     dataset.Series[seriesIndex].Label = value;
     addSeries(seriesIndex, value);
 
-    setDataset({
+    updateDataset({
       ...dataset,
       Series: dataset.Series,
     } as Dataset);
@@ -76,7 +78,7 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ refreshLis
 
   const removeSeries = (e: any, seriesId: number) => {
     dataset.Series.splice(dataset.Series.findIndex(s => s.Id == seriesId), 1);
-    setDataset({
+    updateDataset({
       ...dataset,
       Series: dataset.Series,
     } as Dataset);
