@@ -15,6 +15,20 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset, refre
   const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
   const updateSeries = (series: Series) => new Request('Series').Patch(series);
 
+  const handleDatasetPrivateChange = (e: any, datasetId: number) => {
+    console.log('PRIVATE', e.currentTarget.checked);
+    const updatedDataset = {
+      Id: datasetId,
+      Private: e.currentTarget.checked,
+    } as Dataset;
+    const req = updateDataset(updatedDataset);
+    req.then(_ => {
+      refreshList();
+      refreshDataset(dataset.Id, true);
+    });
+  }
+
+
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
     const updatedDataset = {
       Id: datasetId,
@@ -48,6 +62,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({ dataset, refre
   return (
     <DatasetForm
       dataset={dataset}
+      onPrivateChange={handleDatasetPrivateChange}
       onDatasetLabelChange={handleDatasetLabelChange}
       onLabelChange={handleLabelChange}
       onColorChange={handleColorChange}

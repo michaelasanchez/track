@@ -53,7 +53,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
     if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
     else
-      new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get()
+      new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get(authState.accessToken)
         .then((d: Dataset) => {
           setDataset(d);
 
@@ -82,18 +82,14 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const createDataset = (dataset: Dataset) => {
-    dataset.Series.pop();
+    dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
     each(dataset.Series, (s: Series) => s.TypeId = 2);
 
-    const newDataset = {
+    var req = new Request('Datasets').Post({
       UserId: 1,
       Label: dataset.Label,
       Series: dataset.Series,
-    } as Dataset;
-
-    console.log('gonna make this shit', newDataset);
-
-    var req = new Request('Datasets').Post(newDataset);
+    } as Dataset, authState.accessToken);
   }
 
 

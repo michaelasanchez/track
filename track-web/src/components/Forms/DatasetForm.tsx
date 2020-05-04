@@ -14,6 +14,7 @@ type DatasetFormProps = {
   onDatasetLabelChange: Function,
   onLabelChange: Function,
   onColorChange: Function,
+  onPrivateChange: Function,
   createMode?: boolean,
   deleteSeries?: Function,
 }
@@ -23,42 +24,58 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   onDatasetLabelChange,
   onLabelChange,
   onColorChange,
+  onPrivateChange,
   createMode = false,
   deleteSeries = null,
 }) => {
 
-  const numSeries = dataset.Series.length;
-
-  // console.log("BOINGO")
-
-  return (
-    <Form className="center">
-      <h5>Dataset Label</h5>
-      <Form.Group>
+  const renderSeriesRow = (s: Series, className: string) => {
+    return (
+      <Form.Group key={s.Id}>
         <Row>
-          <Col sm={12} md={8} lg={6}>
-            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => onDatasetLabelChange(e, dataset.Id)} />
+          <Col md={8} lg={6} className="flex">
+            <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
+            {/* <Form.Control as="select" value="Choose...">
+              <option>Choose...</option>
+              <option>...</option>
+            </Form.Control> */}
+            <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
+            {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}
+            {createMode && dataset.Series.length > 2 &&
+              <Button variant={'link'} onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
+                <FontAwesomeIcon icon={deleteIcon} color="gray" className={`icon ${className}`} />
+              </Button>}
           </Col>
         </Row>
       </Form.Group>
-      <h5>Properties</h5>
+    )
+  }
+
+  return (
+    <Form className="center">
+      <Form.Group>
+        <Row>
+          <Col sm={12} md={8} lg={6}>
+            <div className="dataset-label-container">
+              <h5>Label</h5>
+              <Form.Check
+                type="switch"
+                label={dataset.Private ? 'Private' : 'Public'}
+                id="private"
+                value={dataset.Private ? 'true' : 'false'}
+                onChange={(e: any) => onPrivateChange(e, dataset.Id)}
+              />
+            </div>
+            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => onDatasetLabelChange(e, dataset.Id)} />
+          </Col>
+          <Col>
+          </Col>
+        </Row>
+      </Form.Group>
+      <h5>Series</h5>
       {map(dataset.Series, (s: Series, index: number) => {
-        const className = createMode && index === numSeries - 1 ? 'pending' : null;
-        return (
-          <Form.Group key={s.Id}>
-            <Row>
-              <Col md={8} lg={6} className="flex">
-                <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
-                <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
-                {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}
-                {createMode && dataset.Series.length > 2 &&
-                  <Button variant={'link'} onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
-                    <FontAwesomeIcon icon={deleteIcon} color="gray" className={`icon ${className}`} />
-                  </Button>}
-              </Col>
-            </Row>
-          </Form.Group>
-        )
+        const className = createMode && index === dataset.Series.length - 1 ? 'pending' : null;
+        return renderSeriesRow(s, className);
       })}
     </Form>
   )

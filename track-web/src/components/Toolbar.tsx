@@ -58,77 +58,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     }
   };
 
-  /* Delete Modal */
-  const renderModal = () =>
-    <Modal show={show} onHide={handleClose} animation={false}>
-      <Modal.Header closeButton>
-        <Modal.Title>You Sure?</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>Dataset "{dataset.Label}" is about to be <strong>archived</strong></Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => handleClose()}>
-          Nevermind
-        </Button>
-        <Link to="/" onClick={() => handleClose(true)}>
-          <Button variant="primary">
-            Confirm
-          </Button>
-        </Link>
-      </Modal.Footer>
-    </Modal>
-
-  /* Home */
-  const renderDefault = () =>
-    <Route exact path="/">
-      <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
-        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
-      </Link>
-      <div className="divider" />
-      <Link to="/create">
-        <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
-      </Link>
-    </Route>;
-
-  /* Edit */
-  const renderEdit = () =>
-    <Route path="/edit">
-      <Link to="/" onClick={() => updateMode(UserMode.View)} >
-        <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
-      </Link>
-      {/* <Link to="/">
-        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
-      </Link> */}
-      <div className="divider" />
-      <Link to="/edit" onClick={handleShow}>
-        <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
-      </Link>
-    </Route>;
-
-
-  /* Create */
-  const renderCreate = () =>
-    <Route path="/create">
-      <Link to="edit" onClick={() => updateMode(UserMode.Edit)}  >
-        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
-      </Link>
-      <div className="divider" />
-      <Link to="/">
-        <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
-      </Link>
-      <Link to="/" onClick={() => onAction(ToolbarAction.Create)}>
-        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
-      </Link>
-    </Route>;
-
-  const renderRouteAction = () =>
-    <>
-      {renderDefault()}
-      {renderEdit()}
-      {renderCreate()}
-    </>
-
-  return (
-    <Form className="toolbar">
+  /* Dataset Select */
+  const renderDatasetSelect = () => {
+    return (
       <Form.Control
         as="select"
         className="custom-select"
@@ -141,7 +73,78 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
           </option>
         )}
       </Form.Control>
-      {renderRouteAction()}
+    );
+  }
+
+  /* Delete Modal */
+  const renderModal = () =>
+    <Modal show={show} onHide={handleClose} animation={false}>
+      <Modal.Header closeButton>
+        <Modal.Title>You Sure?</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Dataset "{dataset.Label}" is about to be <strong>archived</strong></Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => handleClose()}>
+          Nevermind
+      </Button>
+        <Link to="/" onClick={() => handleClose(true)}>
+          <Button variant="primary">
+            Confirm
+        </Button>
+        </Link>
+      </Modal.Footer>
+    </Modal>
+
+  /* Home */
+  const renderDefault = () =>
+    <>
+      <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
+        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+      </Link>
+      <div className="divider" />
+      <Link to="/create">
+        <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
+      </Link>
+    </>;
+
+  /* Edit */
+  const renderEdit = () =>
+    <>
+      <Link to="/" onClick={() => updateMode(UserMode.View)} >
+        <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
+      </Link>
+      {/* <Link to="/">
+        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
+      </Link> */}
+      <div className="divider" />
+      <Link to="/edit" onClick={handleShow}>
+        <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
+      </Link>
+    </>;
+
+
+  /* Create */
+  const renderCreate = () =>
+    <>
+      <Link to="edit" onClick={() => updateMode(UserMode.Edit)}  >
+        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+      </Link>
+      <div className="divider" />
+      <Link to="/">
+        <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
+      </Link>
+      <Link to="/" onClick={() => onAction(ToolbarAction.Create)}>
+        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
+      </Link>
+    </>;
+
+  /* Render */
+  return (
+    <Form className="toolbar">
+      {renderDatasetSelect()}
+      <Route exact path="/" render={renderDefault}></Route>
+      <Route path="/edit" render={renderEdit}></Route>
+      <Route path="/create" render={renderCreate}></Route>
       {renderModal()}
     </Form>
   )

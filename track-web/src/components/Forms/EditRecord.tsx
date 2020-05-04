@@ -41,6 +41,8 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refresh
   }
 
   function addRecord(e: any) {
+
+    console.log(record);
     var req = new Request('Records').Post(
       {
         DatasetId: dataset.Id,
@@ -69,7 +71,6 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refresh
   }
 
   const checkLoaded = (loaded:number, total: number) => {
-    // console.log(`${loaded} / ${total}`);
     if (loaded >= total) refreshDataset(dataset.Id, true);
   }
 

@@ -26,6 +26,7 @@ namespace track_api.Models
         public string Label { get; set; }
         public string Color { get; set; }
         public string Unit { get; set; }
+        public Nullable<bool> Visible { get; set; }
     
         public virtual Dataset Dataset { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

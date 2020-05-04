@@ -4,6 +4,7 @@ import { Series } from './Series';
 export class Dataset {
   public Id: number;
   public UserId: number;
+  public Private: boolean;
   public Archived: boolean;
   public Label: string;
   public Span: string;

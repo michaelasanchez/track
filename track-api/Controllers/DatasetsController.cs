@@ -14,6 +14,7 @@ using track_api.Models;
 using System.Web.Http.Cors;
 using System.Web.Http;
 using System.Web;
+using track_api.Utils;
 
 namespace track_api.Controllers
 {
@@ -28,7 +29,16 @@ namespace track_api.Controllers
         [EnableQuery]
         public IQueryable<Dataset> GetDatasets()
         {
-            return db.Datasets;
+            var user = UserUtils.GetUser(db, HttpContext.Current);
+
+            if (user == null)
+            {
+                return db.Datasets.Where(z => z.Private == false);
+            }
+            else
+            {
+                return db.Datasets.Where(z => z.Private == false || z.UserId == user.Id);
+            }
         }
 
         // GET: odata/Datasets(5)
@@ -86,11 +96,18 @@ namespace track_api.Controllers
         }
 
         // POST: odata/Datasets
+        //[Authorize]
         public IHttpActionResult Post(Dataset dataset)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            var user = UserUtils.GetUser(db, HttpContext.Current);
+            if (user != null)
+            {
+                dataset.UserId = user.Id;
             }
 
             db.Datasets.Add(dataset);

@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Dataset } from '../../models/Dataset';
 import { Series } from '../../models/Series';
-import Request from '../../models/Request';
 import DatasetForm from './DatasetForm';
 import { useState, useEffect } from 'react';
 import { times } from 'lodash';
-import { Route } from 'react-router-dom';
 
 type CreateDatasetProps = {
   dataset: Dataset;
@@ -27,9 +25,10 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, u
     });
   }
 
-  // const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
-  // const updateSeries = (series: Series) => new Request('Series').Patch(series);
+  const handleDatasetPrivateChange = (e: any) => {
 
+  }
+  
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
     updateDataset({
       ...dataset,
@@ -89,11 +88,13 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, u
   return (
     <DatasetForm
       dataset={dataset}
+      onPrivateChange={handleDatasetPrivateChange}
       onDatasetLabelChange={handleDatasetLabelChange}
       onLabelChange={handleLabelChange}
       onColorChange={handleColorChange}
       createMode={true}
       deleteSeries={removeSeries}
+
     />
   );
 }

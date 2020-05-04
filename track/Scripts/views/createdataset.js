@@ -25,7 +25,7 @@ function createDataset() {
 
     $.post('https://localhost:44311/odata/Datasets', dataset, (data) => {
 
-        var propLabels = [], propTypes = [];
+        var propLabels = [], propTypes = [];    
         $.each(form, function (i, input) {
             if (input.name == 'label') propLabels.push(input.value);
             if (input.name == 'type') propTypes.push(input.value);

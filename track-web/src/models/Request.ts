@@ -87,12 +87,12 @@ class Request {
     })
   }
 
-  public Post = (entity: Dataset | Record | Property | Note) => {
-    console.log('who who who', entity)
+  public Post = (entity: Dataset | Record | Property | Note, token?: string) => {
     return this.execute(this.buildUrlString(),
     {
       method: 'POST',
       headers: {
+        Authorization: token ? 'Bearer ' + token : null,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(entity)
