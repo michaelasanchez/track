@@ -1,0 +1,8 @@
+nav.navbar {
+  button.login {
+    color: $white;
+  }
+  button.logout:not(:hover) {
+    color: #999;
+  }
+}

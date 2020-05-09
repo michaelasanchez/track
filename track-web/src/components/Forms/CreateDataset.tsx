@@ -10,11 +10,19 @@ type CreateDatasetProps = {
   updateDataset: Function;
   refreshList: Function;
   refreshDataset: Function;
+  allowPrivate?: boolean;
 };
 
-const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, updateDataset, refreshList, refreshDataset }) => {
+const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
+  dataset,
+  updateDataset,
+  refreshList,
+  refreshDataset,
+  allowPrivate = false,
+}) => {
   const [nextSeriesIndex, setNextSeriesIndex] = useState<number>(2);
 
+  // TODO: 
   if (!dataset.Series.length) {
     times(2, (i: number) => {
       dataset.Series.push(
@@ -26,14 +34,18 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, u
   }
 
   const handleDatasetPrivateChange = (e: any) => {
-
+    updateDataset({
+      ...dataset,
+      Series: dataset.Series,
+      Private: e.currentTarget.checked
+    } as Dataset);
   }
-  
+
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
     updateDataset({
       ...dataset,
       Series: dataset.Series,
-      Label: e.nativeEvent.srcElement.value
+      Label: e.nativeEvent.srcElement.value,
     } as Dataset);
   }
 
@@ -82,8 +94,7 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, u
       Series: dataset.Series,
     } as Dataset);
   }
-
-  // console.log('DATASET', dataset);
+  
 
   return (
     <DatasetForm
@@ -94,7 +105,7 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({ dataset, u
       onColorChange={handleColorChange}
       createMode={true}
       deleteSeries={removeSeries}
-
+      allowPrivate={allowPrivate}
     />
   );
 }

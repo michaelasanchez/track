@@ -63,7 +63,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     return (
       <Form.Control
         as="select"
-        className="custom-select"
         disabled={mode == UserMode.Edit}
         onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
         value={dataset.Id.toString()}>

@@ -85,17 +85,22 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
     each(dataset.Series, (s: Series) => s.TypeId = 2);
 
+    // TODO: typescript private work-wround
     var req = new Request('Datasets').Post({
       UserId: 1,
+      Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
     } as Dataset, authState.accessToken);
-  }
 
+    req.then(dataset=> {
+      loadDatasetList();
+      loadDataset(dataset.Id);
+    });
+  }
 
   // Init
   useEffect(() => {
-    // console.log('AUTH STATE', authState);
     if (!authState.isPending) {
       loadDatasetList();
       loadDataset(defaultDatasetId());
@@ -122,6 +127,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           dataset={dataset}
           refreshList={loadDatasetList}
           refreshDataset={loadDataset}
+          allowPrivate={authState.isAuthenticated ? true : false}
         />
       </Route>
       <Route path="/create">
@@ -130,6 +136,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           updateDataset={setPendingDataset}
           refreshList={loadDatasetList}
           refreshDataset={loadDataset}
+          allowPrivate={authState.isAuthenticated ? true : false}
         />
       </Route>
     </>;

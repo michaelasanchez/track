@@ -29,9 +29,15 @@ form {
   .icon.pending {
     opacity: 0;
   }
+  &.create {
+    .check-private {
+      margin-left: .4rem;
+    }
+  }
 }
 
 .dataset-label-container {
   display: flex;
   justify-content: space-between;
 }
+

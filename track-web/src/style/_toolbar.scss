@@ -1,12 +1,12 @@
-.custom-select {
-  width: auto;
-  margin-right: 0.6rem;
-}
-
-// TODO: Convert to flex once we move other inputs
 .toolbar {
   display: flex;
   align-items: stretch;
+
+  select {
+    width: auto;
+    margin-right: 0.6rem;
+    min-width: $dataset-select-min-width;
+  }
 
   a {
     display: flex;

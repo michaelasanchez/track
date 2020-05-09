@@ -2,7 +2,11 @@
 $white: #fff;
 
 /* Bootstrap */
-$color-primary: #007bff;
+$bs-primary: #007bff;
+$bs-secondary: #6c757d;
 
 /* Pickers */
 $picker-box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 2px;
+
+/* Toolbar */
+$dataset-select-min-width: 100px;

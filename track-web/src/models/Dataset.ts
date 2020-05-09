@@ -9,7 +9,6 @@ export class Dataset {
   public Label: string;
   public Span: string;
 
-  // TODO: Make these private
   private records: Record[];
   private series: Series[];
 

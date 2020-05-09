@@ -1,6 +1,6 @@
 import { Dataset } from "../../models/Dataset"
 import React, { useState } from "react"
-import { Form, Row, Col, Button } from "react-bootstrap"
+import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { Series } from "../../models/Series"
 import { map } from "lodash"
 import ColorPicker from "../utils/ColorPicker"
@@ -17,6 +17,7 @@ type DatasetFormProps = {
   onPrivateChange: Function,
   createMode?: boolean,
   deleteSeries?: Function,
+  allowPrivate?: boolean,
 }
 
 const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
@@ -27,13 +28,19 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   onPrivateChange,
   createMode = false,
   deleteSeries = null,
+  allowPrivate = false,
 }) => {
+
+  const colWidth = {
+    md: 8,
+    lg: 6
+  }
 
   const renderSeriesRow = (s: Series, className: string) => {
     return (
       <Form.Group key={s.Id}>
         <Row>
-          <Col md={8} lg={6} className="flex">
+          <Col {...colWidth} className="flex">
             <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
             {/* <Form.Control as="select" value="Choose...">
               <option>Choose...</option>
@@ -51,24 +58,53 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     )
   }
 
+  const placement = 'bottom';
+
+  console.log('DATASET FORM', dataset);
+
+  const renderPrivateSwitch = () => {
+    // Include div for tooltip css
+    return (
+      <div>
+        <Form.Check
+          onChange={(e: any) => onPrivateChange(e, dataset.Id)}
+          className="check-private"
+          disabled={!allowPrivate}
+          id="private"
+          label={''}
+          type="switch"
+          defaultChecked={dataset.Private}
+          value={dataset.Private ? 'true' : 'false'}
+        />
+      </div>
+    );
+  }
+
   return (
-    <Form className="center">
+    <Form className="create">
       <Form.Group>
         <Row>
-          <Col sm={12} md={8} lg={6}>
-            <div className="dataset-label-container">
-              <h5>Label</h5>
-              <Form.Check
-                type="switch"
-                label={dataset.Private ? 'Private' : 'Public'}
-                id="private"
-                value={dataset.Private ? 'true' : 'false'}
-                onChange={(e: any) => onPrivateChange(e, dataset.Id)}
-              />
-            </div>
-            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => onDatasetLabelChange(e, dataset.Id)} />
+          <Col {...colWidth} className="d-flex justify-content-end">
+            <span>{dataset.Private ? 'Private' : 'Public'}</span>
+            {allowPrivate ? renderPrivateSwitch() :
+              <OverlayTrigger
+                key={placement}
+                placement={placement}
+                overlay={
+                  <Tooltip id={`tooltip-${placement}`}>
+                    <strong>Login</strong> for private datasets
+                  </Tooltip>
+                }
+              >
+                {renderPrivateSwitch()}
+              </OverlayTrigger>
+            }
           </Col>
-          <Col>
+        </Row>
+        <Row>
+          <Col {...colWidth} >
+            <h5>Label</h5>
+            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => onDatasetLabelChange(e, dataset.Id)} />
           </Col>
         </Row>
       </Form.Group>

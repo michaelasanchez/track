@@ -1,4 +1,4 @@
-import { Navbar as BootstrapNavbar, Nav } from 'react-bootstrap';
+import { Navbar as BootstrapNavbar, Nav, Button } from 'react-bootstrap';
 import React, { useState, useEffect } from 'react';
 import { OktaUser as User } from '../models/OktaUser';
 
@@ -15,7 +15,7 @@ export const Navbar: React.FunctionComponent<TrackNavbarProps> = ({ authState, a
     authService.getUser().then((d: User) => {
       console.log('Navbar - getUser', d);
     })
-  }, [])
+  }, []);
 
   const login = async () => {
     // Redirect to '/' after login
@@ -29,8 +29,9 @@ export const Navbar: React.FunctionComponent<TrackNavbarProps> = ({ authState, a
 
   const renderLoginButton = () => {
     return authState.isAuthenticated ?
-      <button onClick={logout}>Logout</button> :
-      <button onClick={login}>Login</button>;
+      <Button onClick={logout} className="logout" variant="dark">Logout</Button>
+      :
+      <Button onClick={login} className="login" variant="outline-secondary">Login</Button>;
   }
 
   return (
