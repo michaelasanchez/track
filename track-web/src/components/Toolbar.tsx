@@ -2,8 +2,8 @@ import * as React from 'react';
 import $ from 'jquery';
 import { map } from 'lodash';
 import { Link, Route } from 'react-router-dom';
-import { UserMode } from './Home';
-import Request from '../models/Request';
+import { UserMode } from './routes/Home';
+import ApiRequest from '../models/Request';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { Dataset } from '../models/Dataset';
 import { useState } from 'react';
@@ -45,7 +45,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 }) => {
   const [show, setShow] = useState(false);
 
-  const archiveDataset = (dataset: Dataset) => new Request('Datasets').Delete(dataset);
+  const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
 
   const handleShow = () => setShow(true);
 

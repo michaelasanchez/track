@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { Record } from '../../models/Record';
 import { Note } from '../../models/Note';
 import { Property } from '../../models/Property';
-import Request from '../../models/Request';
+import ApiRequest from '../../models/Request';
 
 type EditRecordProps = {
   dataset: Dataset;
@@ -42,8 +42,8 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refresh
 
   function addRecord(e: any) {
 
-    console.log(record);
-    var req = new Request('Records').Post(
+    // console.log(record);
+    var req = new ApiRequest('Records').Post(
       {
         DatasetId: dataset.Id,
         DateTime: date
@@ -57,13 +57,13 @@ const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refresh
       
       if (numProps) {
         each(record.Properties, p => {
-          var propReq = new Request('Properties').Post({ ...p, RecordId: r.Id } as Property);
+          var propReq = new ApiRequest('Properties').Post({ ...p, RecordId: r.Id } as Property);
           propReq.then(_ => checkLoaded(++loaded, total));
         })
       }
       if (numNotes) {
         each(record.Notes, n => {
-          var noteReq = new Request('Notes').Post({ ...n, RecordId: r.Id } as Note);
+          var noteReq = new ApiRequest('Notes').Post({ ...n, RecordId: r.Id } as Note);
           noteReq.then(_ => checkLoaded(++loaded, total));
         })
       }

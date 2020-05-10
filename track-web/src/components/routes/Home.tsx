@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { Navbar } from "./Navbar";
 import { Row, Col } from "react-bootstrap";
 import { map, filter, findIndex, each } from 'lodash';
-import { Dataset } from "../models/Dataset";
-import Toolbar, { ToolbarAction } from "./Toolbar";
+import Toolbar, { ToolbarAction } from "../Toolbar";
 import { Route } from 'react-router-dom';
-import EditDataset from "./forms/EditDataset";
-import Request from "../models/Request";
-import EditRecord from "./forms/EditRecord";
-import Graph from "./Graph";
+import EditDataset from "./EditDataset";
+import ApiRequest from "../../models/Request";
+import EditRecord from "../Forms/RecordForm";
+import Graph from "../Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
-import CreateDataset from './Forms/CreateDataset';
-import { Series } from '../models/Series';
+import CreateDataset from './CreateDataset';
+import { Series } from '../../models/Series';
+import { Dataset } from '../../models/Dataset';
+import { Navbar } from '../Navbar';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
@@ -53,7 +53,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
     if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
     else
-      new Request('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get(authState.accessToken)
+      new ApiRequest('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get(authState.accessToken)
         .then((d: Dataset) => {
           setDataset(d);
 
@@ -68,7 +68,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const loadDatasetList = () => {
-    new Request('Datasets').Filter('Archived eq false').Get(authState.accessToken)
+    new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
       .then(d => setDatasetList(d.value as Dataset[]));
   }
 
@@ -83,10 +83,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const createDataset = (dataset: Dataset) => {
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
-    each(dataset.Series, (s: Series) => s.TypeId = 2);
 
     // TODO: typescript private work-wround
-    var req = new Request('Datasets').Post({
+    var req = new ApiRequest('Datasets').Post({
       UserId: 1,  // TODO: figure out fk constraint. Can/should this be null?
       Private: dataset.Private,
       Label: dataset.Label,
@@ -134,8 +133,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         <CreateDataset
           dataset={pendingDataset}
           updateDataset={setPendingDataset}
-          refreshList={loadDatasetList}
-          refreshDataset={loadDataset}
           allowPrivate={authState.isAuthenticated ? true : false}
         />
       </Route>

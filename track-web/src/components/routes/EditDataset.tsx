@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Dataset } from '../../models/Dataset';
 import { Series } from '../../models/Series';
-import Request from '../../models/Request';
-import DatasetForm from './DatasetForm';
+import ApiRequest from '../../models/Request';
+import DatasetForm from '../forms/DatasetForm';
 
 type EditDatasetProps = {
   dataset: Dataset;
@@ -18,8 +18,8 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
   allowPrivate = false,
 }) => {
   
-  const updateDataset = (dataset: Dataset) => new Request('Datasets').Patch(dataset);
-  const updateSeries = (series: Series) => new Request('Series').Patch(series);
+  const updateDataset = (dataset: Dataset) => new ApiRequest('Datasets').Patch(dataset);
+  const updateSeries = (series: Series) => new ApiRequest('Series').Patch(series);
 
   const handleDatasetPrivateChange = (e: any, datasetId: number) => {
     const updatedDataset = {
@@ -33,34 +33,38 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
     });
   }
 
-
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
-    const updatedDataset = {
+    const req = updateDataset({
       Id: datasetId,
       Label: e.nativeEvent.srcElement.value
-    } as Dataset;
-    const req = updateDataset(updatedDataset);
+    } as Dataset);
     req.then(_ => {
       refreshList();
       refreshDataset(dataset.Id, true);
     });
   }
 
-  const handleColorChange = (e: any, seriesId: number) => {
-    const updatedSeries = {
+  const handleLabelChange = (e: any, seriesId: number) => {
+    const req = updateSeries({
       Id: seriesId,
-      Color: e.hex.replace('#', '')
-    } as Series;
-    const req = updateSeries(updatedSeries);
+      Label: e.nativeEvent.srcElement.value
+    } as Series);
     req.then(_ => refreshDataset(dataset.Id, true));
   }
 
-  const handleLabelChange = (e: any, seriesId: number) => {
-    const updatedSeries = {
+  const handleTypeChange = (e: any, seriesId: number) => {
+    const req = updateSeries({
       Id: seriesId,
-      Label: e.nativeEvent.srcElement.value
-    } as Series;
-    const req = updateSeries(updatedSeries);
+      TypeId: e.target.value,
+    } as Series);
+    req.then(_ => refreshDataset(dataset.Id, true));
+  }
+
+  const handleColorChange = (e: any, seriesId: number) => {
+    const req = updateSeries({
+      Id: seriesId,
+      Color: e.hex.replace('#', '')
+    } as Series);
     req.then(_ => refreshDataset(dataset.Id, true));
   }
 
@@ -70,6 +74,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       onPrivateChange={handleDatasetPrivateChange}
       onDatasetLabelChange={handleDatasetLabelChange}
       onLabelChange={handleLabelChange}
+      onTypeChange={handleTypeChange}
       onColorChange={handleColorChange}
       allowPrivate={allowPrivate}
     />

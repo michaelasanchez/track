@@ -1,34 +1,34 @@
 import * as React from 'react';
 import { Dataset } from '../../models/Dataset';
 import { Series } from '../../models/Series';
-import DatasetForm from './DatasetForm';
+import DatasetForm from '../forms/DatasetForm';
 import { useState, useEffect } from 'react';
 import { times } from 'lodash';
 
 type CreateDatasetProps = {
   dataset: Dataset;
   updateDataset: Function;
-  refreshList: Function;
-  refreshDataset: Function;
   allowPrivate?: boolean;
 };
+
+// Decimal
+const DEF_SERIES_TYPE_ID: number = 2;
 
 const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
   dataset,
   updateDataset,
-  refreshList,
-  refreshDataset,
   allowPrivate = false,
 }) => {
   const [nextSeriesIndex, setNextSeriesIndex] = useState<number>(2);
 
-  // TODO: 
+  // TODO: Just get rid of this. Should happen on dataset init
   if (!dataset.Series.length) {
     times(2, (i: number) => {
       dataset.Series.push(
         {
           Id: i,
-          Label: ''
+          Label: '',
+          TypeId: DEF_SERIES_TYPE_ID,
         } as Series);
     });
   }
@@ -49,25 +49,12 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
     } as Dataset);
   }
 
-  const handleColorChange = (e: any, seriesId: number) => {
-    const hex = e.hex.replace('#', '')
-    const seriesIndex = dataset.Series.findIndex(s => s.Id == seriesId);
-
-    dataset.Series[seriesIndex].Color = hex;
-    addSeries(seriesIndex, hex);
-
-    updateDataset({
-      ...dataset,
-      Series: dataset.Series,
-    } as Dataset);
-  }
-
   const handleLabelChange = (e: any, seriesId: number) => {
     const value = e.nativeEvent.srcElement.value;
     const seriesIndex = dataset.Series.findIndex(s => s.Id == seriesId);
 
     dataset.Series[seriesIndex].Label = value;
-    addSeries(seriesIndex, value);
+    checkNewSeries(seriesIndex, value);
 
     updateDataset({
       ...dataset,
@@ -75,13 +62,40 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
     } as Dataset);
   }
 
-  // Adds new series if pending series has been updateds
-  const addSeries = (updatedIndex: number, updatedValue: any) => {
-    const numSeries = dataset.Series.length;
-    if (updatedIndex == numSeries - 1 && updatedValue !== '') {
+  const handleTypeChange =(e: any, seriesId: number) => {
+    const value = e.target.value;
+    const seriesIndex = dataset.Series.findIndex(s => s.Id == seriesId);
+
+    dataset.Series[seriesIndex].TypeId = value;
+    checkNewSeries(seriesIndex, value);
+
+    updateDataset({
+      ...dataset,
+      Series: dataset.Series,
+    } as Dataset)
+  }
+
+  const handleColorChange = (e: any, seriesId: number) => {
+    const hex = e.hex.replace('#', '')
+    const seriesIndex = dataset.Series.findIndex(s => s.Id == seriesId);
+
+    dataset.Series[seriesIndex].Color = hex;
+    checkNewSeries(seriesIndex, hex);
+
+    updateDataset({
+      ...dataset,
+      Series: dataset.Series,
+    } as Dataset);
+  }
+
+  // Adds new series if pending series has been updated
+  const checkNewSeries = (updatedIndex: number, updatedValue: any) => {
+    // TODO: updateValue is based on text input blur. this could break something else
+    if (updatedIndex == dataset.Series.length - 1 && updatedValue !== '') {
       dataset.Series.push({
         Id: nextSeriesIndex,
-        Label: ''
+        Label: '',
+        TypeId: DEF_SERIES_TYPE_ID,
       } as Series);
     }
     setNextSeriesIndex(i => i + 1);
@@ -95,13 +109,13 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
     } as Dataset);
   }
   
-
   return (
     <DatasetForm
       dataset={dataset}
       onPrivateChange={handleDatasetPrivateChange}
       onDatasetLabelChange={handleDatasetLabelChange}
       onLabelChange={handleLabelChange}
+      onTypeChange={handleTypeChange}
       onColorChange={handleColorChange}
       createMode={true}
       deleteSeries={removeSeries}

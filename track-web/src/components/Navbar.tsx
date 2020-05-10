@@ -9,14 +9,6 @@ type TrackNavbarProps = {
 
 export const Navbar: React.FunctionComponent<TrackNavbarProps> = ({ authState, authService }) => {
 
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    authService.getUser().then((d: User) => {
-      console.log('Navbar - getUser', d);
-    })
-  }, []);
-
   const login = async () => {
     // Redirect to '/' after login
     authService.login('/');

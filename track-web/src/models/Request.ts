@@ -4,7 +4,7 @@ import { Record } from "./Record";
 import { Property } from "./Property";
 import { Note } from "./Note";
 
-class Request {
+class ApiRequest {
 
   private API_URL: string = 'https://localhost:44311/odata/';
 
@@ -20,12 +20,12 @@ class Request {
     // referrerPolicy: 'no-referrer', // no-referrer, *client
   };
 
-  private entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties';
+  private entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes';
   private id: number;
   private expands: string[];
   private filters: string[];
 
-  constructor(entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties', id: number = null) {
+  constructor(entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes', id: number = null) {
     this.entity = entity;
     if (id) this.id = id;
     this.expands = [];
@@ -68,7 +68,7 @@ class Request {
     return this;
   }
 
-  public Filter = (filter: string): Request => {
+  public Filter = (filter: string): ApiRequest => {
     this.filters.push(filter);
     return this;
   }
@@ -78,7 +78,7 @@ class Request {
     return this;
   }
 
-  public Get = (token: any | null = null) => {
+  public Get = (token?: any) => {
     return this.execute(this.buildUrlString(),
     !token ? null : {
       headers: {
@@ -121,4 +121,4 @@ class Request {
   }
 }
 
-export default Request;
+export default ApiRequest;

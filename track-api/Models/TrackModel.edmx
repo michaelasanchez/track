@@ -58,6 +58,7 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Inactive" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -299,6 +300,7 @@
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <NavigationProperty Name="Series" Relationship="Self.FK_Series_SeriesType" FromRole="SeriesType" ToRole="Series" />
+          <Property Name="Inactive" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -551,6 +553,7 @@
           <EntitySetMapping Name="SeriesTypes">
             <EntityTypeMapping TypeName="trackModel.SeriesType">
               <MappingFragment StoreEntitySet="SeriesType">
+                <ScalarProperty Name="Inactive" ColumnName="Inactive" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
               </MappingFragment>

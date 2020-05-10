@@ -1,6 +1,9 @@
+$input-transition: opacity 0.3s;
+$pending-row-opacity: .5;
+
 // .col,
 // .col-md-6,
-[class*=col] {
+[class*="col"] {
   &.flex {
     display: flex;
 
@@ -16,22 +19,33 @@
 }
 
 form {
-  input {
-    transition: opacity .3s;
+  margin-bottom: 1rem;
+  
+  input,
+  select {
+    transition: $input-transition;
   }
-  input.pending {
-    opacity: .5;
 
-    &:focus {
-      opacity: 1;
-    }
-  }
-  .icon.pending {
-    opacity: 0;
-  }
-  &.create {
+  /* Dataset Form */
+  &.form-dataset {
+
+    //  Private/Public Switch
     .check-private {
-      margin-left: .4rem;
+      margin-left: 0.4rem;
+    }
+
+    // Pending series row
+    .pending {
+      opacity: $pending-row-opacity;
+  
+      &:focus {
+        opacity: 1;
+      }
+    }
+
+    // Only series type select (for now)
+    select {
+      width: auto;
     }
   }
 }
@@ -40,4 +54,3 @@ form {
   display: flex;
   justify-content: space-between;
 }
-
