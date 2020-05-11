@@ -1,5 +1,5 @@
 import React = require('react');
-import { Home } from './components/routes/Home';
+import { Home } from './components/Home';
 
 import { Security, LoginCallback } from '@okta/okta-react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';

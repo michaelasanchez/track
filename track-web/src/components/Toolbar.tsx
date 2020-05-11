@@ -2,7 +2,6 @@ import * as React from 'react';
 import $ from 'jquery';
 import { map } from 'lodash';
 import { Link, Route } from 'react-router-dom';
-import { UserMode } from './routes/Home';
 import ApiRequest from '../models/Request';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { Dataset } from '../models/Dataset';
@@ -19,6 +18,7 @@ import {
   faPlusSquare,
   faPlusCircle as createIcon
 } from '@fortawesome/free-solid-svg-icons'
+import { UserMode } from '../resources/enums';
 
 export enum ToolbarAction {
   Create,

@@ -9,7 +9,7 @@ import ApiRequest from '../../models/Request';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'
-import { strings } from "../../strings"
+import { strings } from "../../resources/strings"
 
 var HtmlToReactParser = require('html-to-react').Parser;
 

@@ -5,13 +5,20 @@ import { ChartistData } from "../models/ChartistData";
 import { each, map, times } from 'lodash';
 import { ILineChartOptions, FixedScaleAxis } from "chartist";
 import moment = require("moment");
+import { useState } from "react";
 
 type GraphProps = {
   dataset: Dataset;
-  type?: string;
+  defaultType?: GraphType;
 };
 
-const Graph: React.FunctionComponent<GraphProps> = ({ dataset, type = "Line" }) => {
+export enum GraphType {
+  Bar = 'Bar',
+  Line = 'Line',
+}
+
+const Graph: React.FunctionComponent<GraphProps> = ({ dataset, defaultType = GraphType.Line}) => {
+  const [type, setType] = useState<GraphType>(defaultType);
 
   const convertDatasetToData = (dataset: Dataset): ChartistData => {
     var chartistData = new ChartistData(dataset.Series.length);

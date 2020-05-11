@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { Row, Col } from "react-bootstrap";
 import { map, filter, findIndex, each } from 'lodash';
-import Toolbar, { ToolbarAction } from "../Toolbar";
+import Toolbar, { ToolbarAction } from "./Toolbar";
 import { Route } from 'react-router-dom';
-import EditDataset from "./EditDataset";
-import ApiRequest from "../../models/Request";
-import EditRecord from "../Forms/RecordForm";
-import Graph from "../Graph";
+import EditDataset from "./routes/EditDataset";
+import ApiRequest from "../models/Request";
+import CreateRecord from "./routes/CreateRecord";
+import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
-import CreateDataset from './CreateDataset';
-import { Series } from '../../models/Series';
-import { Dataset } from '../../models/Dataset';
-import { Navbar } from '../Navbar';
+import CreateDataset from './routes/CreateDataset';
+import { Series } from '../models/Series';
+import { Dataset } from '../models/Dataset';
+import { Navbar } from './Navbar';
+import { UserMode } from '../resources/enums';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
-
-export enum UserMode {
-  View,
-  Edit
-}
 
 const defaultUserMode = (): UserMode => {
   return window.location.pathname.includes('edit') ?
@@ -109,7 +105,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const renderGraph = () =>
     <Row>
       <Col xs={12} lg={3} className="order-2 order-lg-1">
-        <EditRecord dataset={dataset} refreshDataset={loadDataset} />
+        <CreateRecord dataset={dataset} refreshDataset={loadDataset} />
       </Col>
       <Col lg={9} className="order-1 order-lg-2">
         <Graph dataset={dataset} />

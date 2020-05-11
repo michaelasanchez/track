@@ -238,6 +238,7 @@
     <Compile Include="Models\Property.cs">
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Property.ext.cs" />
     <Compile Include="Models\Record.cs">
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>

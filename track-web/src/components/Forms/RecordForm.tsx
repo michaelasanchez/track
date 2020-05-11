@@ -1,100 +1,100 @@
 import * as React from 'react';
-import { Dataset } from '../../models/Dataset';
-import { map, findIndex, each } from 'lodash';
+import { map, } from 'lodash';
 import { Series } from '../../models/Series';
 import { Form, Button } from 'react-bootstrap';
 import DateTimePicker from '../utils/DateTimePicker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Record } from '../../models/Record';
-import { Note } from '../../models/Note';
-import { Property } from '../../models/Property';
-import ApiRequest from '../../models/Request';
 
-type EditRecordProps = {
-  dataset: Dataset;
-  refreshDataset: Function;
+type RecordFormProps = {
+  record: Record;
+  series: Series[];
+  updateDate: Function;
+  updateProperty: Function;
+  updateNote: any;
+  save: any;
 };
 
-const EditRecord: React.FunctionComponent<EditRecordProps> = ({ dataset, refreshDataset }) => {
-  const [date, setDate] = useState<Date>(new Date());
-  const [record, setRecord] = useState<Record>(new Record(dataset.Id));
+const RecordForm: React.FunctionComponent<RecordFormProps> = ({
+  record,
+  series,
+  updateDate,
+  updateProperty,
+  updateNote,
+  save
+}) => {
+  // const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
 
-  const updateDate = (d: Date) => {
-    record.DateTime = d;
-    setRecord(record);
-    setDate(d);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (autoUpdate == true) {
+  //       updateDate(new Date());
+  //     }
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  const handleUpdateDate = (d: Date) => {
+    // setAutoUpdate(false);
+    updateDate(d);
   }
 
-  const updateProperty = (e: any, series: Series) => {
-    var index = findIndex(record.Properties, p => p.SeriesId == series.Id);
-    if (index < 0) {
-      record.Properties.push(new Property(series.Id, e.target.value));
-    } else {
-      record.Properties[index] = new Property(series.Id, e.target.value);
+  const handleSave = (e: any) => {
+    // setAutoUpdate(true);
+    save(e);
+  }
+
+  const renderPropertyInput = (s: Series) => {
+    const prop = record.Properties.filter(p => p.SeriesId == s.Id);
+    const inputProps = {
+      value: prop[0].Value || '',
+      onChange: (e: any) => updateProperty(e, s)
     }
-  }
 
-  const updateNote = (e: any) => {
-    const val = e.target.value;
-    if (val.length) record.Notes = [new Note(val)];
-    setRecord(record);
-  }
+    let input;
+    switch (s.TypeId) {
+      case 1:
+        input = <Form.Control type="number" step={1} {...inputProps} />;
+        break;
+      case 2:
+        input = <Form.Control type="number" {...inputProps} />;
+        break;
+      case 3:
+        input = <Form.Check type="checkbox" custom label={s.Label} {...inputProps} />;
+        break;
+      default:
+        input = <Form.Control type="text" {...inputProps} />;
+        break;
+    }
 
-  function addRecord(e: any) {
-
-    // console.log(record);
-    var req = new ApiRequest('Records').Post(
-      {
-        DatasetId: dataset.Id,
-        DateTime: date
-      } as Record);
-
-    req.then((r: Record) => {
-      const numProps = record.Properties.length;
-      const numNotes = record.Notes.length;
-      var loaded = 1;
-      var total = loaded + numProps + numNotes;
-      
-      if (numProps) {
-        each(record.Properties, p => {
-          var propReq = new ApiRequest('Properties').Post({ ...p, RecordId: r.Id } as Property);
-          propReq.then(_ => checkLoaded(++loaded, total));
-        })
-      }
-      if (numNotes) {
-        each(record.Notes, n => {
-          var noteReq = new ApiRequest('Notes').Post({ ...n, RecordId: r.Id } as Note);
-          noteReq.then(_ => checkLoaded(++loaded, total));
-        })
-      }
-    });
-  }
-
-  const checkLoaded = (loaded:number, total: number) => {
-    if (loaded >= total) refreshDataset(dataset.Id, true);
+    if (s.TypeId == 3) {
+      return input;
+    }
+    return <><Form.Label>{s.Label}</Form.Label>{input}</>;
   }
 
   return (
-    <Form>
-      {map(dataset.Series, (s: Series) =>
-        <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
-          <Form.Label>{s.Label}</Form.Label>
-          <Form.Control type="text" onBlurCapture={(e: any) => updateProperty(e, s)} />
+    <>
+      <Form>
+        {map(series, (s: Series) =>
+          <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
+            {renderPropertyInput(s)}
+          </Form.Group>
+        )}
+        <Form.Group>
+          <Form.Label>Date</Form.Label>
+          <DateTimePicker date={record.DateTime} updateDate={handleUpdateDate} />
         </Form.Group>
-      )}
-      <Form.Group>
-        <Form.Label>Date</Form.Label>
-        <DateTimePicker date={date} updateDate={updateDate} />
-      </Form.Group>
-      <Form.Group>
-        <Form.Label>Note</Form.Label>
-        <Form.Control as="textarea" rows="3" onBlurCapture={updateNote} />
-      </Form.Group>
-      <Button variant="primary" onClick={addRecord}>
-        Add
+        <Form.Group>
+          <Form.Label>Note</Form.Label>
+          <Form.Control as="textarea" defaultValue={record.Notes.length ? record.Notes[0].Text : ''} rows="3" onBlurCapture={updateNote} />
+        </Form.Group>
+        <Button variant="primary" onClick={handleSave}>
+          Add
       </Button>
-    </Form>
+      </Form>
+    </>
   );
 }
 
-export default EditRecord;
+export default RecordForm;
