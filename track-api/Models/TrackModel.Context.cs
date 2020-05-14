@@ -32,7 +32,6 @@ namespace track_api.Models
         public virtual DbSet<Property> Properties { get; set; }
         public virtual DbSet<Record> Records { get; set; }
         public virtual DbSet<Series> Series { get; set; }
-        public virtual DbSet<SeriesType> SeriesTypes { get; set; }
         public virtual DbSet<User> Users { get; set; }
     
         public virtual int AddProperty(Nullable<int> recordId, string label, string value)

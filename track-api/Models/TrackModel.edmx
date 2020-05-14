@@ -52,14 +52,6 @@
           <Property Name="Unit" Type="varchar" MaxLength="50" />
           <Property Name="Visible" Type="bit" />
         </EntityType>
-        <EntityType Name="SeriesType">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="Inactive" Type="bit" Nullable="false" />
-        </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="Id" />
@@ -141,18 +133,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Series_SeriesType">
-          <End Role="SeriesType" Type="Self.SeriesType" Multiplicity="1" />
-          <End Role="Series" Type="Self.Series" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SeriesType">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Series">
-              <PropertyRef Name="TypeId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Function Name="AddProperty" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="RecordId" Type="int" Mode="In" />
           <Parameter Name="Label" Type="varchar" Mode="In" />
@@ -199,7 +179,6 @@
           <EntitySet Name="Property" EntityType="Self.Property" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Record" EntityType="Self.Record" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Series" EntityType="Self.Series" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="SeriesType" EntityType="Self.SeriesType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Dataset_User" Association="Self.FK_Dataset_User">
             <End Role="User" EntitySet="User" />
@@ -223,10 +202,6 @@
           </AssociationSet>
           <AssociationSet Name="FK_Series_Dataset" Association="Self.FK_Series_Dataset">
             <End Role="Dataset" EntitySet="Dataset" />
-            <End Role="Series" EntitySet="Series" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Series_SeriesType" Association="Self.FK_Series_SeriesType">
-            <End Role="SeriesType" EntitySet="SeriesType" />
             <End Role="Series" EntitySet="Series" />
           </AssociationSet>
         </EntityContainer>
@@ -290,17 +265,7 @@
           <Property Name="Unit" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Dataset" Relationship="Self.FK_Series_Dataset" FromRole="Series" ToRole="Dataset" />
           <NavigationProperty Name="Properties" Relationship="Self.FK_Property_Series" FromRole="Series" ToRole="Property" />
-          <NavigationProperty Name="SeriesType" Relationship="Self.FK_Series_SeriesType" FromRole="Series" ToRole="SeriesType" />
           <Property Name="Visible" Type="Boolean" />
-        </EntityType>
-        <EntityType Name="SeriesType">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <NavigationProperty Name="Series" Relationship="Self.FK_Series_SeriesType" FromRole="SeriesType" ToRole="Series" />
-          <Property Name="Inactive" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -384,25 +349,12 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Series_SeriesType">
-          <End Role="SeriesType" Type="Self.SeriesType" Multiplicity="1" />
-          <End Role="Series" Type="Self.Series" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SeriesType">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Series">
-              <PropertyRef Name="TypeId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="TrackContext" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Datasets" EntityType="Self.Dataset" />
           <EntitySet Name="Notes" EntityType="Self.Note" />
           <EntitySet Name="Properties" EntityType="Self.Property" />
           <EntitySet Name="Records" EntityType="Self.Record" />
           <EntitySet Name="Series" EntityType="Self.Series" />
-          <EntitySet Name="SeriesTypes" EntityType="Self.SeriesType" />
           <EntitySet Name="Users" EntityType="Self.User" />
           <AssociationSet Name="FK_Dataset_User" Association="Self.FK_Dataset_User">
             <End Role="User" EntitySet="Users" />
@@ -427,10 +379,6 @@
           <AssociationSet Name="FK_Property_Series" Association="Self.FK_Property_Series">
             <End Role="Series" EntitySet="Series" />
             <End Role="Property" EntitySet="Properties" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Series_SeriesType" Association="Self.FK_Series_SeriesType">
-            <End Role="SeriesType" EntitySet="SeriesTypes" />
-            <End Role="Series" EntitySet="Series" />
           </AssociationSet>
           <FunctionImport Name="AddProperty">
             <Parameter Name="RecordId" Mode="In" Type="Int32" />
@@ -547,15 +495,6 @@
                 <ScalarProperty Name="Label" ColumnName="Label" />
                 <ScalarProperty Name="Color" ColumnName="Color" />
                 <ScalarProperty Name="Unit" ColumnName="Unit" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="SeriesTypes">
-            <EntityTypeMapping TypeName="trackModel.SeriesType">
-              <MappingFragment StoreEntitySet="SeriesType">
-                <ScalarProperty Name="Inactive" ColumnName="Inactive" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -47,7 +47,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   const renderPropertyInput = (s: Series) => {
     const prop = record.Properties.filter(p => p.SeriesId == s.Id);
     const inputProps = {
-      value: prop[0].Value || '',
+      value: prop.length ? prop[0].Value : '',
       onChange: (e: any) => updateProperty(e, s)
     }
 

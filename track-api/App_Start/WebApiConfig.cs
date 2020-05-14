@@ -31,7 +31,6 @@ namespace track_api
             builder.EntitySet<User>("Users");
             builder.EntitySet<Record>("Records");
             builder.EntitySet<Series>("Series");
-            builder.EntitySet<SeriesType>("SeriesTypes");
             builder.EntitySet<Property>("Properties");
             builder.EntitySet<Note>("Notes");
             config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());

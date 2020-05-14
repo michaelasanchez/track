@@ -215,7 +215,7 @@
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\RecordsController.cs" />
     <Compile Include="Controllers\SeriesController.cs" />
-    <Compile Include="Controllers\SeriesTypesController.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -243,9 +243,6 @@
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Series.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\SeriesType.cs">
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TrackModel.Context.cs">

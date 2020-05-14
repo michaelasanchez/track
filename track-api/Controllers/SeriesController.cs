@@ -158,13 +158,6 @@ namespace track_api.Controllers
             return db.Series.Where(m => m.Id == key).SelectMany(m => m.Properties);
         }
 
-        // GET: odata/Series(5)/SeriesType
-        [EnableQuery]
-        public SingleResult<SeriesType> GetSeriesType([FromODataUri] int key)
-        {
-            return SingleResult.Create(db.Series.Where(m => m.Id == key).Select(m => m.SeriesType));
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

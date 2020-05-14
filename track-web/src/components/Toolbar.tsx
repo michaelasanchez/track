@@ -18,7 +18,7 @@ import {
   faPlusSquare,
   faPlusCircle as createIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { UserMode } from '../resources/enums';
+import { UserMode } from '../shared/enums';
 
 export enum ToolbarAction {
   Create,

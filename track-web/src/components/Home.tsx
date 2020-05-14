@@ -13,7 +13,7 @@ import CreateDataset from './routes/CreateDataset';
 import { Series } from '../models/Series';
 import { Dataset } from '../models/Dataset';
 import { Navbar } from './Navbar';
-import { UserMode } from '../resources/enums';
+import { UserMode } from '../shared/enums';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
@@ -49,7 +49,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
     if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
     else
-      new ApiRequest('Datasets', id).Expand('Records/Properties').Expand('Series/SeriesType').Get(authState.accessToken)
+      new ApiRequest('Datasets', id).Expand('Series').Expand('Records/Properties').Get(authState.accessToken)
         .then((d: Dataset) => {
           setDataset(d);
 

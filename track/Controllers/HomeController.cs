@@ -29,7 +29,8 @@ namespace track.Controllers
 
         public PartialViewResult CreateDatasetView()
         {
-            return PartialView("Partials/_CreateDataset", db.SeriesTypes.ToList());
+            // TODO? This will break the old front end
+            return PartialView("Partials/_CreateDataset", db/*.SeriesTypes.ToList()*/);
         }
 
         public PartialViewResult EditDatasetView(int id)

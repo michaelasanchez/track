@@ -9,7 +9,8 @@ import ApiRequest from '../../models/Request';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'
-import { strings } from "../../resources/strings"
+import { strings } from "../../shared/strings"
+import { SeriesType as SeriesTypeTest } from '../../shared/enums';
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -18,7 +19,7 @@ type DatasetFormProps = {
   onPrivateChange: Function,
   onDatasetLabelChange: Function,
   onLabelChange: (e: any, seriesId: number) => void,
-  onTypeChange: Function,
+  onTypeChange?: Function,
   onColorChange: Function,
   createMode?: boolean,
   deleteSeries?: Function,
@@ -36,23 +37,12 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   deleteSeries = null,
   allowPrivate = false,
 }) => {
-  const [seriesTypes, setSeriesTypes] = useState<SeriesType[]>([]);
-
+  
   const colWidth = {
     md: 8,
     lg: 6,
   }
   const tooltip = new HtmlToReactParser().parse(strings.tooltipPrivate);
-
-  const getSeriesTypes = () => new ApiRequest('SeriesTypes').Get();
-
-  // Init
-  useEffect(() => {
-    const req = getSeriesTypes().then((data: any) => {
-      setSeriesTypes(data.value as SeriesType[]);
-      return null;
-    });
-  }, []);
 
   const renderSeriesRow = (s: Series, className: string) => {
     return (
@@ -61,18 +51,20 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
           <Col {...colWidth} className="flex">
             <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
 
-            <Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => onTypeChange(e, s.Id)} className={className}>
-              {map(seriesTypes, (t: SeriesType) => {
-                return <option key={t.Id} value={t.Id}>{t.Name}</option>
-              })}
-            </Form.Control>
+            {createMode && onTypeChange != null && 
+              <Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => onTypeChange(e, s.Id)} className={className}>
+                {map(SeriesTypeTest, (i, j) => {
+                  return isNaN(i) ? null : <option key={i} value={i}>{j}</option>;
+                })}
+              </Form.Control>}
 
             <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
+
             {createMode && dataset.Series.length > 2 &&
               <Button variant={'link'} onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
                 <FontAwesomeIcon icon={deleteIcon} color="gray" className={`icon ${className}`} />
-              </Button>
-            }
+              </Button>}
+
             {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}
           </Col>
         </Row>

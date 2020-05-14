@@ -52,14 +52,6 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
     req.then(_ => refreshDataset(dataset.Id, true));
   }
 
-  const handleTypeChange = (e: any, seriesId: number) => {
-    const req = updateSeries({
-      Id: seriesId,
-      TypeId: e.target.value,
-    } as Series);
-    req.then(_ => refreshDataset(dataset.Id, true));
-  }
-
   const handleColorChange = (e: any, seriesId: number) => {
     const req = updateSeries({
       Id: seriesId,
@@ -74,7 +66,6 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       onPrivateChange={handleDatasetPrivateChange}
       onDatasetLabelChange={handleDatasetLabelChange}
       onLabelChange={handleLabelChange}
-      onTypeChange={handleTypeChange}
       onColorChange={handleColorChange}
       allowPrivate={allowPrivate}
     />

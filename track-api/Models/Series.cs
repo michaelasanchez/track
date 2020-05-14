@@ -31,6 +31,5 @@ namespace track_api.Models
         public virtual Dataset Dataset { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Property> Properties { get; set; }
-        public virtual SeriesType SeriesType { get; set; }
     }
 }
