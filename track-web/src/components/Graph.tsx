@@ -17,31 +17,22 @@ export enum GraphType {
   Line = 'Line',
 }
 
-const Graph: React.FunctionComponent<GraphProps> = ({ dataset, defaultType = GraphType.Line}) => {
+const Graph: React.FunctionComponent<GraphProps> = ({
+  dataset,
+  defaultType = GraphType.Line
+}) => {
   const [type, setType] = useState<GraphType>(defaultType);
 
-  const convertDatasetToData = (dataset: Dataset): ChartistData => {
-    var chartistData = new ChartistData(dataset.Series.length);
+  const datasetToChartistData = (dataset: Dataset): ChartistData => {
+    var chartistData = new ChartistData(dataset);
+    console.log(dataset, chartistData.LineData);
 
-    // labels
-    chartistData.labels = map(dataset.Records, r => r.DateTime);
-    // series
-    map(dataset.Records, r => {
-      each(r.Properties, (p, i) => {
-        chartistData.series[i].push(
-          {
-            x: new Date(r.DateTime),
-            y: Number.parseFloat(p.Value),
-          })
-      })
-    });
-    
     return chartistData;
   }
 
   if (dataset) {
     const seriesPrefixes = 'abcdefghijklmnoqrstuvwxyz';
-    var data = convertDatasetToData(dataset);
+    var chartistData = datasetToChartistData(dataset);
 
     var options = {
       height: 500,
@@ -49,7 +40,8 @@ const Graph: React.FunctionComponent<GraphProps> = ({ dataset, defaultType = Gra
       axisX: {
         type: FixedScaleAxis,
         divisor: 3,
-        labelInterpolationFnc: function (value: any) {
+        labelInterpolationFnc: function (value: any, index: number) {
+          
           return moment(value).format("h:mm a");
         }
       },
@@ -66,7 +58,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({ dataset, defaultType = Gra
           }`
           })}
         </style>
-        <ChartistGraph data={data} options={options} type={type} />
+        <ChartistGraph data={chartistData.LineData} options={options} type={type} />
       </>
     );
   }

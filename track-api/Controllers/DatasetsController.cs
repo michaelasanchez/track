@@ -43,7 +43,7 @@ namespace track_api.Controllers
 
         // GET: odata/Datasets(5)
         [EnableQuery]
-        public SingleResult<Dataset> GetDataset([FromODataUri] int key)
+        public Dataset GetDataset([FromODataUri] int key)
         {
             var query = db.Datasets.Where(dataset => dataset.Id == key);
 
@@ -55,7 +55,10 @@ namespace track_api.Controllers
                 ds.Span = records.Any() ? records.Max(r => r.DateTime) - records.Min(r => r.DateTime) : new TimeSpan();
             }
 
-            return SingleResult.Create(query);
+            var result = query.Single();
+            result.Records = result.Records.OrderBy(r => r.DateTime).ToList();
+
+            return result;
         }
 
         // PUT: odata/Datasets(5)
