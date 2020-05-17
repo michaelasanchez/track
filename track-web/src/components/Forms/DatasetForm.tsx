@@ -1,7 +1,7 @@
 import { Dataset } from "../../models/Dataset"
 import React, { useState, useEffect } from "react"
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
-import { Series, SeriesType } from "../../models/Series"
+import { Series } from "../../models/Series"
 import { map } from "lodash"
 import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
@@ -10,7 +10,7 @@ import ApiRequest from '../../models/Request';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
-import { SeriesType as SeriesTypeTest } from '../../shared/enums';
+import { SeriesType } from '../../shared/enums';
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -52,7 +52,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
             <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
 
             {<Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => onTypeChange(e, s.Id)} className={className} disabled={!createMode || onTypeChange == null}>
-              {map(SeriesTypeTest, (i, j) => {
+              {map(SeriesType, (i, j) => {
                 return isNaN(i) ? null : <option key={i} value={i}>{j}</option>;
               })}
             </Form.Control>}
