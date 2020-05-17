@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { map, } from 'lodash';
+import { map, filter, } from 'lodash';
 import { Series } from '../../models/Series';
 import { Form, Button } from 'react-bootstrap';
-import DateTimePicker from '../utils/DateTimePicker';
+import DateTimePicker from '../inputs/DateTimePicker';
 import { useEffect, useState } from 'react';
 import { Record } from '../../models/Record';
+import { SeriesType } from '../../shared/enums';
 
 type RecordFormProps = {
   record: Record;
@@ -46,28 +47,52 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
 
   const renderPropertyInput = (s: Series) => {
     const prop = record.Properties.filter(p => p.SeriesId == s.Id);
-    const inputProps = {
-      value: prop.length ? prop[0].Value : '',
-      onChange: (e: any) => updateProperty(e, s)
+
+    const defaultProps = {
+      onChange: (e: any) => updateProperty(e, s),
+    }
+
+    let inputProps;
+    if (s.TypeId != SeriesType.Boolean) {
+      inputProps = {
+        ...defaultProps,
+        value: prop.length ? prop[0].Value : '',
+      }
     }
 
     let input;
     switch (s.TypeId) {
       case 1:
-        input = <Form.Control type="number" step={1} {...inputProps} />;
+        input = <Form.Control
+          type="number"
+          step={1}
+          {...inputProps}
+        />;
         break;
       case 2:
-        input = <Form.Control type="number" {...inputProps} />;
+        input = <Form.Control
+          type="number"
+          {...inputProps}
+        />;
         break;
       case 3:
-        input = <Form.Check type="checkbox" custom label={s.Label} {...inputProps} />;
+        input = <Form.Check
+          type="checkbox"
+          custom
+          label={s.Label}
+          checked={prop.length && prop[0].Value.length > 0}
+          {...defaultProps}
+        />;
         break;
       default:
-        input = <Form.Control type="text" {...inputProps} />;
+        input = <Form.Control
+          type="text"
+          {...inputProps}
+        />;
         break;
     }
 
-    if (s.TypeId == 3) {
+    if (s.TypeId == SeriesType.Boolean) {
       return input;
     }
     return <><Form.Label>{s.Label}</Form.Label>{input}</>;

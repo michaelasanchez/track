@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react"
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { Series, SeriesType } from "../../models/Series"
 import { map } from "lodash"
-import ColorPicker from "../utils/ColorPicker"
+import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
 import ApiRequest from '../../models/Request';
 
@@ -37,7 +37,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   deleteSeries = null,
   allowPrivate = false,
 }) => {
-  
+
   const colWidth = {
     md: 8,
     lg: 6,
@@ -51,12 +51,11 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
           <Col {...colWidth} className="flex">
             <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
 
-            {createMode && onTypeChange != null && 
-              <Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => onTypeChange(e, s.Id)} className={className}>
-                {map(SeriesTypeTest, (i, j) => {
-                  return isNaN(i) ? null : <option key={i} value={i}>{j}</option>;
-                })}
-              </Form.Control>}
+            {<Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => onTypeChange(e, s.Id)} className={className} disabled={!createMode || onTypeChange == null}>
+              {map(SeriesTypeTest, (i, j) => {
+                return isNaN(i) ? null : <option key={i} value={i}>{j}</option>;
+              })}
+            </Form.Control>}
 
             <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
 

@@ -17,53 +17,87 @@ export enum GraphType {
   Line = 'Line',
 }
 
+const SERIES_PREFIXES = 'abcdefghijklmnoqrstuvwxyz';
+
+
+const defaultOptions = {
+  height: 400,
+  fullWidth: true,
+  // chartPadding: { right: 50 },
+}
+
 const Graph: React.FunctionComponent<GraphProps> = ({
   dataset,
   defaultType = GraphType.Line
 }) => {
   const [type, setType] = useState<GraphType>(defaultType);
 
-  const datasetToChartistData = (dataset: Dataset): ChartistData => {
-    var chartistData = new ChartistData(dataset);
-    console.log(dataset, chartistData.LineData);
+  const chartistData = new ChartistData(dataset);
 
-    return chartistData;
-  }
+  var options = {
+    ...defaultOptions,
+    showLine: true,
+    axisX: {
+      type: FixedScaleAxis,
+      divisor: 5,
+      labelInterpolationFnc: function (value: any, index: number) {
+        return moment(value).format('MMM D');
+      }
+    },
+  } as ILineChartOptions;
 
-  if (dataset) {
-    const seriesPrefixes = 'abcdefghijklmnoqrstuvwxyz';
-    var chartistData = datasetToChartistData(dataset);
-
-    var options = {
-      height: 500,
-      fullWidth: true,
-      axisX: {
-        type: FixedScaleAxis,
-        divisor: 3,
-        labelInterpolationFnc: function (value: any, index: number) {
-          
-          return moment(value).format("h:mm a");
-        }
+  var frequencyOptions = {
+    ...defaultOptions,
+    height: 200,
+    showLine: false,
+    axisY: {
+      onlyInteger: true,
+      labelInterpolationFnc: function (value: any, index: number) {
+        if (index < dataset.Series.length)
+        return dataset.Series[index].Label;
       },
-      // chartPadding: { right: 50 },
-    } as ILineChartOptions;
+    },
+    axisX: {
+      type: FixedScaleAxis,
+      divisor: 5,
+      labelInterpolationFnc: (value: any) => {
+        return moment(value).format('MMM D');
+      }
+    }
+  } as ILineChartOptions;
 
+  const renderColorStyle = () => {
     return (
-      <>
-        <style>
-          {map(dataset.Series, (s, i) => {
-            var prefix = seriesPrefixes.substr(i, 1);
-            return `.ct-series-${prefix} .ct-line, .ct-series-${prefix} .ct-point {
-            stroke: ${"#" + s.Color};
-          }`
-          })}
-        </style>
-        <ChartistGraph data={chartistData.LineData} options={options} type={type} />
-      </>
-    );
+      <style>
+        {map(dataset.Series, (s, i) => {
+          var prefix = SERIES_PREFIXES.substr(i, 1);
+          return `.ct-series-${prefix} .ct-line, .ct-series-${prefix} .ct-point {
+              stroke: ${"#" + s.Color};
+            }`
+        })}
+      </style>
+    )
   }
 
-  return null;
+  return (
+    <>
+      {renderColorStyle()}
+      {chartistData.HasLineData() &&
+        <ChartistGraph
+          data={chartistData.LineData}
+          options={options}
+          type={type}
+        />
+      }
+      {chartistData.HasFrequencyData() &&
+        <ChartistGraph
+          data={chartistData.FrequencyData}
+          options={frequencyOptions}
+          type={type}
+        />
+      }
+    </>
+  );
 }
 
 export default Graph;

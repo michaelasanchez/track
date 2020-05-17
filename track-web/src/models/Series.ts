@@ -5,8 +5,3 @@ export class Series{
   public Label: string;
   public Color: string;
 }
-
-export class SeriesType {
-  Id: number;
-  Name: string;
-}
