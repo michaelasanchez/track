@@ -1,11 +1,13 @@
 import * as React from "react"
 import ChartistGraph from 'react-chartist';
 import { Dataset } from "../models/Dataset";
-import { ChartistData } from "../models/ChartistData";
+import { ChartistDataset } from "../models/ChartistDataset";
 import { each, map, times } from 'lodash';
 import { ILineChartOptions, FixedScaleAxis } from "chartist";
 import moment = require("moment");
 import { useState } from "react";
+import { ChartistSeries, GraphFormat } from "../models/ChartistSeries";
+import { ChartistOptions, SERIES_PREFIXES } from "../models/ChartistOptions";
 
 type GraphProps = {
   dataset: Dataset;
@@ -17,13 +19,23 @@ export enum GraphType {
   Line = 'Line',
 }
 
-const SERIES_PREFIXES = 'abcdefghijklmnoqrstuvwxyz';
-
-
-const defaultOptions = {
-  height: 400,
-  fullWidth: true,
-  // chartPadding: { right: 50 },
+const renderColorStyle = (series: ChartistSeries[], className: string) => {
+  return (
+    <style>
+      {map(series, (s, i) => {
+        var prefix = SERIES_PREFIXES.substr(i, 1);
+        if (s.Color) {
+          return `
+            .${className} .ct-series-${prefix} .ct-line,
+            .${className} .ct-series-${prefix} .ct-point {
+              stroke: #${s.Color};
+            }`;
+        } else {
+          return null;
+        }
+      })}
+    </style>
+  )
 }
 
 const Graph: React.FunctionComponent<GraphProps> = ({
@@ -32,70 +44,35 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 }) => {
   const [type, setType] = useState<GraphType>(defaultType);
 
-  const chartistData = new ChartistData(dataset);
+  const options = new ChartistOptions();
+  const chartistDataset = new ChartistDataset(dataset);
 
-  var options = {
-    ...defaultOptions,
-    showLine: true,
-    axisX: {
-      type: FixedScaleAxis,
-      divisor: 5,
-      labelInterpolationFnc: function (value: any, index: number) {
-        return moment(value).format('MMM D');
-      }
-    },
-  } as ILineChartOptions;
+  const lineGraph = (
+    <>
+      {renderColorStyle(chartistDataset.NumericalSeries, 'numerical')}
+      <ChartistGraph
+        data={chartistDataset.NumericalData}
+        options={options.getNumericalOptions()}
+        type={type}
+      />
+    </>
+  );
 
-  var frequencyOptions = {
-    ...defaultOptions,
-    height: 200,
-    showLine: false,
-    axisY: {
-      onlyInteger: true,
-      labelInterpolationFnc: function (value: any, index: number) {
-        if (index < dataset.Series.length)
-        return dataset.Series[index].Label;
-      },
-    },
-    axisX: {
-      type: FixedScaleAxis,
-      divisor: 5,
-      labelInterpolationFnc: (value: any) => {
-        return moment(value).format('MMM D');
-      }
-    }
-  } as ILineChartOptions;
-
-  const renderColorStyle = () => {
-    return (
-      <style>
-        {map(dataset.Series, (s, i) => {
-          var prefix = SERIES_PREFIXES.substr(i, 1);
-          return `.ct-series-${prefix} .ct-line, .ct-series-${prefix} .ct-point {
-              stroke: ${"#" + s.Color};
-            }`
-        })}
-      </style>
-    )
-  }
+  const frequencyGraph = (
+    <>
+      {renderColorStyle(chartistDataset.FrequencySeries, 'frequency')}
+      <ChartistGraph
+        data={chartistDataset.FrequencyData}
+        options={options.getFrequencyOptions(chartistDataset)}
+        type={type}
+      />
+    </>
+  );
 
   return (
     <>
-      {renderColorStyle()}
-      {chartistData.HasLineData() &&
-        <ChartistGraph
-          data={chartistData.LineData}
-          options={options}
-          type={type}
-        />
-      }
-      {chartistData.HasFrequencyData() &&
-        <ChartistGraph
-          data={chartistData.FrequencyData}
-          options={frequencyOptions}
-          type={type}
-        />
-      }
+      {chartistDataset.HasNumericalData() && lineGraph}
+      {chartistDataset.HasFrequencyData() && frequencyGraph}
     </>
   );
 }

@@ -80,7 +80,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
           type="checkbox"
           custom
           label={s.Label}
-          checked={prop.length && prop[0].Value.length > 0}
+          checked={prop.length && prop[0].Value === 'true'}
           {...defaultProps}
         />;
         break;
@@ -92,10 +92,22 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         break;
     }
 
+    const colorLabel = <div className="color" style={{ backgroundColor: `#${s.Color}` }} />;
+
     if (s.TypeId == SeriesType.Boolean) {
-      return input;
+      return <>
+        {colorLabel}
+        {input}
+      </>;
     }
-    return <><Form.Label>{s.Label}</Form.Label>{input}</>;
+
+    return <>
+      <Form.Label>
+        {colorLabel}
+        {s.Label}
+      </Form.Label>
+      {input}
+    </>;
   }
 
   return (

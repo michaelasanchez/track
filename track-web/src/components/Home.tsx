@@ -14,6 +14,8 @@ import { Series } from '../models/Series';
 import { Dataset } from '../models/Dataset';
 import { Navbar } from './Navbar';
 import { UserMode } from '../shared/enums';
+import { Loading } from './Loading';
+import { ChartistDataset } from '../models/ChartistDataset';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
@@ -163,5 +165,5 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     );
   }
 
-  return <div>Loading...</div>;
+  return <Loading />;
 }

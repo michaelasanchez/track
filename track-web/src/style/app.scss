@@ -4,5 +4,12 @@
 
 @import 'navbar';
 @import 'toolbar';
+
+@import 'graph';
+
 @import 'colorpicker';
 @import 'datetimepicker';
+
+html, body, main {
+  height: 100%;
+}

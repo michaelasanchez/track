@@ -20,6 +20,19 @@ $pending-row-opacity: .5;
 
 form {
   margin-bottom: 1rem;
+
+  .color {
+    display: inline-block;
+    background-color: red;
+    border-radius: 2px;
+    height: .8em;
+    width: .8em;
+    margin-right: .5em;
+
+    & + .custom-control {
+      display: inline-block;
+    };
+  }
   
   input,
   select {

@@ -58,6 +58,10 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     }
   };
 
+  const renderDivider = () => {
+    return <div className="divider" />;
+  }
+
   /* Dataset Select */
   const renderDatasetSelect = () => {
     return (
@@ -97,44 +101,53 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   /* Home */
   const renderDefault = () =>
     <>
-      <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
-        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
-      </Link>
-      <div className="divider" />
-      <Link to="/create">
-        <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
-      </Link>
+      <div className="toolbar-left">
+        <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
+          <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+        </Link>
+      </div>
+      <div className="toolbar-right">
+        <Link to="/create">
+          <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
+        </Link>
+      </div>
     </>;
 
   /* Edit */
   const renderEdit = () =>
     <>
-      <Link to="/" onClick={() => updateMode(UserMode.View)} >
-        <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
-      </Link>
-      {/* <Link to="/">
-        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
-      </Link> */}
-      <div className="divider" />
-      <Link to="/edit" onClick={handleShow}>
-        <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
-      </Link>
+      <div className="toolbar-left">
+        <Link to="/" onClick={() => updateMode(UserMode.View)} >
+          <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
+        </Link>
+        {/* <Link to="/">
+          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
+        </Link> */}
+      </div>
+      <div className="toolbar-right">
+        <Link to="/edit" onClick={handleShow}>
+          <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
+        </Link>
+      </div>
     </>;
 
 
   /* Create */
   const renderCreate = () =>
     <>
-      <Link to="edit" onClick={() => updateMode(UserMode.Edit)}  >
-        <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
-      </Link>
-      <div className="divider" />
-      <Link to="/">
-        <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
-      </Link>
-      <Link to="/" onClick={() => onAction(ToolbarAction.Create)}>
-        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
-      </Link>
+      <div className="toolbar-left">
+        <Link to="edit disabled" >
+          <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+        </Link>
+      </div>
+      <div className="toolbar-right">
+        <Link to="/" onClick={() => onAction(ToolbarAction.Create)}>
+          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
+        </Link>
+        <Link to="/">
+          <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
+        </Link>
+      </div>
     </>;
 
   /* Render */
