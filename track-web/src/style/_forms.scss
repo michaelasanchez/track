@@ -33,6 +33,17 @@ form {
       display: inline-block;
     };
   }
+
+  // Checkboxes
+  .custom-control {
+    input, label {
+      cursor: pointer;
+    }
+  }
+  
+  .form-label, input {
+    cursor: pointer;
+  }
   
   input,
   select {

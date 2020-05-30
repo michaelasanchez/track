@@ -6,6 +6,7 @@ import DateTimePicker from '../inputs/DateTimePicker';
 import { useEffect, useState } from 'react';
 import { Record } from '../../models/Record';
 import { SeriesType } from '../../shared/enums';
+import { COLORS_DEFAULT } from '../../models/ChartistOptions';
 
 type RecordFormProps = {
   record: Record;
@@ -45,7 +46,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
     save(e);
   }
 
-  const renderPropertyInput = (s: Series) => {
+  const renderPropertyInput = (s: Series, index: number) => {
     const prop = record.Properties.filter(p => p.SeriesId == s.Id);
 
     const defaultProps = {
@@ -92,7 +93,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         break;
     }
 
-    const colorLabel = <div className="color" style={{ backgroundColor: `#${s.Color}` }} />;
+    const colorLabel = <div className="color" style={{ backgroundColor: `#${s.Color?s.Color:COLORS_DEFAULT[index]}` }} />;
 
     if (s.TypeId == SeriesType.Boolean) {
       return <>
@@ -113,9 +114,9 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   return (
     <>
       <Form>
-        {map(series, (s: Series) =>
+        {map(series, (s: Series, i: number) =>
           <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
-            {renderPropertyInput(s)}
+            {renderPropertyInput(s, i)}
           </Form.Group>
         )}
         <Form.Group>

@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
+import { COLORS_DEFAULT } from "../../models/ChartistOptions"
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -44,7 +45,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   }
   const tooltip = new HtmlToReactParser().parse(strings.tooltipPrivate);
 
-  const renderSeriesRow = (s: Series, className: string) => {
+  const renderSeriesRow = (s: Series, index: number, className: string) => {
     return (
       <Form.Group key={s.Id}>
         <Row>
@@ -57,7 +58,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
               })}
             </Form.Control>}
 
-            <ColorPicker defaultColor={s.Color as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
+            <ColorPicker defaultColor={(s.Color ? s.Color : COLORS_DEFAULT[index]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
 
             {createMode && dataset.Series.length > 2 &&
               <Button variant={'link'} onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
@@ -118,7 +119,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
       </Form.Group>
       <h5>Series</h5>
       {map(dataset.Series, (s: Series, index: number) => {
-        return renderSeriesRow(s, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
+        return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
       })}
     </Form>
   )

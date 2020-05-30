@@ -5,7 +5,7 @@ using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Extensions;
 using track_api.Models;
-
+using track_api.Models.Api;
 
 namespace track_api
 {
@@ -27,12 +27,17 @@ namespace track_api
 
             //
             ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+
             builder.EntitySet<Dataset>("Datasets");
             builder.EntitySet<User>("Users");
             builder.EntitySet<Record>("Records");
             builder.EntitySet<Series>("Series");
             builder.EntitySet<Property>("Properties");
             builder.EntitySet<Note>("Notes");
+
+            builder.EntitySet<ApiDataset>("ApiDatasets");
+            builder.EntitySet<ApiSeries>("ApiSeries");
+
             config.Routes.MapODataServiceRoute("odata", "odata", builder.GetEdmModel());
         }
     }

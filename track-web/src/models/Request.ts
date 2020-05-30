@@ -6,7 +6,8 @@ import { Note } from "./Note";
 
 class ApiRequest {
 
-  private API_URL: string = 'https://localhost:44311/odata/';
+  private ODATA_URL: string = 'https://localhost:44311/odata/';
+  private API_URL: string = 'https://localhost:44311/api/';
 
   private DEF_PARAMS = {
     mode: 'cors', // no-cors, *cors, same-origin
@@ -20,25 +21,36 @@ class ApiRequest {
     // referrerPolicy: 'no-referrer', // no-referrer, *client
   };
 
-  private entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes';
+  private entity: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes';
   private id: number;
   private expands: string[];
   private filters: string[];
 
-  constructor(entity: 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes', id: number = null) {
+  constructor(entity: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes', id: number = null) {
     this.entity = entity;
     if (id) this.id = id;
     this.expands = [];
     this.filters = [];
   }
 
-  private buildUrlString(idOverride: number = null): string {
-    var urlString = `${this.API_URL}${this.entity}${this.getIdArg(idOverride)}`;
+  private buildApiUrlString(idOverride: number = null): string {
+    return `${this.API_URL}${this.entity}/${idOverride || this.id}`;
+  }
+
+  private buildOdataUrlString(idOverride: number = null): string {
+    var urlString = `${this.ODATA_URL}${this.entity}${this.getIdArg(idOverride)}`;
     if (this.expands.length || this.filters.length)
       return `${urlString}?${this.getExpandArg()}${this.getFilterArg()}`;
     return urlString;
   }
 
+  private buildAuthHeader = (token: any) => {
+    return {
+      Authorization: 'Bearer ' + token
+    };
+  }
+
+  // TODO: Currently only works for odata endpoints
   private getIdArg(idOverride: number = null): string {
     const id = idOverride || this.id;
     return id ? `(${id})` : '';
@@ -78,17 +90,24 @@ class ApiRequest {
     return this;
   }
 
+  public Test = (token?: any) => {
+    const params = !token ? null : {
+      headers: this.buildAuthHeader(token)
+    };
+    return this.execute(this.buildApiUrlString(), params);
+  }
+
   public Get = (token?: any) => {
-    return this.execute(this.buildUrlString(),
-    !token ? null : {
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
-    })
+    return this.execute(this.buildOdataUrlString(),
+      !token ? null : {
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
+      });
   }
 
   public Post = (entity: Dataset | Record | Property | Note, token?: string) => {
-    return this.execute(this.buildUrlString(),
+    return this.execute(this.buildOdataUrlString(),
     {
       method: 'POST',
       headers: {
@@ -102,7 +121,7 @@ class ApiRequest {
   public Patch = (entity: Dataset | Series) => {
     // Entity id is used as fallback when id has been manually set
     // TODO: this is tied to caching. feels odd here
-    return this.execute(this.buildUrlString(this.id || entity.Id),
+    return this.execute(this.buildOdataUrlString(this.id || entity.Id),
       {
         ...this.DEF_PARAMS,
         method: 'PATCH',
@@ -111,7 +130,7 @@ class ApiRequest {
   }
 
   public Delete = (entity: Dataset) => {
-    return this.execute(this.buildUrlString(this.id || entity.Id),
+    return this.execute(this.buildOdataUrlString(this.id || entity.Id),
       {
         ...this.DEF_PARAMS,
         method: 'DELETE',

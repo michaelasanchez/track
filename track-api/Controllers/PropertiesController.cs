@@ -139,14 +139,14 @@ namespace track_api.Controllers
         }
 
         // GET: odata/Properties(5)/Record
-        [EnableQuery]
+        //[EnableQuery]
         public SingleResult<Record> GetRecord([FromODataUri] int key)
         {
             return SingleResult.Create(db.Properties.Where(m => m.Id == key).Select(m => m.Record));
         }
 
         // GET: odata/Properties(5)/Series
-        [EnableQuery]
+        //[EnableQuery]
         public SingleResult<Series> GetSeries([FromODataUri] int key)
         {
             return SingleResult.Create(db.Properties.Where(m => m.Id == key).Select(m => m.Series));

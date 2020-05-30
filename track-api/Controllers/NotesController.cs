@@ -21,14 +21,14 @@ namespace track_api.Controllers
         private TrackContext db = new TrackContext();
 
         // GET: odata/Notes
-        [EnableQuery]
+        //[EnableQuery]
         public IQueryable<Note> GetNotes()
         {
             return db.Notes;
         }
 
         // GET: odata/Notes(5)
-        [EnableQuery]
+        //[EnableQuery]
         public SingleResult<Note> GetNote([FromODataUri] int key)
         {
             return SingleResult.Create(db.Notes.Where(note => note.Id == key));
@@ -139,7 +139,7 @@ namespace track_api.Controllers
         }
 
         // GET: odata/Notes(5)/Record
-        [EnableQuery]
+        //[EnableQuery]
         public SingleResult<Record> GetRecord([FromODataUri] int key)
         {
             return SingleResult.Create(db.Notes.Where(m => m.Id == key).Select(m => m.Record));

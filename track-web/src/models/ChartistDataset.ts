@@ -66,6 +66,8 @@ export class ChartistDataset {
             value = Number.parseInt(p.Value);
             break;
           case SeriesType.Boolean:
+            // Display series top-down
+            // TODO: Find a better way to do this
             value = -index;
             break;
           default:

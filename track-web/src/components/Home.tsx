@@ -65,6 +65,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         });
   }
 
+  const loadTestDataset = (id: number) => {
+    new ApiRequest('ApiDatasets').Id(id).Test()
+        .then((d: any) => { console.log('AWWWWW YEAH', d); });
+  }
+
   const loadDatasetList = () => {
     new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
       .then(d => setDatasetList(d.value as Dataset[]));
@@ -99,8 +104,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   // Init
   useEffect(() => {
     if (!authState.isPending) {
+      const id = defaultDatasetId();
       loadDatasetList();
-      loadDataset(defaultDatasetId());
+      loadDataset(id);
+      loadTestDataset(id);
     }
   }, [authState.accessToken])
 

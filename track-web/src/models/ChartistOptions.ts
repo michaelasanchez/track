@@ -7,6 +7,18 @@ import { ChartistDataset } from "./ChartistDataset";
 // TODO: figure out what happens after z
 export const SERIES_PREFIXES = 'abcdefghijklmnoqrstuvwxyz';
 
+export const COLORS_DEFAULT = [
+  'd70206',
+  'f05b4f',
+  'f4c63d',
+  'd17905',
+  '453d3f',
+  '59922b',
+  '0544d3',
+  '6b0392',
+  'f05b4f'
+]
+
 const OPTIONS_DEFAULT = {
   // height: 400,
   fullWidth: true,
