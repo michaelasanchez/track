@@ -1,16 +1,15 @@
 import * as React from "react"
 import ChartistGraph from 'react-chartist';
-import { Dataset } from "../models/Dataset";
-import { ChartistDataset } from "../models/ChartistDataset";
-import { each, map, times } from 'lodash';
-import { ILineChartOptions, FixedScaleAxis } from "chartist";
+import { map } from 'lodash';
 import moment = require("moment");
 import { useState } from "react";
-import { ChartistSeries, GraphFormat } from "../models/ChartistSeries";
 import { ChartistOptions, SERIES_PREFIXES } from "../models/ChartistOptions";
+import { ApiDataset } from "../models/ApiDataset";
+import { SeriesType } from "../shared/enums";
+import { ApiSeries } from "../models/ApiSeries";
 
 type GraphProps = {
-  dataset: Dataset;
+  dataset: ApiDataset;
   defaultType?: GraphType;
 };
 
@@ -19,7 +18,7 @@ export enum GraphType {
   Line = 'Line',
 }
 
-const renderColorStyle = (series: ChartistSeries[], className: string) => {
+const renderColorStyle = (series: ApiSeries[], className: string) => {
   return (
     <style>
       {map(series, (s, i) => {
@@ -28,7 +27,7 @@ const renderColorStyle = (series: ChartistSeries[], className: string) => {
           return `
             .${className} .ct-series-${prefix} .ct-line,
             .${className} .ct-series-${prefix} .ct-point {
-              stroke: #${s.Color};
+              stroke: ${s.Color};
             }`;
         } else {
           return null;
@@ -45,13 +44,48 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   const [type, setType] = useState<GraphType>(defaultType);
 
   const options = new ChartistOptions();
-  const chartistDataset = new ChartistDataset(dataset);
+
+  const ChartistData = (labels: string[], series: ApiSeries[]) => {
+    return {
+      labels,
+      series: map(series, (s: ApiSeries, i: number) => {
+        return map(s.Data, (value: string, j: number) => ChartistRecord(s.SeriesType, labels[j], value, i));
+      })
+    }
+  }
+
+  const ChartistRecord = (type: SeriesType, dateTimeString: string, value?: string, index?: number) => {
+    let parsed;
+    switch(type) {
+      case SeriesType.Decimal:
+        parsed = Number.parseFloat(value);
+        break;
+      case SeriesType.Integer:
+        parsed = Number.parseInt(value);
+        break;
+      case SeriesType.Boolean:
+        // Keep series in desc order on chart
+        parsed = value === 'true' ? -(index + 1) : null;
+        break;
+      default:
+        parsed = null;
+        break;
+    }
+    
+    return !parsed ? null : {
+      x: moment(dateTimeString),
+      y: parsed
+    };
+  }
+
+  const hasNumericalData = dataset.NumericalSeries.length > 0;
+  const hasFrequencyData = dataset.FrequencySeries.length > 0;
 
   const lineGraph = (
     <>
-      {renderColorStyle(chartistDataset.NumericalSeries, 'numerical')}
+      {renderColorStyle(dataset.NumericalSeries, 'numerical')}
       <ChartistGraph
-        data={chartistDataset.NumericalData}
+        data={ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
         options={options.getNumericalOptions()}
         type={type}
       />
@@ -60,10 +94,10 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   const frequencyGraph = (
     <>
-      {renderColorStyle(chartistDataset.FrequencySeries, 'frequency')}
+      {renderColorStyle(dataset.FrequencySeries, 'frequency')}
       <ChartistGraph
-        data={chartistDataset.FrequencyData}
-        options={options.getFrequencyOptions(chartistDataset)}
+        data={ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
+        options={options.getFrequencyOptions(dataset.FrequencySeries, hasNumericalData)}
         type={type}
       />
     </>
@@ -71,8 +105,8 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   return (
     <>
-      {chartistDataset.HasNumericalData() && lineGraph}
-      {chartistDataset.HasFrequencyData() && frequencyGraph}
+      {hasNumericalData && lineGraph}
+      {hasFrequencyData && frequencyGraph}
     </>
   );
 }

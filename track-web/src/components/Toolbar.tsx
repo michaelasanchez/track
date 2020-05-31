@@ -131,7 +131,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </div>
     </>;
 
-
   /* Create */
   const renderCreate = () =>
     <>

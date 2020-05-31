@@ -15,7 +15,7 @@ import { Dataset } from '../models/Dataset';
 import { Navbar } from './Navbar';
 import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
-import { ChartistDataset } from '../models/ChartistDataset';
+import { ApiDataset } from '../models/ApiDataset';
 
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
@@ -37,6 +37,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
 
   const [dataset, setDataset] = useState<Dataset>();
+  const [apiDataset, setApiDataset] = useState<ApiDataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset());
 
   const [datasetList, setDatasetList] = useState<Dataset[]>();
@@ -65,9 +66,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         });
   }
 
-  const loadTestDataset = (id: number) => {
+  const loadApiDataset = (id: number) => {
     new ApiRequest('ApiDatasets').Id(id).Test()
-        .then((d: any) => { console.log('AWWWWW YEAH', d); });
+        .then((dataset: ApiDataset) => {
+          setApiDataset(dataset);
+        });
   }
 
   const loadDatasetList = () => {
@@ -98,6 +101,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     req.then(dataset=> {
       loadDatasetList();
       loadDataset(dataset.Id);
+      loadApiDataset(dataset.Id);
     });
   }
 
@@ -107,17 +111,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       const id = defaultDatasetId();
       loadDatasetList();
       loadDataset(id);
-      loadTestDataset(id);
+      loadApiDataset(id);
     }
   }, [authState.accessToken])
 
   const renderGraph = () =>
     <Row>
       <Col xs={12} lg={3} className="order-2 order-lg-1">
-        <CreateRecord dataset={dataset} refreshDataset={loadDataset} />
+        <CreateRecord dataset={dataset} refreshDataset={loadApiDataset} />
       </Col>
       <Col lg={9} className="order-1 order-lg-2">
-        <Graph dataset={dataset} />
+        <Graph dataset={apiDataset} />
       </Col>
     </Row>;
 
@@ -155,7 +159,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
                 datasetList={datasetList}
                 mode={mode}
                 updateMode={setMode}
-                updateDataset={loadDataset}
+                updateDataset={loadApiDataset}
                 updateDatasetList={loadDatasetList}
                 onAction={handleToolbarAction}
               />

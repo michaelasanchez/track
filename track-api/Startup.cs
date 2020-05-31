@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Configuration;
+using System.Web.Http;
 using Microsoft.Owin;
 using Okta.AspNet;
 using Owin;
@@ -18,6 +19,10 @@ namespace track_api
             {
                 OktaDomain = WebConfigurationManager.AppSettings["OktaOrgDomain"],
             });
+
+            var config = new HttpConfiguration();
+
+            //config.EnableDependencyInjection();
         }
     }
 }

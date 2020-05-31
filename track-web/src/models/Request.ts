@@ -7,7 +7,7 @@ import { Note } from "./Note";
 class ApiRequest {
 
   private ODATA_URL: string = 'https://localhost:44311/odata/';
-  private API_URL: string = 'https://localhost:44311/api/';
+  protected API_URL: string = 'https://localhost:44311/api/';
 
   private DEF_PARAMS = {
     mode: 'cors', // no-cors, *cors, same-origin
@@ -98,12 +98,10 @@ class ApiRequest {
   }
 
   public Get = (token?: any) => {
-    return this.execute(this.buildOdataUrlString(),
-      !token ? null : {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      });
+    const params = !token ? null : {
+      headers: this.buildAuthHeader(token)
+    };
+    return this.execute(this.buildOdataUrlString(), params);
   }
 
   public Post = (entity: Dataset | Record | Property | Note, token?: string) => {

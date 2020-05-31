@@ -1,7 +1,6 @@
-import { GraphFormat } from "./ChartistSeries";
 import { ILineChartOptions, FixedScaleAxis } from "chartist";
 import moment from "moment";
-import { ChartistDataset } from "./ChartistDataset";
+import { ApiSeries } from "./ApiSeries";
 
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
@@ -59,11 +58,11 @@ export class ChartistOptions {
     } as ILineChartOptions;
   }
 
-  public getFrequencyOptions = (dataset: ChartistDataset): ILineChartOptions => {
+  public getFrequencyOptions = (series: ApiSeries[], hideLabel: boolean = false): ILineChartOptions => {
     return {
       ...this._options,
       // height: chartistData.FrequencyData.length * 10,
-      height: dataset.FrequencySeries.length * 40,
+      height: series.length * 40,
       showLine: false,
       classNames: {
         chart: 'ct-chart-line frequency'
@@ -71,14 +70,14 @@ export class ChartistOptions {
       axisY: {
         onlyInteger: true,
         labelInterpolationFnc: function (value: any, index: number) {
-          const l = dataset.FrequencySeries.length;
+          const l = series.length;
           if (index < l) {
-            // Based on boolean values equals -(index)
-            return dataset.FrequencySeries[l - 1 - index].Label;
+            // Based on boolean values equals -(index + 1) in ChartistRecord
+            return series[l - 1 - index].Label;
           }
         },
       },
-      axisX: dataset.HasNumericalData() ? AXIS_X_OFF : AXIS_X_DEFAULT,
+      axisX: hideLabel ? AXIS_X_OFF : AXIS_X_DEFAULT,
     } as ILineChartOptions;
   }
 

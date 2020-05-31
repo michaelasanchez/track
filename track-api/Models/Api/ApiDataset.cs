@@ -11,49 +11,51 @@ namespace track_api.Models.Api
 
         public string Label { get; set; }
 
-        public List<ApiSeries> Series { get; set; }
+        public TimeSpan Span { get; set; }
 
-        //public List<ApiSeries> NumericalSeries { get; set; }
-        //public List<ApiSeries> FrequencySeries { get; set; }
+        public List<DateTime> SeriesLabels { get; set; }
+
+        public List<ApiSeries> NumericalSeries { get; set; }
+        public List<ApiSeries> FrequencySeries { get; set; }
 
         public ApiDataset(Dataset dataset)
         {
             Id = dataset.Id;
             Label = dataset.Label;
-            Series = new List<ApiSeries>();
 
-            //NumericalSeries = new List<ApiSeries>();
-            //FrequencySeries = new List<ApiSeries>();
+            Span = dataset.Records.Any() ? dataset.Records.Max(r => r.DateTime) - dataset.Records.Min(r => r.DateTime) : new TimeSpan();
 
-            foreach (Series series in dataset.Series)
+            SeriesLabels = new List<DateTime>();
+
+            var series = new List<ApiSeries>();
+            foreach (Series s in dataset.Series)
             {
-                Series.Add(new ApiSeries(series));
-                //if (series.TypeId == (int)SeriesType.Boolean)
-                //    FrequencySeries.Add(new ApiSeries(series));
-                //else
-                //    NumericalSeries.Add(new ApiSeries(series));
+                series.Add(new ApiSeries(s));
             }
 
             int recordCount = 0;
-
             foreach (Record record in dataset.Records)
             {
                 recordCount++;
+                SeriesLabels.Add(record.DateTime);
 
                 foreach (Property prop in record.Properties)
                 {
-                    var series = Series.FirstOrDefault(s => s.Id == prop.SeriesId);
-                    series.Data.Add(prop.Value);
+                    var propSeries = series.FirstOrDefault(s => s.Id == prop.SeriesId);
+                    propSeries.Data.Add(prop.Value);
                 }
 
-                foreach (ApiSeries series in Series)
+                foreach (ApiSeries s in series)
                 {
-                    if (series.Data.Count < recordCount)
+                    if (s.Data.Count < recordCount)
                     {
-                        series.Data.Add(null);
+                        s.Data.Add(null);
                     }
                 }
             }
+
+            NumericalSeries = series.Where(s => s.SeriesType != SeriesType.Boolean).ToList();
+            FrequencySeries = series.Where(s => s.SeriesType == SeriesType.Boolean).ToList();
         }
     }
 }
