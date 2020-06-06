@@ -16,5 +16,6 @@ Web.*.config
 
 
 backup/
+*.bak
 
 *.sql
