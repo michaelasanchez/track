@@ -226,6 +226,14 @@
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Dataset.ext.cs" />
+    <Compile Include="Models\Db\Dataset.cs" />
+    <Compile Include="Models\Db\ModelContext.cs" />
+    <Compile Include="Models\Db\Note.cs" />
+    <Compile Include="Models\Db\Property.cs" />
+    <Compile Include="Models\Db\Record.cs" />
+    <Compile Include="Models\Db\Series.cs" />
+    <Compile Include="Models\Db\SeriesType.cs" />
+    <Compile Include="Models\Db\User.cs" />
     <Compile Include="Models\GetDatasets_Result.cs">
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
@@ -241,7 +249,6 @@
     <Compile Include="Models\Property.cs">
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Property.ext.cs" />
     <Compile Include="Models\Record.cs">
       <DependentUpon>TrackModel.tt</DependentUpon>
     </Compile>
@@ -307,7 +314,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Converters\" />
-    <Folder Include="Models\Db\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
   <ItemGroup>
