@@ -16,7 +16,6 @@ namespace track_api.Models.Db
         public int SeriesId { get; set; }
 
         [Required]
-        [StringLength(50)]
         public string Value { get; set; }
     }
 }

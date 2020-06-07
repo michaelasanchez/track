@@ -14,7 +14,6 @@ namespace track_api.Models.Db
         public int RecordId { get; set; }
 
         [Required]
-        [StringLength(200)]
         public string Text { get; set; }
     }
 }

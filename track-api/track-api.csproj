@@ -253,6 +253,10 @@
     <Compile Include="Migrations\202006070452224_MissProperties.designer.cs">
       <DependentUpon>202006070452224_MissProperties.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202006070519565_RemoveStringLengths.cs" />
+    <Compile Include="Migrations\202006070519565_RemoveStringLengths.designer.cs">
+      <DependentUpon>202006070519565_RemoveStringLengths.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
     <Compile Include="Models\Api\ApiSeries.cs" />
@@ -379,6 +383,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202006070452224_MissProperties.resx">
       <DependentUpon>202006070452224_MissProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202006070519565_RemoveStringLengths.resx">
+      <DependentUpon>202006070519565_RemoveStringLengths.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

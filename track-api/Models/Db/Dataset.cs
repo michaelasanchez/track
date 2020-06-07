@@ -15,8 +15,9 @@ namespace track_api.Models.Db
 
         public bool Archived { get; set; }
 
-        [StringLength(50)]
         public string Label { get; set; }
+
+        public TimeSpan Span { get; set; }
 
         public bool Private { get; set; }
 

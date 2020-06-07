@@ -14,13 +14,11 @@ namespace track_api.Models.Db
 
         public int TypeId { get; set; }
 
-        [StringLength(50)]
         public string Label { get; set; }
 
         [StringLength(6)]
         public string Color { get; set; }
 
-        [StringLength(50)]
         public string Unit { get; set; }
 
         public bool Visible { get; set; }
