@@ -18,6 +18,8 @@ namespace track_api.Models.Api
         public List<ApiSeries> NumericalSeries { get; set; }
         public List<ApiSeries> FrequencySeries { get; set; }
 
+        public ApiDataset() { }
+
         public ApiDataset(Dataset dataset)
         {
             Id = dataset.Id;

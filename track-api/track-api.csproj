@@ -217,45 +217,14 @@
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\RecordsController.cs" />
     <Compile Include="Controllers\SeriesController.cs" />
+    <Compile Include="Converters\DatasetConverter.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202006070314023_InitialCreate.cs" />
-    <Compile Include="Migrations\202006070314023_InitialCreate.designer.cs">
-      <DependentUpon>202006070314023_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070328310_RecordNote.cs" />
-    <Compile Include="Migrations\202006070328310_RecordNote.designer.cs">
-      <DependentUpon>202006070328310_RecordNote.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070433455_DatasetUser.cs" />
-    <Compile Include="Migrations\202006070433455_DatasetUser.designer.cs">
-      <DependentUpon>202006070433455_DatasetUser.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070437447_DatasetSeries.cs" />
-    <Compile Include="Migrations\202006070437447_DatasetSeries.designer.cs">
-      <DependentUpon>202006070437447_DatasetSeries.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070439203_SeriesRecords.cs" />
-    <Compile Include="Migrations\202006070439203_SeriesRecords.designer.cs">
-      <DependentUpon>202006070439203_SeriesRecords.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070440223_RecordProperties.cs" />
-    <Compile Include="Migrations\202006070440223_RecordProperties.designer.cs">
-      <DependentUpon>202006070440223_RecordProperties.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070442126_RemoveSeriesType.cs" />
-    <Compile Include="Migrations\202006070442126_RemoveSeriesType.designer.cs">
-      <DependentUpon>202006070442126_RemoveSeriesType.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070452224_MissProperties.cs" />
-    <Compile Include="Migrations\202006070452224_MissProperties.designer.cs">
-      <DependentUpon>202006070452224_MissProperties.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202006070519565_RemoveStringLengths.cs" />
-    <Compile Include="Migrations\202006070519565_RemoveStringLengths.designer.cs">
-      <DependentUpon>202006070519565_RemoveStringLengths.cs</DependentUpon>
+    <Compile Include="Migrations\202006070649319_DevUpdate.cs" />
+    <Compile Include="Migrations\202006070649319_DevUpdate.designer.cs">
+      <DependentUpon>202006070649319_DevUpdate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
@@ -350,42 +319,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Converters\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Migrations\README.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202006070314023_InitialCreate.resx">
-      <DependentUpon>202006070314023_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070328310_RecordNote.resx">
-      <DependentUpon>202006070328310_RecordNote.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070433455_DatasetUser.resx">
-      <DependentUpon>202006070433455_DatasetUser.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070437447_DatasetSeries.resx">
-      <DependentUpon>202006070437447_DatasetSeries.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070439203_SeriesRecords.resx">
-      <DependentUpon>202006070439203_SeriesRecords.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070440223_RecordProperties.resx">
-      <DependentUpon>202006070440223_RecordProperties.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070442126_RemoveSeriesType.resx">
-      <DependentUpon>202006070442126_RemoveSeriesType.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070452224_MissProperties.resx">
-      <DependentUpon>202006070452224_MissProperties.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202006070519565_RemoveStringLengths.resx">
-      <DependentUpon>202006070519565_RemoveStringLengths.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202006070649319_DevUpdate.resx">
+      <DependentUpon>202006070649319_DevUpdate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

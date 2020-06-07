@@ -7,13 +7,13 @@ namespace track_api.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.4")]
-    public sealed partial class SeriesRecords : IMigrationMetadata
+    public sealed partial class DevUpdate : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(SeriesRecords));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(DevUpdate));
         
         string IMigrationMetadata.Id
         {
-            get { return "202006070439203_SeriesRecords"; }
+            get { return "202006070649319_DevUpdate"; }
         }
         
         string IMigrationMetadata.Source

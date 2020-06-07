@@ -29,7 +29,7 @@ namespace track_api.Controllers
         [EnableQuery]
         public IQueryable<Dataset> GetDatasets()
         {
-            var user = UserUtils.GetUser(db, HttpContext.Current);
+            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
 
             if (user == null)
             {
@@ -107,7 +107,7 @@ namespace track_api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = UserUtils.GetUser(db, HttpContext.Current);
+            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
             if (user != null)
             {
                 dataset.UserId = user.Id;

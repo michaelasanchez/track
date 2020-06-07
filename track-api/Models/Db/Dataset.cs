@@ -17,10 +17,13 @@ namespace track_api.Models.Db
 
         public string Label { get; set; }
 
+        [NotMapped]
         public TimeSpan Span { get; set; }
 
         public bool Private { get; set; }
 
         public ICollection<Series> Series { get; set; }
+
+        public ICollection<Record> Records { get; set; }
     }
 }

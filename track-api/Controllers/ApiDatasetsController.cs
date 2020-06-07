@@ -5,8 +5,10 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using track_api.Converters;
 using track_api.Models;
 using track_api.Models.Api;
+using track_api.Models.Db;
 
 namespace track_api.Controllers
 {
@@ -14,6 +16,7 @@ namespace track_api.Controllers
     public class ApiDatasetsController : ApiController
     {
         private TrackContext db = new TrackContext();
+        private ModelContext dbNew = new ModelContext();
 
         // GET: api/ApiDatasets
         public IEnumerable<string> Get()
@@ -26,14 +29,23 @@ namespace track_api.Controllers
         {
             var dbDataset = db.Datasets.FirstOrDefault(d => d.Id == id);
 
-            if (dbDataset == null)
+            var test = dbNew.Datasets.ToList();
+
+            // Gas
+            var testDataset = dbNew.Datasets.Include("Series.Records").FirstOrDefault(d => d.Id == 19);
+
+            if (dbDataset != null)
             {
-                return null;
+                if (testDataset != null)
+                {
+                    var testApiDataset = DatasetConverter.Convert(testDataset);
+                }
+
+                return Ok(new ApiDataset(dbDataset));
             }
 
-            var apiDataset = new ApiDataset(dbDataset);
-
-            return Ok(apiDataset);
+            // Figure out correct response here
+            return null;
         }
 
         // POST: api/ApiDatasets
