@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using track_api.Models.Db;
 
 namespace track_api.Models.Api
 {
@@ -17,25 +18,17 @@ namespace track_api.Models.Api
 
         public List<string> Data { get; set; }
 
-        public ApiSeries(Series series, Db.Series testSeries = null)
+        public ApiSeries(Series series = null)
         {
-            if (testSeries != null)
+            if (series != null)
             {
-                Id = testSeries.Id;
-                Label = testSeries.Label;
-                SeriesType = (SeriesType)testSeries.TypeId;
-                Color = String.IsNullOrEmpty(testSeries.Color) ? null : $"#{testSeries.Color}";
-
-            }
-            else
-            {
-                Id = series.Id;
-                Label = series.Label;
-                SeriesType = (SeriesType)series.TypeId;
+                Id = (int)series?.Id;
+                Label = series?.Label;
+                SeriesType = (SeriesType)series?.TypeId;
                 Color = String.IsNullOrEmpty(series.Color) ? null : $"#{series.Color}";
-            }
 
-            Data = new List<string>();
+                Data = new List<string>();
+            }
         }
     }
 }

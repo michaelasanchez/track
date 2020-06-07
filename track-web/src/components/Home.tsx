@@ -20,6 +20,8 @@ import { ApiDataset } from '../models/ApiDataset';
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
 
+const ALLOW_DATASET_CACHING = false;
+
 const defaultUserMode = (): UserMode => {
   return window.location.pathname.includes('edit') ?
     UserMode.Edit : UserMode.View;
@@ -46,7 +48,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const { authState, authService } = useOktaAuth();
 
 
-  const loadDataset = (id: number, force: boolean = false) => {
+  const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
     window.localStorage.setItem('datasetId', id.toString());
     const cachedIndex = findIndex(datasetCache, c => c.Id == id);
 

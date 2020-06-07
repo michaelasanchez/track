@@ -24,11 +24,14 @@ namespace track_api.Converters
             var series = new List<ApiSeries>();
             foreach (Series s in dataset.Series)
             {
-                series.Add(new ApiSeries(null, s));
+                series.Add(new ApiSeries(s));
             }
 
+            // TODO: From adding constraints to prod db
+            //  Keeping this in until confirmed not happening
+            int mismatchCount = 0;
+
             int recordCount = 0;
-            var mismatchCount = 0;
             foreach (Record record in dataset.Records)
             {
                 recordCount++;
@@ -52,8 +55,6 @@ namespace track_api.Converters
                     }
                 }
             }
-
-            Debug.WriteLine($"{dataset.Label} has ({mismatchCount}) mismatched records");
 
             apiDataset.NumericalSeries = series.Where(s => s.SeriesType != SeriesType.Boolean).ToList();
             apiDataset.FrequencySeries = series.Where(s => s.SeriesType == SeriesType.Boolean).ToList();
