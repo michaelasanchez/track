@@ -16,5 +16,7 @@ namespace track_api.Models.Db
 
         [StringLength(32)]
         public string Password { get; set; }
+
+        public ICollection<Dataset> Datasets { get; set; }
     }
 }

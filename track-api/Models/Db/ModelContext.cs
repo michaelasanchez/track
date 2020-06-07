@@ -17,7 +17,6 @@ namespace track_api.Models.Db
         public virtual DbSet<Property> Properties { get; set; }
         public virtual DbSet<Record> Records { get; set; }
         public virtual DbSet<Series> Series { get; set; }
-        public virtual DbSet<SeriesType> SeriesTypes { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -34,10 +33,6 @@ namespace track_api.Models.Db
                 .Property(e => e.Value)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<Record>()
-                .Property(e => e.Note)
-                .IsUnicode(false);
-
             modelBuilder.Entity<Series>()
                 .Property(e => e.Label)
                 .IsUnicode(false);
@@ -49,10 +44,6 @@ namespace track_api.Models.Db
 
             modelBuilder.Entity<Series>()
                 .Property(e => e.Unit)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<SeriesType>()
-                .Property(e => e.Name)
                 .IsUnicode(false);
 
             modelBuilder.Entity<User>()

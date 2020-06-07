@@ -22,5 +22,9 @@ namespace track_api.Models.Db
 
         [StringLength(50)]
         public string Unit { get; set; }
+
+        public bool Visible { get; set; }
+
+        public ICollection<Record> Records { get; set; }
     }
 }

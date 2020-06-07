@@ -11,11 +11,15 @@ namespace track_api.Models.Db
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public User User { get; set; }
 
         public bool Archived { get; set; }
 
         [StringLength(50)]
         public string Label { get; set; }
+
+        public bool Private { get; set; }
+
+        public ICollection<Series> Series { get; set; }
     }
 }

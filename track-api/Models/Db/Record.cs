@@ -15,7 +15,8 @@ namespace track_api.Models.Db
 
         public DateTime DateTime { get; set; }
 
-        [StringLength(100)]
-        public string Note { get; set; }
+        public ICollection<Property> Properties { get; set; }
+
+        public ICollection<Note> Notes { get; set; }
     }
 }
