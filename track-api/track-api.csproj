@@ -231,9 +231,6 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
     <Compile Include="Models\Api\ApiSeries.cs" />
-    <Compile Include="Models\Dataset.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\Dataset.ext.cs" />
     <Compile Include="Models\Db\Dataset.cs" />
     <Compile Include="Models\Db\ModelContext.cs" />
@@ -242,45 +239,6 @@
     <Compile Include="Models\Db\Record.cs" />
     <Compile Include="Models\Db\Series.cs" />
     <Compile Include="Models\Db\User.cs" />
-    <Compile Include="Models\GetDatasets_Result.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\GetRecords_Result.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\GetSeries_Result.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Note.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Property.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Record.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Series.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\TrackModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TrackModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\TrackModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\TrackModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TrackModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Models\User.cs">
-      <DependentUpon>TrackModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utils\UserUtils.cs" />
@@ -289,23 +247,6 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Models\TrackModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>TrackModel.Context.cs</LastGenOutput>
-      <DependentUpon>TrackModel.edmx</DependentUpon>
-    </Content>
-    <Content Include="Models\TrackModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>TrackModel.edmx</DependentUpon>
-      <LastGenOutput>TrackModel.cs</LastGenOutput>
-    </Content>
-    <EntityDeploy Include="Models\TrackModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>TrackModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\TrackModel.edmx.diagram">
-      <DependentUpon>TrackModel.edmx</DependentUpon>
-    </Content>
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
