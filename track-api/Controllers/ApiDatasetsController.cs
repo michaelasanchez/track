@@ -15,8 +15,7 @@ namespace track_api.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ApiDatasetsController : ApiController
     {
-        private TrackContext db = new TrackContext();
-        private ModelContext dbNew = new ModelContext();
+        private ModelContext db = new ModelContext();
 
         // GET: api/ApiDatasets
         public IEnumerable<string> Get()
@@ -27,24 +26,14 @@ namespace track_api.Controllers
         // GET: api/ApiDatasets/5
         public IHttpActionResult Get(int id)
         {
-            var dbDataset = db.Datasets.FirstOrDefault(d => d.Id == id);
-
-            var test = dbNew.Datasets.ToList();
-
-            // Gas
-            var testDataset = dbNew.Datasets
+            var dbDataset = db.Datasets
                 .Include("Series")
                 .Include("Records.Properties")
-                .FirstOrDefault(d => d.Id == 19);
+                .FirstOrDefault(d => d.Id == id);
 
             if (dbDataset != null)
             {
-                if (testDataset != null)
-                {
-                    return Ok(DatasetConverter.Convert(testDataset));
-                }
-
-                return Ok(new ApiDataset(dbDataset));
+                return Ok(DatasetConverter.Convert(dbDataset));
             }
 
             // Figure out correct response here
@@ -64,6 +53,13 @@ namespace track_api.Controllers
         // DELETE: api/ApiDatasets/5
         //public void Delete(int id)
         //{
+        //    var dbDataset = db.Datasets.FirstOrDefault(d => d.Id == id);
+
+        //    if (dbDataset != null)
+        //    {
+        //        dbDataset.Archived = true;
+        //        db.SaveChanges();
+        //    }
         //}
     }
 }

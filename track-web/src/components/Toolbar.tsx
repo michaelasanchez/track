@@ -43,7 +43,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   dataset,
   onAction
 }) => {
-  console.log('TOOLBAR - DATASET', dataset);
   const [show, setShow] = useState(false);
 
   const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
@@ -63,7 +62,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     return <div className="divider" />;
   }
 
-  /* Dataset Select */
+  /* Select */
   const renderDatasetSelect = () => {
     return (
       <Form.Control
@@ -80,7 +79,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     );
   }
 
-  /* Delete Modal */
+  /* Modal */
   const renderModal = () =>
     <Modal show={show} onHide={handleClose} animation={false}>
       <Modal.Header closeButton>

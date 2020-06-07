@@ -33,7 +33,6 @@ const defaultDatasetId = (): number => {
 type HomeProps = {};
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
 
   const [dataset, setDataset] = useState<Dataset>();
@@ -42,6 +41,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
+  const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
 
   const { authState, authService } = useOktaAuth();
 
@@ -50,31 +50,36 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     window.localStorage.setItem('datasetId', id.toString());
     const cachedIndex = findIndex(datasetCache, c => c.Id == id);
 
-    if (cachedIndex >= 0 && !force) setDataset(datasetCache[cachedIndex]);
-    else
-      new ApiRequest('Datasets', id).Expand('Series').Expand('Records/Properties').Get(authState.accessToken)
-        .then((d: Dataset) => {
-          setDataset(d);
+    if (cachedIndex >= 0 && !force) {
+      setDataset(datasetCache[cachedIndex]);
+      setApiDataset(apiDatasetCache[cachedIndex]);
 
-          if (cachedIndex < 0) {
-            datasetCache.push(d);
-          } else {
-            datasetCache[cachedIndex] = d;
-          }
-          setDatasetCache(datasetCache);
-          if (!loaded && apiDataset) setLoaded(true);
-        });
+    } else {
+      const datasetRequest = new ApiRequest('Datasets', id).Expand('Series').Expand('Records/Properties').Get(authState.accessToken);
+      const apiDatasetRequest = new ApiRequest('ApiDatasets').Id(id).Test();
+
+      Promise.all([
+        datasetRequest,
+        apiDatasetRequest
+      ]).then((values) => {
+        const [d, api] = values;
+
+        if (cachedIndex < 0) {
+          datasetCache.push(d);
+          apiDatasetCache.push(api);
+        } else {
+          datasetCache[cachedIndex] = d;
+          apiDatasetCache[cachedIndex] = api;
+        }
+
+        setDataset(d);
+        setDatasetCache(datasetCache);
+        setApiDatasetCache(apiDatasetCache);
+        setApiDataset(api);
+      });
+    }
   }
-
-  const loadApiDataset = (id: number) => {
-    new ApiRequest('ApiDatasets').Id(id).Test()
-        .then((dataset: ApiDataset) => {
-          setApiDataset(dataset);
-          console.log('TRIGGERED', dataset);
-          if (!loaded && dataset) setLoaded(true);
-        });
-  }
-
+  
   const loadDatasetList = () => {
     new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
       .then(d => setDatasetList(d.value as Dataset[]));
@@ -100,10 +105,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       Series: dataset.Series,
     } as Dataset, authState.accessToken);
 
-    req.then(dataset=> {
+    req.then(dataset => {
       loadDatasetList();
       loadDataset(dataset.Id);
-      loadApiDataset(dataset.Id);
     });
   }
 
@@ -113,14 +117,13 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       const id = defaultDatasetId();
       loadDatasetList();
       loadDataset(id);
-      loadApiDataset(id);
     }
   }, [authState.accessToken])
 
   const renderGraph = () =>
     <Row>
       <Col xs={12} lg={3} className="order-2 order-lg-1">
-        <CreateRecord dataset={dataset} refreshDataset={loadApiDataset} />
+        <CreateRecord dataset={dataset} refreshDataset={loadDataset} />
       </Col>
       <Col lg={9} className="order-1 order-lg-2">
         <Graph dataset={apiDataset} />
@@ -149,12 +152,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       </Route>
     </>;
 
-    console.log('LOADED', loaded);
-    console.log('DATASET', dataset)
-    console.log('API DATASET', apiDataset);
-    console.log('---------------------------------------------------------------------')
-
-  if (loaded && dataset) {
+  if (dataset && apiDataset) {
     return (
       <>
         <Navbar authState={authState} authService={authService} />
@@ -166,7 +164,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
                 datasetList={datasetList}
                 mode={mode}
                 updateMode={setMode}
-                updateDataset={loadApiDataset}
+                updateDataset={loadDataset}
                 updateDatasetList={loadDatasetList}
                 onAction={handleToolbarAction}
               />

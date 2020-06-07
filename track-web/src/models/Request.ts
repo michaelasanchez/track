@@ -3,6 +3,7 @@ import { Series } from "./Series";
 import { Record } from "./Record";
 import { Property } from "./Property";
 import { Note } from "./Note";
+import { ApiDataset } from "./ApiDataset";
 
 class ApiRequest {
 
@@ -90,11 +91,20 @@ class ApiRequest {
     return this;
   }
 
+  // GET ApiDataset
   public Test = (token?: any) => {
     const params = !token ? null : {
       headers: this.buildAuthHeader(token)
     };
     return this.execute(this.buildApiUrlString(), params);
+  }
+  
+  // DELETE ApiDataset
+  public ArchiveDataset = (idOverride: number, token?: any) => {
+    const params = !token ? null : {
+      headers: this.buildAuthHeader(token)
+    };
+    return this.execute(this.buildApiUrlString(idOverride), params);
   }
 
   public Get = (token?: any) => {

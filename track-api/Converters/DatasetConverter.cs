@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using track_api.Models.Api;
@@ -27,6 +28,7 @@ namespace track_api.Converters
             }
 
             int recordCount = 0;
+            var mismatchCount = 0;
             foreach (Record record in dataset.Records)
             {
                 recordCount++;
@@ -35,7 +37,11 @@ namespace track_api.Converters
                 foreach (Property prop in record.Properties)
                 {
                     var propSeries = series.FirstOrDefault(s => s.Id == prop.SeriesId);
-                    propSeries.Data.Add(prop.Value);
+
+                    if (propSeries != null)
+                        propSeries.Data.Add(prop.Value);
+                    else
+                        mismatchCount++;
                 }
 
                 foreach (ApiSeries s in series)
@@ -46,6 +52,8 @@ namespace track_api.Converters
                     }
                 }
             }
+
+            Debug.WriteLine($"{dataset.Label} has ({mismatchCount}) mismatched records");
 
             apiDataset.NumericalSeries = series.Where(s => s.SeriesType != SeriesType.Boolean).ToList();
             apiDataset.FrequencySeries = series.Where(s => s.SeriesType == SeriesType.Boolean).ToList();

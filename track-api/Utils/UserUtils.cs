@@ -15,9 +15,9 @@ namespace track_api.Utils
             if (userClaims.Any())
             {
                 var clientId = userClaims.FirstOrDefault(z => z.Type == "cid").Value;
-                var userId = userClaims.FirstOrDefault(z => z.Type == "uid")?.Value;
+                var oktaId = userClaims.FirstOrDefault(z => z.Type == "uid")?.Value;
 
-                return context.Users.FirstOrDefault(z => z.OktaUserId == userId);
+                return context.Users.FirstOrDefault(z => z.OktaUserId == oktaId);
             }
 
             return null;

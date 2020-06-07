@@ -91,7 +91,28 @@ namespace track_api.Controllers
                 return BadRequest(ModelState);
             }
 
+            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
+            if (user != null)
+            {
+                //dataset.User.Id = user.Id;
+                dataset.User = new User
+                {
+                    Id = user.Id
+                };
+            }
+
             db.Datasets.Add(dataset);
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                while (ex.InnerException != null) ex = ex.InnerException;
+                return BadRequest(ex.Message);
+            }
+
             db.SaveChanges();
 
             return Created(dataset);
