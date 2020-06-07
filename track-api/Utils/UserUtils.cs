@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using track_api.Models;
+using track_api.Models.Db;
 
 namespace track_api.Utils
 {
     public static class UserUtils
     {
-        public static User GetUserFromContext(TrackContext context, HttpContext httpContext)
+        public static User GetUserFromContext(ModelContext context, HttpContext httpContext)
         {
             var userClaims = httpContext.GetOwinContext().Authentication.User.Claims;
 

@@ -213,8 +213,6 @@
     <Compile Include="Controllers\ApiDatasetsController.cs" />
     <Compile Include="Controllers\DatasetsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\NotesController.cs" />
-    <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\RecordsController.cs" />
     <Compile Include="Controllers\SeriesController.cs" />
     <Compile Include="Converters\DatasetConverter.cs" />
@@ -225,6 +223,10 @@
     <Compile Include="Migrations\202006070649319_DevUpdate.cs" />
     <Compile Include="Migrations\202006070649319_DevUpdate.designer.cs">
       <DependentUpon>202006070649319_DevUpdate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202006070733039_AddOktaUserId.cs" />
+    <Compile Include="Migrations\202006070733039_AddOktaUserId.designer.cs">
+      <DependentUpon>202006070733039_AddOktaUserId.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
@@ -331,6 +333,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202006070649319_DevUpdate.resx">
       <DependentUpon>202006070649319_DevUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202006070733039_AddOktaUserId.resx">
+      <DependentUpon>202006070733039_AddOktaUserId.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

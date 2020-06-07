@@ -49,10 +49,6 @@ namespace track_api.Models.Db
             modelBuilder.Entity<User>()
                 .Property(e => e.Username)
                 .IsUnicode(false);
-
-            modelBuilder.Entity<User>()
-                .Property(e => e.Password)
-                .IsUnicode(false);
         }
     }
 }

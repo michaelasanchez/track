@@ -32,13 +32,16 @@ namespace track_api.Controllers
             var test = dbNew.Datasets.ToList();
 
             // Gas
-            var testDataset = dbNew.Datasets.Include("Series.Records").FirstOrDefault(d => d.Id == 19);
+            var testDataset = dbNew.Datasets
+                .Include("Series")
+                .Include("Records.Properties")
+                .FirstOrDefault(d => d.Id == 19);
 
             if (dbDataset != null)
             {
                 if (testDataset != null)
                 {
-                    var testApiDataset = DatasetConverter.Convert(testDataset);
+                    return Ok(DatasetConverter.Convert(testDataset));
                 }
 
                 return Ok(new ApiDataset(dbDataset));

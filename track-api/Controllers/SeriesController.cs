@@ -11,24 +11,22 @@ using System.Web.Http.Cors;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
-using track_api.Models;
+using track_api.Models.Db;
 
 namespace track_api.Controllers
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class SeriesController : ODataController
     {
-        private TrackContext db = new TrackContext();
+        private ModelContext db = new ModelContext();
 
         // GET: odata/Series
-        [EnableQuery]
         public IQueryable<Series> GetSeries()
         {
             return db.Series;
         }
 
         // GET: odata/Series(5)
-        [EnableQuery]
         public SingleResult<Series> GetSeries([FromODataUri] int key)
         {
             return SingleResult.Create(db.Series.Where(series => series.Id == key));
@@ -72,7 +70,6 @@ namespace track_api.Controllers
         }
 
         // POST: odata/Series
-        [EnableQuery]
         public IHttpActionResult Post(Series series)
         {
             if (!ModelState.IsValid)
@@ -87,6 +84,7 @@ namespace track_api.Controllers
         }
 
         // PATCH: odata/Series(5)
+        [EnableQuery]
         [AcceptVerbs("PATCH", "MERGE")]
         public IHttpActionResult Patch([FromODataUri] int key, Delta<Series> patch)
         {
@@ -121,12 +119,7 @@ namespace track_api.Controllers
                 }
             }
 
-            return Json(new Series
-            {
-                Id = series.Id,
-                Label = series.Label,
-                Color = series.Color
-            });
+            return Updated(series);
         }
 
         // DELETE: odata/Series(5)
@@ -142,20 +135,6 @@ namespace track_api.Controllers
             db.SaveChanges();
 
             return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // GET: odata/Series(5)/Dataset
-        [EnableQuery]
-        public SingleResult<Dataset> GetDataset([FromODataUri] int key)
-        {
-            return SingleResult.Create(db.Series.Where(m => m.Id == key).Select(m => m.Dataset));
-        }
-
-        // GET: odata/Series(5)/Properties
-        [EnableQuery]
-        public IQueryable<Property> GetProperties([FromODataUri] int key)
-        {
-            return db.Series.Where(m => m.Id == key).SelectMany(m => m.Properties);
         }
 
         protected override void Dispose(bool disposing)

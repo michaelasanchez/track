@@ -43,6 +43,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   dataset,
   onAction
 }) => {
+  console.log('TOOLBAR - DATASET', dataset);
   const [show, setShow] = useState(false);
 
   const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);

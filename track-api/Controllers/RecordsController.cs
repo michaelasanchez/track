@@ -11,24 +11,22 @@ using System.Web.Http.Cors;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
-using track_api.Models;
+using track_api.Models.Db;
 
 namespace track_api.Controllers
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class RecordsController : ODataController
     {
-        private TrackContext db = new TrackContext();
+        private ModelContext db = new ModelContext();
 
         // GET: odata/Records
-        [EnableQuery]
         public IQueryable<Record> GetRecords()
         {
             return db.Records;
         }
 
         // GET: odata/Records(5)
-        [EnableQuery]
         public SingleResult<Record> GetRecord([FromODataUri] int key)
         {
             return SingleResult.Create(db.Records.Where(record => record.Id == key));
@@ -139,22 +137,13 @@ namespace track_api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // GET: odata/Records(5)/Dataset
-        [EnableQuery]
-        public SingleResult<Dataset> GetDataset([FromODataUri] int key)
-        {
-            return SingleResult.Create(db.Records.Where(m => m.Id == key).Select(m => m.Dataset));
-        }
-
         // GET: odata/Records(5)/Notes
-        [EnableQuery]
         public IQueryable<Note> GetNotes([FromODataUri] int key)
         {
             return db.Records.Where(m => m.Id == key).SelectMany(m => m.Notes);
         }
 
         // GET: odata/Records(5)/Properties
-        [EnableQuery]
         public IQueryable<Property> GetProperties([FromODataUri] int key)
         {
             return db.Records.Where(m => m.Id == key).SelectMany(m => m.Properties);

@@ -17,12 +17,23 @@ namespace track_api.Models.Api
 
         public List<string> Data { get; set; }
 
-        public ApiSeries(Series series)
+        public ApiSeries(Series series, Db.Series testSeries = null)
         {
-            Id = series.Id;
-            Label = series.Label;
-            SeriesType = (SeriesType)series.TypeId;
-            Color = String.IsNullOrEmpty(series.Color) ? null : $"#{series.Color}";
+            if (testSeries != null)
+            {
+                Id = testSeries.Id;
+                Label = testSeries.Label;
+                SeriesType = (SeriesType)testSeries.TypeId;
+                Color = String.IsNullOrEmpty(testSeries.Color) ? null : $"#{testSeries.Color}";
+
+            }
+            else
+            {
+                Id = series.Id;
+                Label = series.Label;
+                SeriesType = (SeriesType)series.TypeId;
+                Color = String.IsNullOrEmpty(series.Color) ? null : $"#{series.Color}";
+            }
 
             Data = new List<string>();
         }

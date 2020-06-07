@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Extensions;
-using track_api.Models;
+using track_api.Models.Db;
 using track_api.Models.Api;
 
 namespace track_api

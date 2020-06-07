@@ -16,6 +16,39 @@ namespace track_api.Converters
             apiDataset.Id = dataset.Id;
             apiDataset.Label = dataset.Label;
 
+            apiDataset.Span = dataset.Records.Any() ? dataset.Records.Max(r => r.DateTime) - dataset.Records.Min(r => r.DateTime) : new TimeSpan();
+
+            apiDataset.SeriesLabels = new List<DateTime>();
+
+            var series = new List<ApiSeries>();
+            foreach (Series s in dataset.Series)
+            {
+                series.Add(new ApiSeries(null, s));
+            }
+
+            int recordCount = 0;
+            foreach (Record record in dataset.Records)
+            {
+                recordCount++;
+                apiDataset.SeriesLabels.Add(record.DateTime);
+
+                foreach (Property prop in record.Properties)
+                {
+                    var propSeries = series.FirstOrDefault(s => s.Id == prop.SeriesId);
+                    propSeries.Data.Add(prop.Value);
+                }
+
+                foreach (ApiSeries s in series)
+                {
+                    if (s.Data.Count < recordCount)
+                    {
+                        s.Data.Add(null);
+                    }
+                }
+            }
+
+            apiDataset.NumericalSeries = series.Where(s => s.SeriesType != SeriesType.Boolean).ToList();
+            apiDataset.FrequencySeries = series.Where(s => s.SeriesType == SeriesType.Boolean).ToList();
 
             return apiDataset;
         }

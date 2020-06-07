@@ -41,6 +41,8 @@
                 .PrimaryKey(t => t.Id);
             
             AddColumn("dbo.Dataset", "UserId", c => c.Int(nullable: false));
+            Sql("UPDATE [Dataset] SET [UserId] = [User_Id]");
+            DropPrimaryKey("dbo.User");
             DropForeignKey("dbo.Dataset", "User_Id", "dbo.User");
             DropForeignKey("dbo.Series", "DatasetId", "dbo.Dataset");
             DropForeignKey("dbo.Record", "DatasetId", "dbo.Dataset");

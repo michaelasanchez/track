@@ -11,11 +11,9 @@ namespace track_api.Models.Db
     {
         public int Id { get; set; }
 
-        [StringLength(50)]
-        public string Username { get; set; }
+        public string OktaUserId { get; set; }
 
-        [StringLength(32)]
-        public string Password { get; set; }
+        public string Username { get; set; }
 
         public ICollection<Dataset> Datasets { get; set; }
     }

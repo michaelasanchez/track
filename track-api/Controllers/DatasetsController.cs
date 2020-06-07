@@ -3,29 +3,26 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
+using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
-using track_api.Models;
-using System.Web.Http.Cors;
-using System.Web.Http;
-using System.Web;
+using track_api.Models.Db;
 using track_api.Utils;
 
 namespace track_api.Controllers
 {
-    //[Authorize]
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class DatasetsController : ODataController
     {
-        private TrackContext db = new TrackContext();
+        private ModelContext db = new ModelContext();
 
         // GET: odata/Datasets
-        //[Authorize]
         [EnableQuery]
         public IQueryable<Dataset> GetDatasets()
         {
@@ -37,28 +34,15 @@ namespace track_api.Controllers
             }
             else
             {
-                return db.Datasets.Where(z => z.Private == false || z.UserId == user.Id);
+                return db.Datasets.Include("User").Where(z => z.Private == false || z.User.Id == user.Id);
             }
         }
 
         // GET: odata/Datasets(5)
         [EnableQuery]
-        public Dataset GetDataset([FromODataUri] int key)
+        public SingleResult<Dataset> GetDataset([FromODataUri] int key)
         {
-            var query = db.Datasets.Where(dataset => dataset.Id == key);
-
-            // Calculate timespan property
-            // TODO: Figure out where this goes
-            foreach (var ds in query)
-            {
-                var records = db.Records.Where(r => r.DatasetId == key);
-                ds.Span = records.Any() ? records.Max(r => r.DateTime) - records.Min(r => r.DateTime) : new TimeSpan();
-            }
-
-            var result = query.Single();
-            result.Records = result.Records.OrderBy(r => r.DateTime).ToList();
-
-            return result;
+            return SingleResult.Create(db.Datasets.Where(dataset => dataset.Id == key));
         }
 
         // PUT: odata/Datasets(5)
@@ -99,7 +83,7 @@ namespace track_api.Controllers
         }
 
         // POST: odata/Datasets
-        //[Authorize]
+        [EnableQuery]
         public IHttpActionResult Post(Dataset dataset)
         {
             if (!ModelState.IsValid)
@@ -107,28 +91,14 @@ namespace track_api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
-            if (user != null)
-            {
-                dataset.UserId = user.Id;
-            }
-
             db.Datasets.Add(dataset);
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                while (ex.InnerException != null) ex = ex.InnerException;
-                return BadRequest(ex.Message);
-            }
+            db.SaveChanges();
 
             return Created(dataset);
         }
 
         // PATCH: odata/Datasets(5)
+        [EnableQuery]
         [AcceptVerbs("PATCH", "MERGE")]
         public IHttpActionResult Patch([FromODataUri] int key, Delta<Dataset> patch)
         {
@@ -175,18 +145,10 @@ namespace track_api.Controllers
                 return NotFound();
             }
 
-            dataset.Archived = true;
-
+            db.Datasets.Remove(dataset);
             db.SaveChanges();
 
             return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // GET: odata/Datasets(5)/User
-        [EnableQuery]
-        public SingleResult<User> GetUser([FromODataUri] int key)
-        {
-            return SingleResult.Create(db.Datasets.Where(m => m.Id == key).Select(m => m.User));
         }
 
         // GET: odata/Datasets(5)/Records
@@ -201,6 +163,13 @@ namespace track_api.Controllers
         public IQueryable<Series> GetSeries([FromODataUri] int key)
         {
             return db.Datasets.Where(m => m.Id == key).SelectMany(m => m.Series);
+        }
+
+        // GET: odata/Datasets(5)/User
+        [EnableQuery]
+        public SingleResult<User> GetUser([FromODataUri] int key)
+        {
+            return SingleResult.Create(db.Datasets.Where(m => m.Id == key).Select(m => m.User));
         }
 
         protected override void Dispose(bool disposing)

@@ -62,7 +62,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
             datasetCache[cachedIndex] = d;
           }
           setDatasetCache(datasetCache);
-          if (!loaded) setLoaded(true);
+          if (!loaded && apiDataset) setLoaded(true);
         });
   }
 
@@ -70,6 +70,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     new ApiRequest('ApiDatasets').Id(id).Test()
         .then((dataset: ApiDataset) => {
           setApiDataset(dataset);
+          console.log('TRIGGERED', dataset);
+          if (!loaded && dataset) setLoaded(true);
         });
   }
 
@@ -147,7 +149,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       </Route>
     </>;
 
-  if (loaded) {
+    console.log('LOADED', loaded);
+    console.log('DATASET', dataset)
+    console.log('API DATASET', apiDataset);
+    console.log('---------------------------------------------------------------------')
+
+  if (loaded && dataset) {
     return (
       <>
         <Navbar authState={authState} authService={authService} />
