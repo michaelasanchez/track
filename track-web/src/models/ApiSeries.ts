@@ -8,6 +8,8 @@ export class ApiSeries {
   public Color: string;
 
   public SeriesType: SeriesType;
+
+  public Order: number;
   
   public Data: string[];
   

@@ -16,6 +16,8 @@ namespace track_api.Models.Api
 
         public string Color { get; set; }
 
+        public int Order { get; set; }
+
         public List<string> Data { get; set; }
 
         public ApiSeries(Series series = null)
@@ -26,6 +28,7 @@ namespace track_api.Models.Api
                 Label = series?.Label;
                 SeriesType = (SeriesType)series?.TypeId;
                 Color = String.IsNullOrEmpty(series.Color) ? null : $"#{series.Color}";
+                Order = (int)series?.Order;
 
                 Data = new List<string>();
             }

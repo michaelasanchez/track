@@ -11,7 +11,10 @@ namespace track_api.Models.Db
     {
         public int Id { get; set; }
 
-        public User User { get; set; }
+        public int UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public virtual User User { get; set; }
 
         public bool Archived { get; set; }
 

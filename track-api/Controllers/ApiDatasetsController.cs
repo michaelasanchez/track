@@ -33,6 +33,14 @@ namespace track_api.Controllers
 
             if (dbDataset != null)
             {
+                // TODO: This should be set upon dataset creation/edit
+                var seriesOrder = 0;
+                foreach (var series in dbDataset.Series)
+                {
+                    series.Order = seriesOrder;
+                    seriesOrder++;
+                }
+
                 return Ok(DatasetConverter.Convert(dbDataset));
             }
 

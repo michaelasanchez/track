@@ -69,7 +69,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     return (
       <Form.Control
         as="select"
-        disabled={!hasDatasets || mode == UserMode.Edit}
+        disabled={mode == UserMode.Edit || !hasDatasets}
         onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
         value={dataset?.Id.toString()}>
         {map(datasetList, (d, i) =>

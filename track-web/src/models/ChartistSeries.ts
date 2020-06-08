@@ -16,8 +16,9 @@ export class ChartistSeries {
     this._series = series;
 
     this._graphType = this._series.TypeId == SeriesType.Boolean ?
-      GraphFormat.Frequency : GraphFormat.Numerical;
-      
+      GraphFormat.Frequency
+      :
+      GraphFormat.Numerical;
   }
 
   public get Id(): number {
@@ -38,5 +39,9 @@ export class ChartistSeries {
 
   public get Color(): string {
     return this._series.Color;
+  }
+
+  public get Order(): number {
+    return this._series.Order;
   }
 }

@@ -4,4 +4,5 @@ export class Series{
   public TypeId: number;
   public Label: string;
   public Color: string;
+  public Order: number;
 }

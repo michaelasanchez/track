@@ -19,20 +19,30 @@ export enum GraphType {
   Line = 'Line',
 }
 
+export const DEFAULT_CHARTIST_COLORS = [
+  '#d70206',
+  '#f05b4f',
+  '#f4c63d',
+  '#d17905',
+  '#453d3f',
+  '#59922b',
+  '#0544d3',
+  '#6b0392',
+  '#f05b4f',
+]
+
 const renderColorStyle = (series: ApiSeries[], className: string) => {
   return (
     <style>
       {map(series, (s, i) => {
-        var prefix = SERIES_PREFIXES.substr(i, 1);
-        if (s.Color) {
-          return `
-            .${className} .ct-series-${prefix} .ct-line,
-            .${className} .ct-series-${prefix} .ct-point {
-              stroke: ${s.Color};
-            }`;
-        } else {
-          return null;
-        }
+        const prefix = SERIES_PREFIXES.substr(i, 1);
+        const color = s.Color || DEFAULT_CHARTIST_COLORS[s.Order];
+
+        return `
+          .${className} .ct-series-${prefix} .ct-line,
+          .${className} .ct-series-${prefix} .ct-point {
+            stroke: ${color};
+          }`;
       })}
     </style>
   )
@@ -87,25 +97,25 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   }
 
   const lineGraph = (dataset: ApiDataset) => {
-    <>
+    return (<>
       {renderColorStyle(dataset.NumericalSeries, 'numerical')}
       <ChartistGraph
         data={ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
         options={options.getNumericalOptions()}
         type={type}
       />
-    </>
+    </>);
   };
 
   const frequencyGraph = (dataset: ApiDataset, hideLabels: boolean) => {
-    <>
+    return (<>
       {renderColorStyle(dataset.FrequencySeries, 'frequency')}
       <ChartistGraph
         data={ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
         options={options.getFrequencyOptions(dataset.FrequencySeries, hideLabels)}
         type={type}
       />
-    </>
+    </>);
   };
 
   const blankGraph = () => {
@@ -118,7 +128,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   const alertStyle = {
     left: '50%',
-    top: '46.5%',
+    top: '50%',
     transform: 'translate(-50%, -50%)',
     boxShadow: '0 0 0 4px #ffffffcc',
     backgroundColor: '#e2e3e5aa'
