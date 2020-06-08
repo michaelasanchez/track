@@ -35,6 +35,7 @@ const defaultDatasetId = (): number => {
 type HomeProps = {};
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
 
   const [dataset, setDataset] = useState<Dataset>();
@@ -72,23 +73,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           const datasetExists = d.ok !== false;
           const apiDatasetExists = api.ok !== false;
 
-          if (d.ok === false) {
-            errors.push('Failed to load Dataset List');
-          }
-          if (api.ok === false) {
-            errors.push('Failed to load Graph Data')
-          }
-
-          // console.log('WE NEVER GET THIS FAR', d, api);
-          // console.log('LOAD DATASET FAILED', d.ok === false);
-          // console.log('LOAD API DATASET FAILED', api.ok === false);
-
-          // TODO: fix this
-          // if (errors.length) {
-          //   setErrors(errors);
-
-          // } else {
-
           if (datasetExists && ALLOW_DATASET_CACHING) {
             if (cachedIndex < 0) {
               datasetCache.push(d)
@@ -109,13 +93,13 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
           setDataset(datasetExists ? d : null);
           setApiDataset(apiDatasetExists ? api : null);
-          // }
         })
         .catch((error) => {
-          console.log('HERE WE GO', error);
-          console.error(error);
-          errors.push(error.message);
+          errors.push(error);
           setErrors(errors);
+        })
+        .finally(() => {
+          setLoaded(true);
         });
     }
   }
@@ -124,6 +108,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
       .then(d => {
         setDatasetList(d.value as Dataset[]);
+      })
+      .catch((error) => {
+        errors.push(error);
+        setErrors(errors);
       });
   }
 
@@ -194,7 +182,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       </Route>
     </>;
 
-  // if (dataset && apiDataset) {
+  if (loaded && !errors.length) {
     return (
       <>
         <Navbar authState={authState} authService={authService} />
@@ -221,7 +209,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         </div>
       </>
     );
-  // }
+  }
 
   return <Loading errors={errors} />;
 }

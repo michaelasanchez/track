@@ -9,15 +9,13 @@ type LoadingProps = {
 
 export const Loading: FunctionComponent<LoadingProps> = ({ errors }) => {
 
-  // if (errors) console.log('WE GOT ERRORS', errors);
-
   const renderErrors = (errors: any[]) => {
     return (
       <>
         {/* <p>Something went wrong...</p> */}
-        {map(errors, (e: string, i: number) => {
+        {map(errors, (e: any, i: number) => {
           return <Alert key={i} variant="danger">
-            {e}
+            {e.message}
           </Alert>
         })}
       </>
@@ -26,7 +24,7 @@ export const Loading: FunctionComponent<LoadingProps> = ({ errors }) => {
 
   return (
     <div className="h-100 d-flex flex-column align-items-center justify-content-center">
-      {errors ?
+      {errors.length ?
         renderErrors(errors)
         :
         'Loading...'}
