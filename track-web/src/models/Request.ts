@@ -4,11 +4,12 @@ import { Record } from "./Record";
 import { Property } from "./Property";
 import { Note } from "./Note";
 import { ApiDataset } from "./ApiDataset";
+import { DOMAIN } from "../components/Home";
 
 class ApiRequest {
 
-  private ODATA_URL: string = 'https://localhost:44311/odata/';
-  protected API_URL: string = 'https://localhost:44311/api/';
+  private ODATA_URL: string = `${DOMAIN}/odata/`;
+  protected API_URL: string = `${DOMAIN}/api/`;
 
   private DEF_PARAMS = {
     mode: 'cors', // no-cors, *cors, same-origin

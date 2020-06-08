@@ -1,5 +1,5 @@
 import React = require('react');
-import { Home } from './components/Home';
+import { Home, BASE_PATH } from './components/Home';
 
 import { Security, LoginCallback } from '@okta/okta-react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
@@ -15,10 +15,10 @@ const App: React.FunctionComponent<AppProps> = ({ }) => {
       <Security
         issuer={`${BASE_URL}/oauth2/default`}
         clientId={CLIENT_ID}
-        redirectUri={`${window.location.origin}/callback`}
+        redirectUri={`${window.location.origin}${BASE_PATH}/callback`}
       >
-        <Route path="/" component={Home} />
-        <Route path="/callback" component={LoginCallback} />
+        <Route path={`${BASE_PATH}/`} component={Home} />
+        <Route path={`${BASE_PATH}/callback`} component={LoginCallback} />
       </Security>
     </Router>
   )

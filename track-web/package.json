@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npm run server",
     "server": "webpack-dev-server --history-api-fallback --inline --progress",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --bail --progress --profile"
   },
   "keywords": [],
   "author": "Michael Sanchez",

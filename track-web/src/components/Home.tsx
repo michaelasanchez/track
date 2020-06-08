@@ -17,11 +17,14 @@ import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
 import { ApiDataset } from '../models/ApiDataset';
 
-export const API_URL = 'https://localhost:44311/odata/';
+export const DOMAIN: string = 'https://localhost:44311';
+export const BASE_PATH: string = '';
+
 const DEF_DATASET_ID = 1;
 
 const ALLOW_DATASET_CACHING = true;
 
+// TODO: Figure out what to do with this
 const defaultUserMode = (): UserMode => {
   return window.location.pathname.includes('edit') ?
     UserMode.Edit : UserMode.View;
@@ -174,10 +177,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const renderRoutes = () =>
     <>
-      <Route exact path="/">
+      <Route exact path={`${BASE_PATH}/`}>
         {renderGraph()}
       </Route>
-      <Route path="/edit">
+      <Route path={`${BASE_PATH}/edit`}>
         <EditDataset
           dataset={dataset}
           refreshList={loadDatasetList}
@@ -185,7 +188,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           allowPrivate={authState.isAuthenticated ? true : false}
         />
       </Route>
-      <Route path="/create">
+      <Route path={`${BASE_PATH}/create`}>
         <CreateDataset
           dataset={pendingDataset}
           updateDataset={setPendingDataset}

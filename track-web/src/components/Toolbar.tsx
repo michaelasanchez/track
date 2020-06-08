@@ -19,6 +19,7 @@ import {
   faPlusCircle as createIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { UserMode } from '../shared/enums';
+import { BASE_PATH } from './Home';
 
 export enum ToolbarAction {
   Create,
@@ -92,7 +93,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         <Button variant="secondary" onClick={() => handleClose()}>
           Nevermind
       </Button>
-        <Link to="/" onClick={() => handleClose(true)}>
+        <Link to={`${BASE_PATH}/`}onClick={() => handleClose(true)}>
           <Button variant="primary">
             Confirm
         </Button>
@@ -104,12 +105,12 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderDefault = () =>
     <>
       <div className="toolbar-left">
-        <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
+        <Link to={`${BASE_PATH}/edit`} onClick={() => updateMode(UserMode.Edit)} >
           <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${!hasDatasets ? ' disabled' : ''}`} />
         </Link>
       </div>
       <div className="toolbar-right">
-        <Link to="/create">
+        <Link to={`${BASE_PATH}/create`}>
           <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
         </Link>
       </div>
@@ -119,7 +120,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderEdit = () =>
     <>
       <div className="toolbar-left">
-        <Link to="/" onClick={() => updateMode(UserMode.View)} >
+        <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)} >
           <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
         </Link>
         {/* <Link to="/">
@@ -127,7 +128,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         </Link> */}
       </div>
       <div className="toolbar-right">
-        <Link to="/edit" onClick={handleShow}>
+        <Link to={`${BASE_PATH}/edit`} onClick={handleShow}>
           <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
         </Link>
       </div>
@@ -137,15 +138,15 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderCreate = () =>
     <>
       <div className="toolbar-left">
-        <Link to="edit disabled" >
+        <Link to={`${BASE_PATH}/create`}>
           <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
         </Link>
       </div>
       <div className="toolbar-right">
-        <Link to="/" onClick={() => onAction(ToolbarAction.Create)}>
+        <Link to={`${BASE_PATH}/`} onClick={() => onAction(ToolbarAction.Create)}>
           <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
         </Link>
-        <Link to="/">
+        <Link to={`${BASE_PATH}/`}>
           <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
         </Link>
       </div>
@@ -155,9 +156,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   return (
     <Form className="toolbar">
       {renderDatasetSelect()}
-      <Route exact path="/" render={renderDefault}></Route>
-      <Route path="/edit" render={renderEdit}></Route>
-      <Route path="/create" render={renderCreate}></Route>
+      <Route exact path={`${BASE_PATH}/`} render={renderDefault}></Route>
+      <Route path={`${BASE_PATH}/edit`} render={renderEdit}></Route>
+      <Route path={`${BASE_PATH}/create`} render={renderCreate}></Route>
       {show && renderModal()}
     </Form>
   )

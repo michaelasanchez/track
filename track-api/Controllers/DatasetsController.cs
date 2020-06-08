@@ -28,8 +28,6 @@ namespace track_api.Controllers
         {
             var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
 
-            var tests = db.Datasets.ToList();
-
             if (user == null)
             {
                 return db.Datasets.Where(z => z.Private == false);
