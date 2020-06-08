@@ -42,7 +42,8 @@ namespace track_api.Controllers
         [EnableQuery]
         public SingleResult<Dataset> GetDataset([FromODataUri] int key)
         {
-            return SingleResult.Create(db.Datasets.Where(dataset => dataset.Id == key));
+            var dbDataset = db.Datasets.Where(dataset => dataset.Id == key);
+            return SingleResult.Create(dbDataset);
         }
 
         // PUT: odata/Datasets(5)

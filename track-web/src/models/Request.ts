@@ -67,13 +67,9 @@ class ApiRequest {
 
   private async execute(url: string, params: RequestInit = {}, toJson: boolean = true) {
     return await fetch(url, params)
-      .then(res => toJson ? res.json() : res)
-      .then((result) => {
-        return result;
-      },
-        (error) => {
-          console.log('ERROR:', error);
-        });
+      .then(result => {
+        return result.ok && toJson ? result.json() : result
+      });
   }
 
   public Id = (id: number) => {
@@ -92,7 +88,7 @@ class ApiRequest {
   }
 
   // GET ApiDataset
-  public Test = (token?: any) => {
+  public GetApiDataset = (token?: any) => {
     const params = !token ? null : {
       headers: this.buildAuthHeader(token)
     };

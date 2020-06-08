@@ -21,7 +21,9 @@ const newRecordState = (dataset: Dataset): Record => {
 }
 
 const CreateRecord: React.FunctionComponent<CreateRecordProps> = ({ dataset, refreshDataset }) => {
-  const [record, setRecord] = useState<Record>(newRecordState(dataset));
+  // TODO: Look into what happens here
+  //    once a dataset has been created!
+  const [record, setRecord] = useState<Record>(dataset ? newRecordState(dataset) : null);
 
   const updateDate = (d: Date) => {
     setRecord({
@@ -73,11 +75,10 @@ const CreateRecord: React.FunctionComponent<CreateRecordProps> = ({ dataset, ref
       refreshDataset(dataset.Id, true);
     });
   }
-
   return (
     <RecordForm
       record={record}
-      series={dataset.Series}
+      seriesList={dataset?.Series}
       updateDate={updateDate}
       updateProperty={updateProperty}
       updateNote={updateNote}

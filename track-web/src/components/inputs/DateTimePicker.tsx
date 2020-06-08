@@ -7,9 +7,10 @@ import { useState } from 'react';
 type DateTimePickerProps = {
   date: Date;
   updateDate: Function;
+  disabled?: boolean;
 };
 
-const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({ date, updateDate }) => {
+const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({ date, updateDate, disabled }) => {
   const [valid, setValid] = useState<boolean>(true);
 
   const handleDateUpdate = (m: string) => {
@@ -33,7 +34,7 @@ const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({ date, up
       <DateTime
         onBlur={(m: string) => handleOnBlur(m)}
         onChange={(m: string) => handleDateUpdate(m)}
-        inputProps={{className: valid ? 'form-control' : 'form-control is-invalid'}}
+        inputProps={{className: valid ? 'form-control' : 'form-control is-invalid', disabled }}
         value={date}
       />
     </div>

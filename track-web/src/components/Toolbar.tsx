@@ -43,6 +43,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   dataset,
   onAction
 }) => {
+  const hasDatasets = datasetList?.length > 0;
+
   const [show, setShow] = useState(false);
 
   const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
@@ -67,9 +69,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     return (
       <Form.Control
         as="select"
-        disabled={mode == UserMode.Edit}
+        disabled={!hasDatasets || mode == UserMode.Edit}
         onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
-        value={dataset.Id.toString()}>
+        value={dataset?.Id.toString()}>
         {map(datasetList, (d, i) =>
           <option key={i} value={d.Id.toString()}>
             {d.Label}
@@ -103,7 +105,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     <>
       <div className="toolbar-left">
         <Link to="edit" onClick={() => updateMode(UserMode.Edit)} >
-          <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+          <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${!hasDatasets ? ' disabled' : ''}`} />
         </Link>
       </div>
       <div className="toolbar-right">
@@ -156,7 +158,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <Route exact path="/" render={renderDefault}></Route>
       <Route path="/edit" render={renderEdit}></Route>
       <Route path="/create" render={renderCreate}></Route>
-      {renderModal()}
+      {show && renderModal()}
     </Form>
   )
 }

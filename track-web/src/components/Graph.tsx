@@ -7,6 +7,7 @@ import { ChartistOptions, SERIES_PREFIXES } from "../models/ChartistOptions";
 import { ApiDataset } from "../models/ApiDataset";
 import { SeriesType } from "../shared/enums";
 import { ApiSeries } from "../models/ApiSeries";
+import Alert from "react-bootstrap/Alert";
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -56,7 +57,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   const ChartistRecord = (type: SeriesType, dateTimeString: string, value?: string, index?: number) => {
     let parsed;
-    switch(type) {
+    switch (type) {
       case SeriesType.Decimal:
         parsed = Number.parseFloat(value);
         break;
@@ -71,17 +72,21 @@ const Graph: React.FunctionComponent<GraphProps> = ({
         parsed = null;
         break;
     }
-    
+
     return !parsed ? null : {
       x: moment(dateTimeString),
       y: parsed
     };
   }
 
-  const hasNumericalData = dataset.NumericalSeries.length > 0;
-  const hasFrequencyData = dataset.FrequencySeries.length > 0;
+  let hasNumericalData, hasFrequencyData;
 
-  const lineGraph = (
+  if (dataset) {
+    hasNumericalData = dataset.NumericalSeries.length > 0;
+    hasFrequencyData = dataset.FrequencySeries.length > 0;
+  }
+
+  const lineGraph = (dataset: ApiDataset) => {
     <>
       {renderColorStyle(dataset.NumericalSeries, 'numerical')}
       <ChartistGraph
@@ -90,25 +95,51 @@ const Graph: React.FunctionComponent<GraphProps> = ({
         type={type}
       />
     </>
-  );
+  };
 
-  const frequencyGraph = (
+  const frequencyGraph = (dataset: ApiDataset, hideLabels: boolean) => {
     <>
       {renderColorStyle(dataset.FrequencySeries, 'frequency')}
       <ChartistGraph
         data={ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
-        options={options.getFrequencyOptions(dataset.FrequencySeries, hasNumericalData)}
+        options={options.getFrequencyOptions(dataset.FrequencySeries, hideLabels)}
         type={type}
       />
     </>
-  );
+  };
 
-  return (
-    <>
-      {hasNumericalData && lineGraph}
-      {hasFrequencyData && frequencyGraph}
-    </>
-  );
+  const blankGraph = () => {
+    return (<ChartistGraph
+      data={{}}
+      options={options.getNumericalOptions()}
+      type={type}
+    />);
+  }
+
+  const alertStyle = {
+    left: '50%',
+    top: '46.5%',
+    transform: 'translate(-50%, -50%)',
+    boxShadow: '0 0 0 4px #ffffffcc',
+    backgroundColor: '#e2e3e5aa'
+  }
+
+  return dataset ?
+    (
+      <>
+        {hasNumericalData && lineGraph(dataset)}
+        {hasFrequencyData && frequencyGraph(dataset, hasNumericalData)}
+      </>
+    )
+    :
+    (
+      <div className="position-relative">
+        <Alert variant="secondary" style={alertStyle} className="position-absolute">
+          No Dataset
+  </Alert>
+        {blankGraph()}
+      </div>
+    );
 }
 
 export default Graph;

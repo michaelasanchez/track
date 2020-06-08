@@ -10,7 +10,7 @@ import { COLORS_DEFAULT } from '../../models/ChartistOptions';
 
 type RecordFormProps = {
   record: Record;
-  series: Series[];
+  seriesList: Series[];
   updateDate: Function;
   updateProperty: Function;
   updateNote: any;
@@ -19,7 +19,7 @@ type RecordFormProps = {
 
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   record,
-  series,
+  seriesList,
   updateDate,
   updateProperty,
   updateNote,
@@ -35,6 +35,9 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   //   }, 1000);
   //   return () => clearInterval(interval);
   // }, []);
+
+  // TODO: Be more specific
+  const disabled = !record;
 
   const handleUpdateDate = (d: Date) => {
     // setAutoUpdate(false);
@@ -114,20 +117,20 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   return (
     <>
       <Form>
-        {map(series, (s: Series, i: number) =>
+        {map(seriesList, (s: Series, i: number) =>
           <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
             {renderPropertyInput(s, i)}
           </Form.Group>
         )}
         <Form.Group>
           <Form.Label>Date</Form.Label>
-          <DateTimePicker date={record.DateTime} updateDate={handleUpdateDate} />
+          <DateTimePicker date={record?.DateTime ?? new Date()} updateDate={handleUpdateDate} disabled={disabled} />
         </Form.Group>
         <Form.Group>
           <Form.Label>Note</Form.Label>
-          <Form.Control as="textarea" defaultValue={record.Notes.length ? record.Notes[0].Text : ''} rows="3" onBlurCapture={updateNote} />
+          <Form.Control as="textarea" defaultValue={record?.Notes.length ? record.Notes[0].Text : ''} rows="3" onBlurCapture={updateNote} disabled={disabled} />
         </Form.Group>
-        <Button variant="primary" onClick={handleSave}>
+        <Button variant="primary" onClick={handleSave} disabled={disabled}>
           Add
       </Button>
       </Form>

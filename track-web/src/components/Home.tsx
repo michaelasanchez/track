@@ -20,7 +20,7 @@ import { ApiDataset } from '../models/ApiDataset';
 export const API_URL = 'https://localhost:44311/odata/';
 const DEF_DATASET_ID = 53;
 
-const ALLOW_DATASET_CACHING = false;
+const ALLOW_DATASET_CACHING = true;
 
 const defaultUserMode = (): UserMode => {
   return window.location.pathname.includes('edit') ?
@@ -45,6 +45,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
   const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
 
+  const [errors, setErrors] = useState([]);
+
   const { authState, authService } = useOktaAuth();
 
 
@@ -58,33 +60,71 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
     } else {
       const datasetRequest = new ApiRequest('Datasets', id).Expand('Series').Expand('Records/Properties').Get(authState.accessToken);
-      const apiDatasetRequest = new ApiRequest('ApiDatasets').Id(id).Test();
+      const apiDatasetRequest = new ApiRequest('ApiDatasets').Id(id).GetApiDataset();
 
       Promise.all([
         datasetRequest,
         apiDatasetRequest
-      ]).then((values) => {
-        const [d, api] = values;
+      ])
+        .then((values) => {
+          const [d, api] = values;
 
-        if (cachedIndex < 0) {
-          datasetCache.push(d);
-          apiDatasetCache.push(api);
-        } else {
-          datasetCache[cachedIndex] = d;
-          apiDatasetCache[cachedIndex] = api;
-        }
+          const datasetExists = d.ok !== false;
+          const apiDatasetExists = api.ok !== false;
 
-        setDataset(d);
-        setDatasetCache(datasetCache);
-        setApiDatasetCache(apiDatasetCache);
-        setApiDataset(api);
-      });
+          if (d.ok === false) {
+            errors.push('Failed to load Dataset List');
+          }
+          if (api.ok === false) {
+            errors.push('Failed to load Graph Data')
+          }
+
+          // console.log('WE NEVER GET THIS FAR', d, api);
+          // console.log('LOAD DATASET FAILED', d.ok === false);
+          // console.log('LOAD API DATASET FAILED', api.ok === false);
+
+          // TODO: fix this
+          // if (errors.length) {
+          //   setErrors(errors);
+
+          // } else {
+
+          if (datasetExists && ALLOW_DATASET_CACHING) {
+            if (cachedIndex < 0) {
+              datasetCache.push(d)
+            } else {
+              datasetCache[cachedIndex] = d;
+            }
+            setDatasetCache(datasetCache);
+          }
+
+          if (apiDatasetExists && ALLOW_DATASET_CACHING) {
+            if (cachedIndex < 0) {
+              apiDatasetCache.push(api);
+            } else {
+              apiDatasetCache[cachedIndex] = api;
+            }
+            setApiDatasetCache(apiDatasetCache);
+          }
+
+          setDataset(datasetExists ? d : null);
+          setApiDataset(apiDatasetExists ? api : null);
+          // }
+        })
+        .catch((error) => {
+          console.log('HERE WE GO', error);
+          console.error(error);
+          errors.push(error.message);
+          setErrors(errors);
+        });
     }
   }
-  
+
   const loadDatasetList = () => {
     new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
-      .then(d => setDatasetList(d.value as Dataset[]));
+      .then(d => {
+        setDatasetList(d.value as Dataset[]);
+      });
   }
 
   /* Toolbar Actions */
@@ -154,7 +194,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       </Route>
     </>;
 
-  if (dataset && apiDataset) {
+  // if (dataset && apiDataset) {
     return (
       <>
         <Navbar authState={authState} authService={authService} />
@@ -181,7 +221,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         </div>
       </>
     );
-  }
+  // }
 
-  return <Loading />;
+  return <Loading errors={errors} />;
 }
