@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using track_api.Converters;
 using track_api.Models;
 using track_api.Models.Api;
 using track_api.Models.Db;
+using track_api.Utils;
 
 namespace track_api.Controllers
 {
@@ -26,6 +28,9 @@ namespace track_api.Controllers
         // GET: api/ApiDatasets/5
         public IHttpActionResult Get(int id)
         {
+            // TODO: This always return null ??
+            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
+
             var dbDataset = db.Datasets
                 .Include("Series")
                 .Include("Records.Properties")

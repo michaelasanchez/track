@@ -28,13 +28,15 @@ namespace track_api.Controllers
         {
             var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
 
+            var tests = db.Datasets.ToList();
+
             if (user == null)
             {
                 return db.Datasets.Where(z => z.Private == false);
             }
             else
             {
-                return db.Datasets.Include("User").Where(z => z.Private == false || z.User.Id == user.Id);
+                return db.Datasets.Where(z => z.UserId == user.Id || z.Private == false);
             }
         }
 
@@ -42,7 +44,18 @@ namespace track_api.Controllers
         [EnableQuery]
         public SingleResult<Dataset> GetDataset([FromODataUri] int key)
         {
-            var dbDataset = db.Datasets.Where(dataset => dataset.Id == key);
+            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
+
+            IQueryable<Dataset> dbDataset;
+            if (user == null)
+            {
+                dbDataset = db.Datasets.Where(dataset => dataset.Id == key && dataset.Private == false);
+            }
+            else
+            {
+                dbDataset = db.Datasets.Where(dataset => dataset.Id == key && dataset.UserId == user.Id);
+            }
+
             return SingleResult.Create(dbDataset);
         }
 

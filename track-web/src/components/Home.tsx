@@ -18,7 +18,7 @@ import { Loading } from './Loading';
 import { ApiDataset } from '../models/ApiDataset';
 
 export const API_URL = 'https://localhost:44311/odata/';
-const DEF_DATASET_ID = 53;
+const DEF_DATASET_ID = 1;
 
 const ALLOW_DATASET_CACHING = true;
 
@@ -27,9 +27,18 @@ const defaultUserMode = (): UserMode => {
     UserMode.Edit : UserMode.View;
 }
 
-const defaultDatasetId = (): number => {
+const defaultDatasetId = (datasetList: Dataset[]): number => {
+  const firstId = datasetList.length ? datasetList[0].Id : DEF_DATASET_ID;
+
+  // Attempt to recover from local storage
   const parsed = parseInt(window.localStorage.getItem('datasetId'));
-  return isNaN(parsed) ? DEF_DATASET_ID : parsed;
+
+  // Check is local storage contained an int
+  let id = isNaN(parsed) ? firstId : parsed;
+
+  // TODO: This should happen on the back end
+  // Make sure we're not loading a dataset that isn't in our dataset list
+  return filter(datasetList, d => d.Id == id).length ? id : firstId;
 }
 
 type HomeProps = {};
@@ -104,10 +113,15 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     }
   }
 
-  const loadDatasetList = () => {
+  const loadDatasetList = (skipDatasetLoad: boolean = false) => {
     new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
       .then(d => {
         setDatasetList(d.value as Dataset[]);
+
+        const id = defaultDatasetId(d.value);
+        
+        if (!skipDatasetLoad)
+          loadDataset(id);
       })
       .catch((error) => {
         errors.push(error);
@@ -144,9 +158,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   // Init
   useEffect(() => {
     if (!authState.isPending) {
-      const id = defaultDatasetId();
       loadDatasetList();
-      loadDataset(id);
     }
   }, [authState.accessToken])
 

@@ -68,7 +68,7 @@ class ApiRequest {
   private async execute(url: string, params: RequestInit = {}, toJson: boolean = true) {
     return await fetch(url, params)
       .then(result => {
-        return result.ok && toJson ? result.json() : result
+        return result.ok && result.status != 204 && toJson ? result.json() : result
       });
   }
 
