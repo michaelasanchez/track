@@ -178,7 +178,7 @@ namespace track_api.Controllers
                 return NotFound();
             }
 
-            db.Datasets.Remove(dataset);
+            dataset.Archived = true;
             db.SaveChanges();
 
             return StatusCode(HttpStatusCode.NoContent);
