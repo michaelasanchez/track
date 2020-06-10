@@ -52,6 +52,11 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   const handleShow = () => setShow(true);
 
+  const disabled = !hasDatasets;
+  const disableSelect = mode == UserMode.Edit || mode == UserMode.Create || disabled;
+  const disableEdit = disabled;
+  const disableCreate = false;
+
   const handleClose = (confirm: boolean = false) => {
     setShow(false);
     updateMode(UserMode.View);
@@ -65,20 +70,25 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     return <div className="divider" />;
   }
 
+  const getOptions = map(datasetList, d => { return { value: d.Id, label: d.Label } });
+
   /* Select */
   const renderDatasetSelect = () => {
     return (
-      <Form.Control
-        as="select"
-        disabled={mode == UserMode.Edit || !hasDatasets}
-        onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
-        value={dataset?.Id.toString()}>
-        {map(datasetList, (d, i) =>
-          <option key={i} value={d.Id.toString()}>
-            {d.Label}
-          </option>
-        )}
-      </Form.Control>
+      <>
+        <Form.Control
+          as="select"
+          className="custom-select"
+          disabled={disableSelect}
+          onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
+          value={dataset?.Id.toString()}>
+          {map(datasetList, (d, i) =>
+            <option key={i} value={d.Id.toString()}>
+              {d.Label}
+            </option>
+          )}
+        </Form.Control>
+      </>
     );
   }
 
@@ -93,7 +103,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         <Button variant="secondary" onClick={() => handleClose()}>
           Nevermind
       </Button>
-        <Link to={`${BASE_PATH}/`}onClick={() => handleClose(true)}>
+        <Link to={`${BASE_PATH}/`} onClick={() => handleClose(true)}>
           <Button variant="primary">
             Confirm
         </Button>
@@ -105,13 +115,13 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderDefault = () =>
     <>
       <div className="toolbar-left">
-        <Link to={`${BASE_PATH}/edit`} onClick={() => updateMode(UserMode.Edit)} >
-          <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${!hasDatasets ? ' disabled' : ''}`} />
+        <Link to={`${BASE_PATH}/edit`} onClick={() => updateMode(UserMode.Edit)}>
+          <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${disabled ? ' disabled' : ''}`} />
         </Link>
       </div>
       <div className="toolbar-right">
-        <Link to={`${BASE_PATH}/create`}>
-          <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
+        <Link to={`${BASE_PATH}/create`} onClick={() => updateMode(UserMode.Create)}>
+          <FontAwesomeIcon icon={createIcon} color="gray" className={`icon create${disabled ? ' disabled' : ''}`} />
         </Link>
       </div>
     </>;
@@ -138,16 +148,16 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderCreate = () =>
     <>
       <div className="toolbar-left">
-        <Link to={`${BASE_PATH}/create`}>
-          <FontAwesomeIcon icon={editIcon} color="gray" className="icon" />
+        <Link to={`${BASE_PATH}/create`} onClick={() => updateMode(UserMode.Create)}>
+          <FontAwesomeIcon icon={editIcon} color="gray" className="icon disabled" />
         </Link>
       </div>
       <div className="toolbar-right">
         <Link to={`${BASE_PATH}/`} onClick={() => onAction(ToolbarAction.Create)}>
-          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon" />
+          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
         </Link>
-        <Link to={`${BASE_PATH}/`}>
-          <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon" />
+        <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)}>
+          <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
         </Link>
       </div>
     </>;

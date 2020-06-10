@@ -1,11 +1,10 @@
 import { Dataset } from "../../models/Dataset"
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { Series } from "../../models/Series"
 import { map } from "lodash"
 import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
-import ApiRequest from '../../models/Request';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'

@@ -1,6 +1,7 @@
 export enum UserMode {
   View,
-  Edit
+  Edit,
+  Create
 }
 
 export enum SeriesType {

@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { map, filter, } from 'lodash';
+import { map } from 'lodash';
 import { Series } from '../../models/Series';
 import { Form, Button } from 'react-bootstrap';
 import DateTimePicker from '../inputs/DateTimePicker';
-import { useEffect, useState } from 'react';
 import { Record } from '../../models/Record';
 import { SeriesType } from '../../shared/enums';
 import { COLORS_DEFAULT } from '../../models/ChartistOptions';
@@ -25,16 +24,6 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   updateNote,
   save
 }) => {
-  // const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (autoUpdate == true) {
-  //       updateDate(new Date());
-  //     }
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
 
   // TODO: Be more specific
   const disabled = !record;
