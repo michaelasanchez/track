@@ -168,7 +168,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
           {hasNumericalData && lineLabels(dataset)}
           {hasFrequencyData && frequencyLabels(dataset, hasNumericalData)}
         </div>
-        <div className="graph-container" style={{ overflowX: 'scroll' }} ref={ref}>
+        <div className="graph-container" ref={ref}>
           {hasNumericalData && lineGraph(dataset)}
           {hasFrequencyData && frequencyGraph(dataset, hasNumericalData)}
         </div>

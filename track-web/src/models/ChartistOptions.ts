@@ -21,6 +21,19 @@ export const DEFAULT_CHARTIST_COLORS = [
   'f05b4f'
 ]
 
+const LABELS_OFF = {
+  showLabel: false,
+};
+
+const OPTIONS_DEFAULT = {
+  // height: 400,
+  // fullWidth: true,
+  chartPadding: {
+    left: -35,
+    right: 5
+  },
+} as ILineChartOptions;
+
 const AXIS_X_DEFAULT = {
   type: FixedScaleAxis,
   labelInterpolationFnc: function (value: any) {
@@ -29,22 +42,10 @@ const AXIS_X_DEFAULT = {
     return moment(value).format(`${dateFormat}`);
     return moment(value).format(`${dateFormat} ${timeFormat}`);
   },
+  labelOffset: {
+    y: 5
+  }
 } as IChartistFixedScaleAxis;
-
-const AXIS_X_OFF = {
-  showLabel: false,
-};
-
-const AXIS_Y_OFF = {
-  // showGrid: false,
-  showLabel: false
-}
-
-const OPTIONS_DEFAULT = {
-  // height: 400,
-  // fullWidth: true,
-  // chartPadding: { right: 50 },
-} as ILineChartOptions;
 
 const AXIS_Y_DEFAULT = {
   showLine: false,
@@ -81,6 +82,7 @@ export class ChartistOptions {
   }
 
   private calcDivisor = (): number => {
+    console.log('SPAN', this._span);
     return Math.round(this._span.days);
   }
 
@@ -102,7 +104,7 @@ export class ChartistOptions {
         ...AXIS_X_DEFAULT,
         divisor: this.calcDivisor()
       },
-      axisY: AXIS_Y_OFF
+      axisY: LABELS_OFF
       // lineSmooth: false
       // lineSmooth: Chartist.Interpolation.cardinal({
       //   fillHoles: true,
@@ -128,7 +130,7 @@ export class ChartistOptions {
     } as ILineChartOptions;
   }
 
-  public getFrequencyOptions = (series: ApiSeries[], hideLabel: boolean = false): ILineChartOptions => {
+  public getFrequencyOptions = (series: ApiSeries[], hideLabels: boolean = false): ILineChartOptions => {
     return {
       ...this._options,
       // height: chartistData.FrequencyData.length * 10,
@@ -137,10 +139,14 @@ export class ChartistOptions {
       classNames: {
         chart: 'ct-chart-line frequency'
       },
-      axisX: hideLabel ?
+      chartPadding: {
+        ...(this._options.chartPadding),
+        bottom: hideLabels ? -10 : 0
+      },
+      axisX: hideLabels ?
         {
           ...AXIS_X_DEFAULT,
-          ...AXIS_X_OFF,
+          ...LABELS_OFF,
           divisor: this.calcDivisor()
         }
         :
@@ -148,7 +154,7 @@ export class ChartistOptions {
           ...AXIS_X_DEFAULT,
           divisor: this.calcDivisor()
         },
-      axisY: AXIS_Y_OFF
+      axisY: LABELS_OFF
     } as ILineChartOptions;
   }
 
