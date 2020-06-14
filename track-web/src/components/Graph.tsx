@@ -111,6 +111,16 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     hasFrequencyData = dataset.FrequencySeries.length > 0;
   }
 
+  const lineLabels = (dataset: ApiDataset) => {
+    return (<>
+      <ChartistGraph
+        data={new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
+        options={options.getNumericalLabelOptions()}
+        type={type}
+      />
+    </>);
+  }
+
   const lineGraph = (dataset: ApiDataset) => {
     return (<>
       {renderColorStyle(dataset.NumericalSeries, 'numerical')}
@@ -121,6 +131,16 @@ const Graph: React.FunctionComponent<GraphProps> = ({
       />
     </>);
   };
+
+  const frequencyLabels = (dataset: ApiDataset, hideLabels: boolean) => {
+    return (<>
+      <ChartistGraph
+        data={new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
+        options={options.getFrequencyLabelOptions(dataset.FrequencySeries)}
+        type={type}
+      />
+    </>);
+  }
 
   const frequencyGraph = (dataset: ApiDataset, hideLabels: boolean) => {
     return (<>
@@ -143,10 +163,16 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   return dataset ?
     (
-      <div className="graph-container" style={{ overflowX: 'scroll' }} ref={ref}>
-        {hasNumericalData && lineGraph(dataset)}
-        {hasFrequencyData && frequencyGraph(dataset, hasNumericalData)}
-      </div>
+      <>
+        <div className="label-container">
+          {hasNumericalData && lineLabels(dataset)}
+          {hasFrequencyData && frequencyLabels(dataset, hasNumericalData)}
+        </div>
+        <div className="graph-container" style={{ overflowX: 'scroll' }} ref={ref}>
+          {hasNumericalData && lineGraph(dataset)}
+          {hasFrequencyData && frequencyGraph(dataset, hasNumericalData)}
+        </div>
+      </>
     )
     :
     (

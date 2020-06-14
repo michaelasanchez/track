@@ -21,12 +21,6 @@ export const DEFAULT_CHARTIST_COLORS = [
   'f05b4f'
 ]
 
-const AXIS_Y_DEFAULT = {
-  labelOffset: {
-    y: 5
-  }
-}
-
 const AXIS_X_DEFAULT = {
   type: FixedScaleAxis,
   labelInterpolationFnc: function (value: any) {
@@ -34,18 +28,38 @@ const AXIS_X_DEFAULT = {
     const timeFormat = 'h:mma';
     return moment(value).format(`${dateFormat}`);
     return moment(value).format(`${dateFormat} ${timeFormat}`);
-  }
+  },
 } as IChartistFixedScaleAxis;
 
 const AXIS_X_OFF = {
   showLabel: false,
 };
 
+const AXIS_Y_OFF = {
+  // showGrid: false,
+  showLabel: false
+}
+
 const OPTIONS_DEFAULT = {
   // height: 400,
-  fullWidth: true,
+  // fullWidth: true,
   // chartPadding: { right: 50 },
-};
+} as ILineChartOptions;
+
+const AXIS_Y_DEFAULT = {
+  showLine: false,
+  showPoint: false,
+  axisX: {
+    showGrid: false,
+    showLabel: false
+  },
+  axisY: {
+    showGrid: false,
+    labelOffset: {
+      y: 5
+    }
+  }
+} as ILineChartOptions;
 
 // TODO: Not sure if this makes sense as a class?
 export class ChartistOptions {
@@ -70,13 +84,17 @@ export class ChartistOptions {
     return Math.round(this._span.days);
   }
 
+  public getNumericalLabelOptions = (): ILineChartOptions => {
+    return {
+      ...AXIS_Y_DEFAULT,
+      height: 300
+    } as ILineChartOptions;
+  }
+
   public getNumericalOptions = (): ILineChartOptions => {
     return {
       ...this._options,
       height: 300,
-      // chartPadding: {
-      //   right: 100
-      // },
       classNames: {
         chart: 'ct-chart-line numerical'
       },
@@ -84,13 +102,29 @@ export class ChartistOptions {
         ...AXIS_X_DEFAULT,
         divisor: this.calcDivisor()
       },
-      axisY: {
-        ...AXIS_Y_DEFAULT
-      }
+      axisY: AXIS_Y_OFF
       // lineSmooth: false
       // lineSmooth: Chartist.Interpolation.cardinal({
       //   fillHoles: true,
       // })
+    } as ILineChartOptions;
+  }
+
+  public getFrequencyLabelOptions = (series: ApiSeries[]): ILineChartOptions => {
+    return {
+      ...AXIS_Y_DEFAULT,
+      height: series.length * 40,
+      axisY: {
+        ...(AXIS_Y_DEFAULT.axisY),
+        onlyInteger: true,
+        labelInterpolationFnc: function (value: any, index: number) {
+          const l = series.length;
+          if (index < l) {
+            // Based on boolean values equals -(index + 1) in ChartistRecord
+            return series[l - 1 - index].Label;
+          }
+        },
+      },
     } as ILineChartOptions;
   }
 
@@ -103,17 +137,6 @@ export class ChartistOptions {
       classNames: {
         chart: 'ct-chart-line frequency'
       },
-      axisY: {
-        ...AXIS_Y_DEFAULT,
-        onlyInteger: true,
-        labelInterpolationFnc: function (value: any, index: number) {
-          const l = series.length;
-          if (index < l) {
-            // Based on boolean values equals -(index + 1) in ChartistRecord
-            return series[l - 1 - index].Label;
-          }
-        },
-      },
       axisX: hideLabel ?
         {
           ...AXIS_X_DEFAULT,
@@ -125,6 +148,7 @@ export class ChartistOptions {
           ...AXIS_X_DEFAULT,
           divisor: this.calcDivisor()
         },
+      axisY: AXIS_Y_OFF
     } as ILineChartOptions;
   }
 
