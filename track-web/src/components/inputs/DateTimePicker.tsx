@@ -1,16 +1,36 @@
 import * as React from 'react';
 import DateTime from 'react-datetime';
 import moment, { Moment } from 'moment';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 type DateTimePickerProps = {
   date: Date;
   updateDate: Function;
+  autoUpdate?: boolean;
   disabled?: boolean;
+  dateFormat?: string;
+  timeFormat?: string;
 };
 
-const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({ date, updateDate, disabled }) => {
+const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({
+  date,
+  updateDate,
+  disabled,
+  autoUpdate = true,
+  dateFormat = 'MM/DD/YYYY',
+  timeFormat = 'h:mm:ss a'
+}) => {
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (autoUpdate == true) {
+  //       updateDate(new Date());
+  //     }
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
   const [valid, setValid] = useState<boolean>(true);
 
   const handleDateUpdate = (m: string) => {
@@ -34,8 +54,10 @@ const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({ date, up
       <DateTime
         onBlur={(m: string) => handleOnBlur(m)}
         onChange={(m: string) => handleDateUpdate(m)}
-        inputProps={{className: valid ? 'form-control' : 'form-control is-invalid', disabled }}
+        inputProps={{ className: valid ? 'form-control' : 'form-control is-invalid', disabled }}
         value={date}
+        dateFormat={dateFormat}
+        timeFormat={timeFormat}
       />
     </div>
   );

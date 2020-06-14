@@ -28,7 +28,7 @@ namespace track_api.Controllers
         // GET: api/ApiDatasets/5
         public IHttpActionResult Get(int id)
         {
-            // TODO: This always return null ??
+            // TODO: This always returns null ??
             var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
 
             var dbDataset = db.Datasets
@@ -38,7 +38,7 @@ namespace track_api.Controllers
 
             if (dbDataset != null)
             {
-                // TODO: This should be set upon dataset creation/edit
+                // TODO: This should be set upon dataset create/edit
                 var seriesOrder = 0;
                 foreach (var series in dbDataset.Series)
                 {
@@ -49,7 +49,7 @@ namespace track_api.Controllers
                 return Ok(DatasetConverter.Convert(dbDataset));
             }
 
-            // Figure out correct response here
+            // TODO: Figure out correct response here
             return null;
         }
 

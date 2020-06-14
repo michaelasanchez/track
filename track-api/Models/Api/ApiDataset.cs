@@ -13,6 +13,8 @@ namespace track_api.Models.Api
 
         public TimeSpan Span { get; set; }
 
+        public long Ticks { get; set; }
+
         public List<DateTime> SeriesLabels { get; set; }
 
         public List<ApiSeries> NumericalSeries { get; set; }

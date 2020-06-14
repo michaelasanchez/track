@@ -46,8 +46,6 @@ const defaultDatasetId = (datasetList: Dataset[]): number => {
 
   // Attempt to recover from local storage
   const parsed = parseInt(window.localStorage.getItem('datasetId'));
-
-  // Check is local storage contained an int
   let id = isNaN(parsed) ? firstId : parsed;
 
   // TODO: This should happen on the back end

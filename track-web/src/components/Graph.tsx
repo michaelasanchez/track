@@ -2,12 +2,15 @@ import * as React from "react"
 import ChartistGraph from 'react-chartist';
 import { map } from 'lodash';
 import moment = require("moment");
-import { useState } from "react";
-import { ChartistOptions, SERIES_PREFIXES } from "../models/ChartistOptions";
+import { useState, useRef, useEffect } from "react";
+import { ChartistOptions, SERIES_PREFIXES, DEFAULT_CHARTIST_COLORS } from "../models/ChartistOptions";
 import { ApiDataset } from "../models/ApiDataset";
 import { SeriesType } from "../shared/enums";
 import { ApiSeries } from "../models/ApiSeries";
 import Alert from "react-bootstrap/Alert";
+import { ChartistData } from "../models/ChartistData";
+import { useResize } from "../hooks/useResize";
+import { TimeSpan } from "../interfaces/TimeSpan";
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -18,18 +21,6 @@ export enum GraphType {
   Bar = 'Bar',
   Line = 'Line',
 }
-
-export const DEFAULT_CHARTIST_COLORS = [
-  '#d70206',
-  '#f05b4f',
-  '#f4c63d',
-  '#d17905',
-  '#453d3f',
-  '#59922b',
-  '#0544d3',
-  '#6b0392',
-  '#f05b4f',
-]
 
 const renderColorStyle = (series: ApiSeries[], className: string) => {
   return (
@@ -48,49 +39,73 @@ const renderColorStyle = (series: ApiSeries[], className: string) => {
   )
 }
 
+// "No Dataset" label
+const labelStyle = {
+  left: '50%',
+  top: '50%',
+  transform: 'translate(-50%, -50%)',
+  boxShadow: '0 0 0 4px #ffffffcc',
+  backgroundColor: '#e2e3e5aa'
+}
+
+const convertTimeSpan = (ticks: number): TimeSpan => {
+  const seconds = Math.round(ticks / 10000000);
+  const minutes = seconds / 60;
+  const hours = minutes / 60;
+  const days = hours / 24;
+
+  console.log('days', days);
+  console.log('hours', hours);
+  console.log('minutes', minutes);
+
+  return {
+    days,
+    hours,
+    minutes,
+    seconds
+  } as TimeSpan;
+}
+
+const calcChartWidth = (span: TimeSpan, refWidth: number): number => {
+
+  const chartWidth = span.days * 100;
+  const zoom = refWidth / chartWidth;
+
+  // console.log('CHART WIDTH', chartWidth);
+  // console.log('REF WIDTH', refWidth)
+  // console.log('ZOOM', zoom);
+
+  return chartWidth < refWidth ? chartWidth * zoom : chartWidth;
+}
+
 const Graph: React.FunctionComponent<GraphProps> = ({
   dataset,
   defaultType = GraphType.Line
 }) => {
+  // TODO: Toggle line/bar for frequency graph
   const [type, setType] = useState<GraphType>(defaultType);
+  const [chartWidth, setChartWidth] = useState<number>();
 
-  const options = new ChartistOptions();
+  const ref = useRef<HTMLHeadingElement>(null);
+  const { width, height } = useResize(ref);
 
-  const ChartistData = (labels: string[], series: ApiSeries[]) => {
-    return {
-      labels,
-      series: map(series, (s: ApiSeries, i: number) => {
-        return map(s.Data, (value: string, j: number) => ChartistRecord(s.SeriesType, labels[j], value, i));
-      })
-    }
-  }
+  const span = convertTimeSpan(dataset.Ticks);
 
-  const ChartistRecord = (type: SeriesType, dateTimeString: string, value?: string, index?: number) => {
-    let parsed;
-    switch (type) {
-      case SeriesType.Decimal:
-        parsed = Number.parseFloat(value);
-        break;
-      case SeriesType.Integer:
-        parsed = Number.parseInt(value);
-        break;
-      case SeriesType.Boolean:
-        // Keep series in desc order on chart
-        parsed = value === 'true' ? -(index + 1) : null;
-        break;
-      default:
-        parsed = null;
-        break;
-    }
+  useEffect(() => {
+    if (width && height)
+      setChartWidth(calcChartWidth(span, width));
+  }, [width, height]);
 
-    return !parsed ? null : {
-      x: moment(dateTimeString),
-      y: parsed
-    };
-  }
+  // Set initial width
+  useEffect(() => {
+    setChartWidth(calcChartWidth(span, ref.current.offsetWidth));
+  }, [ref.current, dataset]);
+
+  const options = new ChartistOptions(dataset, span);
+  options.apply({ width: chartWidth });
+
 
   let hasNumericalData, hasFrequencyData;
-
   if (dataset) {
     hasNumericalData = dataset.NumericalSeries.length > 0;
     hasFrequencyData = dataset.FrequencySeries.length > 0;
@@ -100,7 +115,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     return (<>
       {renderColorStyle(dataset.NumericalSeries, 'numerical')}
       <ChartistGraph
-        data={ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
+        data={new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
         options={options.getNumericalOptions()}
         type={type}
       />
@@ -111,7 +126,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     return (<>
       {renderColorStyle(dataset.FrequencySeries, 'frequency')}
       <ChartistGraph
-        data={ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
+        data={new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
         options={options.getFrequencyOptions(dataset.FrequencySeries, hideLabels)}
         type={type}
       />
@@ -126,27 +141,19 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     />);
   }
 
-  const alertStyle = {
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%, -50%)',
-    boxShadow: '0 0 0 4px #ffffffcc',
-    backgroundColor: '#e2e3e5aa'
-  }
-
   return dataset ?
     (
-      <>
+      <div className="graph-container" style={{ overflowX: 'scroll' }} ref={ref}>
         {hasNumericalData && lineGraph(dataset)}
         {hasFrequencyData && frequencyGraph(dataset, hasNumericalData)}
-      </>
+      </div>
     )
     :
     (
       <div className="position-relative">
-        <Alert variant="secondary" style={alertStyle} className="position-absolute">
+        <Alert variant="secondary" style={labelStyle} className="position-absolute">
           No Dataset
-  </Alert>
+        </Alert>
         {blankGraph()}
       </div>
     );

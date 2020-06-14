@@ -263,7 +263,7 @@
       <DependentUpon>202006071840364_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202006080108164_AddDatasetUserFK.cs" />
-    <Compile Include="Migrations\202006080108164_AddDatasetUserFK.designer.cs">
+    <Compile Include="Migrations\202006080108164_AddDatasetUserFK.Designer.cs">
       <DependentUpon>202006080108164_AddDatasetUserFK.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
