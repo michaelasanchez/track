@@ -18,7 +18,10 @@ import { Loading } from './Loading';
 import { ApiDataset } from '../models/ApiDataset';
 
 export const DOMAIN: string = 'https://localhost:44311';
+
+// TODO: Decide if we need this
 export const BASE_PATH: string = '';
+
 
 const DEF_DATASET_ID = 1;
 
@@ -26,8 +29,16 @@ const ALLOW_DATASET_CACHING = true;
 
 // TODO: Figure out what to do with this
 const defaultUserMode = (): UserMode => {
-  return window.location.pathname.includes('edit') ?
-    UserMode.Edit : UserMode.View;
+  switch (window.location.pathname) {
+    case '/':
+      return UserMode.View;
+    case '/create':
+      return UserMode.Create;
+    case '/edit':
+      return UserMode.Edit;
+    default:
+      return UserMode.View;
+  }
 }
 
 const defaultDatasetId = (datasetList: Dataset[]): number => {
@@ -35,8 +46,6 @@ const defaultDatasetId = (datasetList: Dataset[]): number => {
 
   // Attempt to recover from local storage
   const parsed = parseInt(window.localStorage.getItem('datasetId'));
-
-  // Check is local storage contained an int
   let id = isNaN(parsed) ? firstId : parsed;
 
   // TODO: This should happen on the back end
@@ -137,6 +146,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     switch (action) {
       case ToolbarAction.Create:
         createDataset(pendingDataset);
+        setMode(UserMode.View);
         break;
     }
   }

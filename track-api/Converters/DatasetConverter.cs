@@ -17,7 +17,9 @@ namespace track_api.Converters
             apiDataset.Id = dataset.Id;
             apiDataset.Label = dataset.Label;
 
-            apiDataset.Span = dataset.Records.Any() ? dataset.Records.Max(r => r.DateTime) - dataset.Records.Min(r => r.DateTime) : new TimeSpan();
+            var span = dataset.Records.Any() ? dataset.Records.Max(r => r.DateTime) - dataset.Records.Min(r => r.DateTime) : new TimeSpan();
+            apiDataset.Span = span;
+            apiDataset.Ticks = span.Ticks;
 
             apiDataset.SeriesLabels = new List<DateTime>();
 
@@ -27,12 +29,12 @@ namespace track_api.Converters
                 series.Add(new ApiSeries(s));
             }
 
-            // TODO: From adding constraints to prod db
+            // TODO: Result of adding constraints to prod db
             //  Keeping this in until confirmed not happening
             int mismatchCount = 0;
 
             int recordCount = 0;
-            foreach (Record record in dataset.Records)
+            foreach (Record record in dataset.Records.OrderBy(r => r.DateTime))
             {
                 recordCount++;
                 apiDataset.SeriesLabels.Add(record.DateTime);

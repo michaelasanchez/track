@@ -1,17 +1,16 @@
 import { Dataset } from "../../models/Dataset"
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { Series } from "../../models/Series"
 import { map } from "lodash"
 import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
-import ApiRequest from '../../models/Request';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
-import { COLORS_DEFAULT } from "../../models/ChartistOptions"
+import { DEFAULT_CHARTIST_COLORS } from "../../models/ChartistOptions"
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -58,7 +57,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
               })}
             </Form.Control>}
 
-            <ColorPicker defaultColor={(s.Color ? s.Color : COLORS_DEFAULT[index]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
+            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[index]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
 
             {createMode && dataset.Series.length > 2 &&
               <Button variant={'link'} onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>

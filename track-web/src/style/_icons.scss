@@ -1,11 +1,14 @@
 
 .icon {
-  cursor: pointer;
-  opacity: 0.3;
+  opacity: 0.4;
   transition: opacity 150ms;
 
   &.active,
   &:hover {
     opacity: 1;
+  }
+
+  &.disabled {
+    opacity: .2;
   }
 }

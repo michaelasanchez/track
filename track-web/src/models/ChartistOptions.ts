@@ -1,12 +1,13 @@
-import { ILineChartOptions, FixedScaleAxis } from "chartist";
+import { ILineChartOptions, FixedScaleAxis, AutoScaleAxis, StepAxis, IChartistFixedScaleAxis, IChartPadding } from "chartist";
 import moment from "moment";
 import { ApiSeries } from "./ApiSeries";
+import { ChartZoom } from "../components/Graph";
+import { TimeSpan } from "./TimeSpan";
 
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
 export const SERIES_PREFIXES = 'abcdefghijklmnoqrstuvwxyz';
-
-export const COLORS_DEFAULT = [
+export const DEFAULT_CHARTIST_COLORS = [
   'd70206',
   'f05b4f',
   'f4c63d',
@@ -18,56 +19,125 @@ export const COLORS_DEFAULT = [
   'f05b4f'
 ]
 
-const OPTIONS_DEFAULT = {
-  // height: 400,
-  fullWidth: true,
-  // chartPadding: { right: 50 },
-};
+const DEFAULT_CHART_OPTIONS = {
+  chartPadding: {
+    left: -35,
+    right: 5
+  },
+  axisY: {
+    showLabel: false,
+  }
+} as ILineChartOptions;
 
-const AXIS_X_DEFAULT = {
-  type: FixedScaleAxis,
-  divisor: 5,
-  labelInterpolationFnc: function (value: any, index: number) {
-    return moment(value).format();
+const NUMERICAL_OPTIONS = {
+  classNames: {
+    chart: 'ct-chart-line numerical'
   }
 }
 
-const AXIS_X_OFF = {
-  showLabel: false,
+const FREQUENCY_OPTIONS = {
+  showLine: false,
+  classNames: {
+    chart: 'ct-chart-line frequency'
+  }
+}
+
+const AXIS_X_DEFAULT = {
   type: FixedScaleAxis,
-  divisor: 5,
-};
+  labelOffset: {
+    y: 5
+  },
+  labelInterpolationFnc: function (value: any) {
+    const timeFormat = 'h:mma';
+    const dateFormat = 'MMM D';
+    return moment(value).format(`${dateFormat}`);
+    return moment(value).format(`${dateFormat} ${timeFormat}`);
+  },
+} as IChartistFixedScaleAxis;
 
-// TODO: Not sure if this makes sense as a class?
-export class ChartistOptions {
 
-  private _options: ILineChartOptions;
+const AXIS_Y_DEFAULT = {
+  showLine: false,
+  showPoint: false,
+  axisX: {
+    showGrid: false,
+    showLabel: false
+  },
+  axisY: {
+    showGrid: false,
+    labelOffset: {
+      y: 5  // vertically center y-axis labels
+    }
+  }
+} as ILineChartOptions;
 
-  constructor() {
-    this._options = OPTIONS_DEFAULT;
+const calcDivisor = (span: TimeSpan, zoom: ChartZoom): number => {
+  switch (zoom) {
+    case ChartZoom.Day:
+      return Math.round(span.days);
+    case ChartZoom.Month:
+      return Math.round(span.days / 30);
+  }
+}
+
+const calcChartWidth = (span: TimeSpan, refWidth: number, zoom: ChartZoom): number => {
+
+  let chartWidth;
+  switch (zoom) {
+    case ChartZoom.Day:
+      chartWidth = span.days * 100;
+      break;
+    case ChartZoom.Month:
+      chartWidth = (span.days / 30) * 100;
+      break;
   }
 
-  public getNumericalOptions = (): ILineChartOptions => {
+  // const zoomFill = refWidth / chartWidth;
+  // return chartWidth < refWidth ? chartWidth * zoomFill : chartWidth;
+
+  return chartWidth < refWidth ? refWidth : chartWidth;
+}
+
+// TODO: Not sure if this makes sense as a class?
+export class ChartistOptionsFactory {
+
+  private _width: number;
+  private _divisor: number;
+
+  constructor(span: TimeSpan, refWidth: number, zoom: ChartZoom) {
+    this._width = calcChartWidth(span, refWidth, zoom);
+    this._divisor = calcDivisor(span, zoom);
+  }
+
+  public getNumericalLabelOptions = (): ILineChartOptions => {
     return {
-      ...this._options,
-      height: 300,
-      classNames: {
-        chart: 'ct-chart-line numerical'
-      },
-      axisX: AXIS_X_DEFAULT,
+      ...AXIS_Y_DEFAULT,
+      height: 300
     } as ILineChartOptions;
   }
 
-  public getFrequencyOptions = (series: ApiSeries[], hideLabel: boolean = false): ILineChartOptions => {
+  public getNumericalChartOptions = (hasFrequencyData: boolean = false): ILineChartOptions => {
     return {
-      ...this._options,
-      // height: chartistData.FrequencyData.length * 10,
+      ...DEFAULT_CHART_OPTIONS,
+      ...NUMERICAL_OPTIONS,
+      height: 300,
+      width: this._width,
+      axisX: {
+        ...AXIS_X_DEFAULT,
+        divisor: this._divisor,
+        labelOffset: {
+          y: hasFrequencyData ? 12.5 : AXIS_X_DEFAULT.labelOffset.y
+        }
+      }
+    } as ILineChartOptions;
+  }
+
+  public getFrequencyLabelOptions = (series: ApiSeries[]): ILineChartOptions => {
+    return {
+      ...AXIS_Y_DEFAULT,
       height: series.length * 40,
-      showLine: false,
-      classNames: {
-        chart: 'ct-chart-line frequency'
-      },
       axisY: {
+        ...(AXIS_Y_DEFAULT.axisY),
         onlyInteger: true,
         labelInterpolationFnc: function (value: any, index: number) {
           const l = series.length;
@@ -77,7 +147,24 @@ export class ChartistOptions {
           }
         },
       },
-      axisX: hideLabel ? AXIS_X_OFF : AXIS_X_DEFAULT,
+    } as ILineChartOptions;
+  }
+
+  public getFrequencyChartOptions = (series: ApiSeries[], hideLabels: boolean = false): ILineChartOptions => {
+    return {
+      ...DEFAULT_CHART_OPTIONS,
+      ...FREQUENCY_OPTIONS,
+      height: series.length * 40,
+      width: this._width,
+      axisX: {
+        ...AXIS_X_DEFAULT,
+        divisor: this._divisor,
+        showLabel: !hideLabels
+      },
+      chartPadding: {
+        ...(DEFAULT_CHART_OPTIONS.chartPadding),
+        bottom: hideLabels ? 0 : 10
+      }
     } as ILineChartOptions;
   }
 

@@ -1,3 +1,43 @@
+.label-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: white;
+
+  // TODO: hack
+    width: 40px;
+    padding-left: 15px;
+
+  svg {
+    overflow: visible;
+  }
+}
+
+.graph-container {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  margin-left: 50px;
+  margin-bottom: 1em;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+   
+  &::-webkit-scrollbar-track {
+    background: #dddddd33;
+  }
+   
+  &::-webkit-scrollbar-thumb {
+    background: #66666633;
+  }
+
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background: #66666666;
+    }
+  }
+}
+
 svg.ct-chart-line.frequency {
   overflow: visible;
 }

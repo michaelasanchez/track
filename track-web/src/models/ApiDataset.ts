@@ -12,6 +12,7 @@ export class ApiDataset {
   public SeriesLabels: string[];
   
   public Span: string;
+  public Ticks: number;
 
   public NumericalSeries: ApiSeries[];
   public FrequencySeries: ApiSeries[];

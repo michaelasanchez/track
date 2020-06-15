@@ -24,23 +24,6 @@ $dataset-select-min-width: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-
-    &:hover {
-      svg {
-        opacity: 1;
-        transform: scale(1.05);
-        transition: all 300ms;
-
-        &.create,
-        &.save {
-          color: green;
-        }
-        // &.cancel,
-        &.delete {
-          color: red;
-        }
-      }
-    }
   }
 
   .divider {
@@ -50,5 +33,22 @@ $dataset-select-min-width: 100px;
 
   .icon {
     margin: 0 0.5rem;
+
+    &:hover:not(.disabled) {
+      svg {
+        opacity: 1;
+        transform: scale(1.05);
+        transition: all 300ms;
+
+        &.create,
+        &.save {
+          color: green;
+        }
+        &.cancel,
+        &.delete {
+          color: red;
+        }
+      }
+    }
   }
 }
