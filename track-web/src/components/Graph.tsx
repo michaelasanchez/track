@@ -37,7 +37,7 @@ const renderColorStyle = (series: ApiSeries[], className: string) => {
         return `
           .${className} .ct-series-${prefix} .ct-line,
           .${className} .ct-series-${prefix} .ct-point {
-            stroke: #${color};
+            stroke: ${color};
           }`;
       })}
     </style>
