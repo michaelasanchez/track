@@ -1,11 +1,9 @@
 import React = require('react');
-import { Home, BASE_PATH } from './components/Home';
+import { Home } from './components/Home';
 
 import { Security, LoginCallback } from '@okta/okta-react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-
-const BASE_URL = 'https://dev-183202.okta.com';
-const CLIENT_ID = '0oa3lofhdp9jIJk8B357';
+import { BASE_URL, CLIENT_ID, BASE_PATH } from './config';
 
 type AppProps = {};
 
@@ -22,6 +20,6 @@ const App: React.FunctionComponent<AppProps> = ({ }) => {
       </Security>
     </Router>
   )
-}
+} 
 
 export default App;

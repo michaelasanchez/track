@@ -16,11 +16,7 @@ import { Navbar } from './Navbar';
 import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
 import { ApiDataset } from '../models/ApiDataset';
-
-export const DOMAIN: string = 'https://localhost:44311';
-
-// TODO: Decide if we need this
-export const BASE_PATH: string = '';
+import { BASE_PATH } from '../config';
 
 
 const DEF_DATASET_ID = 1;
