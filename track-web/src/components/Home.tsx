@@ -152,7 +152,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
     // TODO: typescript private work-wround
     var req = new ApiRequest('Datasets').Post({
-      UserId: 1,  // TODO: figure out fk constraint. Can/should this be null?
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,

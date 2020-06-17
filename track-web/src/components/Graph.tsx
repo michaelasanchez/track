@@ -23,8 +23,10 @@ export enum GraphType {
 }
 
 export enum ChartZoom {
+  Month,
   Day,
-  Month
+  Hour,
+  Minute
 }
 
 const renderColorStyle = (series: ApiSeries[], className: string) => {
@@ -63,14 +65,24 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 }) => {
   // TODO: Toggle line/bar for frequency graph
   const [type, setType] = useState<GraphType>(defaultType);
-  
+
   const [refWidth, setRefWidth] = useState<number>();
 
   const ref = useRef<HTMLHeadingElement>(null);
   const { width, height } = useResize(ref);
 
   const span = new TimeSpan(dataset.Ticks);
-  const zoomMode = span.days > 15 ? ChartZoom.Month : ChartZoom.Day;
+
+  let zoomMode;
+  if (span.days > 15) {
+    zoomMode = ChartZoom.Month;
+  } else if (span.days > 1) {
+    zoomMode = ChartZoom.Day;
+  } else if (span.hours > 1) {
+    zoomMode = ChartZoom.Hour;
+  } else {
+    zoomMode = ChartZoom.Minute;
+  }
 
   const optionsFactory = new ChartistOptionsFactory(span, refWidth, zoomMode);
 
@@ -86,17 +98,21 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     }
   }, [width]);
 
-  let hasNumericalData: boolean,
-    hasFrequencyData: boolean;
+  let hasNumericalData = dataset?.NumericalSeries.length > 0;
+  let hasFrequencyData: boolean,
+    numericalData: ChartistData,
+    frequencyData: ChartistData;
   if (dataset) {
-    hasNumericalData = dataset.NumericalSeries.length > 0;
+    numericalData = new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries);
+
     hasFrequencyData = dataset.FrequencySeries.length > 0;
+    frequencyData = new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries);
   }
 
-  const lineLabels = (dataset: ApiDataset) => {
+  const lineLabels = () => {
     return (<>
       <ChartistGraph
-        data={new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
+        data={numericalData}
         options={optionsFactory.getNumericalLabelOptions()}
         type={type}
       />
@@ -107,7 +123,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     return (<>
       {renderColorStyle(dataset.NumericalSeries, 'numerical')}
       <ChartistGraph
-        data={new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries)}
+        data={numericalData}
         options={optionsFactory.getNumericalChartOptions(hasFrequencyData)}
         type={type}
       />
@@ -117,7 +133,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   const frequencyLabels = (dataset: ApiDataset) => {
     return (<>
       <ChartistGraph
-        data={new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
+        data={frequencyData}
         options={optionsFactory.getFrequencyLabelOptions(dataset.FrequencySeries)}
         type={type}
       />
@@ -128,7 +144,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     return (<>
       {renderColorStyle(dataset.FrequencySeries, 'frequency')}
       <ChartistGraph
-        data={new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries)}
+        data={frequencyData}
         options={optionsFactory.getFrequencyChartOptions(dataset.FrequencySeries, hasNumericalData)}
         type={type}
       />
@@ -147,7 +163,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     (
       <>
         <div className="label-container">
-          {hasNumericalData && lineLabels(dataset)}
+          {hasNumericalData && lineLabels()}
           {hasFrequencyData && frequencyLabels(dataset)}
         </div>
         <div className="graph-container" ref={ref}>

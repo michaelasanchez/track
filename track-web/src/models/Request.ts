@@ -3,8 +3,7 @@ import { Series } from "./Series";
 import { Record } from "./Record";
 import { Property } from "./Property";
 import { Note } from "./Note";
-import { ApiDataset } from "./ApiDataset";
-import { DOMAIN } from "../components/Home";
+import { DOMAIN } from "../config";
 
 class ApiRequest {
 

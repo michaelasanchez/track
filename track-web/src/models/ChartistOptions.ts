@@ -46,13 +46,7 @@ const AXIS_X_DEFAULT = {
   type: FixedScaleAxis,
   labelOffset: {
     y: 5
-  },
-  labelInterpolationFnc: function (value: any) {
-    const timeFormat = 'h:mma';
-    const dateFormat = 'MMM D';
-    return moment(value).format(`${dateFormat}`);
-    return moment(value).format(`${dateFormat} ${timeFormat}`);
-  },
+  }
 } as IChartistFixedScaleAxis;
 
 
@@ -77,6 +71,10 @@ const calcDivisor = (span: TimeSpan, zoom: ChartZoom): number => {
       return Math.round(span.days);
     case ChartZoom.Month:
       return Math.round(span.days / 30);
+    case ChartZoom.Hour:
+      return Math.round(span.hours);
+    case ChartZoom.Minute:
+      return Math.round(span.minutes);
   }
 }
 
@@ -84,11 +82,17 @@ const calcChartWidth = (span: TimeSpan, refWidth: number, zoom: ChartZoom): numb
 
   let chartWidth;
   switch (zoom) {
+    case ChartZoom.Month:
+      chartWidth = span.months * 100;
+      break;
     case ChartZoom.Day:
       chartWidth = span.days * 100;
       break;
-    case ChartZoom.Month:
-      chartWidth = (span.days / 30) * 100;
+    case ChartZoom.Hour:
+      chartWidth = span.hours * 100;
+      break;
+    case ChartZoom.Minute:
+      chartWidth = span.minutes * 100;
       break;
   }
 
@@ -98,15 +102,37 @@ const calcChartWidth = (span: TimeSpan, refWidth: number, zoom: ChartZoom): numb
   return chartWidth < refWidth ? refWidth : chartWidth;
 }
 
+const getDateFormat = (zoom: ChartZoom) => {
+  switch (zoom) {
+    case ChartZoom.Month:
+      return 'MMM \'YY'
+    case ChartZoom.Day:
+      return 'MMM D'
+    case ChartZoom.Hour:
+      return 'MMM D h:mma'
+    case ChartZoom.Minute:
+      return 'h:mma'
+  }
+}
+
 // TODO: Not sure if this makes sense as a class?
 export class ChartistOptionsFactory {
 
+  private _zoomMode: ChartZoom;
+
   private _width: number;
   private _divisor: number;
+  private _dateFormat: string;
 
   constructor(span: TimeSpan, refWidth: number, zoom: ChartZoom) {
+    this._zoomMode = zoom;
+
+    // console.log('SPAN', span)
+    // console.log('ZOOM', ChartZoom[zoom])
+
     this._width = calcChartWidth(span, refWidth, zoom);
     this._divisor = calcDivisor(span, zoom);
+    this._dateFormat = getDateFormat(zoom);
   }
 
   public getNumericalLabelOptions = (): ILineChartOptions => {
@@ -127,6 +153,9 @@ export class ChartistOptionsFactory {
         divisor: this._divisor,
         labelOffset: {
           y: hasFrequencyData ? 12.5 : AXIS_X_DEFAULT.labelOffset.y
+        },
+        labelInterpolationFnc: (value: any, i: number) => {
+          return moment(value).format(this._dateFormat)
         }
       }
     } as ILineChartOptions;
@@ -159,7 +188,10 @@ export class ChartistOptionsFactory {
       axisX: {
         ...AXIS_X_DEFAULT,
         divisor: this._divisor,
-        showLabel: !hideLabels
+        showLabel: !hideLabels,
+        labelInterpolationFnc: (value: any, i: number) => {
+          return moment(value).format(this._dateFormat)
+        }
       },
       chartPadding: {
         ...(DEFAULT_CHART_OPTIONS.chartPadding),

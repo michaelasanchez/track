@@ -19,7 +19,7 @@ import {
   faPlusCircle as createIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { UserMode } from '../shared/enums';
-import { BASE_PATH } from './Home';
+import { BASE_PATH } from '../config';
 
 export enum ToolbarAction {
   Create,

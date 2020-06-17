@@ -11,7 +11,7 @@ namespace track_api.Models.Db
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         [ForeignKey("UserId")]
         public virtual User User { get; set; }

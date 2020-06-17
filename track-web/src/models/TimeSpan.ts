@@ -1,5 +1,6 @@
 export class TimeSpan {
   
+  public months: number;
   public days: number;
   public hours: number;
   public minutes: number;
@@ -10,5 +11,6 @@ export class TimeSpan {
     this.minutes = this.seconds / 60;
     this.hours = this.minutes / 60;
     this.days = this.hours / 24;
+    this.months = this.days / 30;
   }
 }
