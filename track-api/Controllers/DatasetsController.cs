@@ -51,7 +51,7 @@ namespace track_api.Controllers
             }
             else
             {
-                dbDataset = db.Datasets.Where(dataset => dataset.Id == key && dataset.UserId == user.Id);
+                dbDataset = db.Datasets.Where(dataset => dataset.Id == key && (dataset.UserId == user.Id || dataset.Private == false));
             }
 
             return SingleResult.Create(dbDataset);
@@ -106,7 +106,6 @@ namespace track_api.Controllers
             var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
             if (user != null)
             {
-                //dataset.User.Id = user.Id;
                 dataset.User = new User
                 {
                     Id = user.Id
@@ -146,6 +145,13 @@ namespace track_api.Controllers
             if (dataset == null)
             {
                 return NotFound();
+            }
+
+            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
+            if (user == null)
+            {
+                // TODO: Return a bad request instead
+                dataset.Private = false;
             }
 
             patch.Patch(dataset);
