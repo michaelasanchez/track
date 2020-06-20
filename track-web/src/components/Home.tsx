@@ -17,6 +17,7 @@ import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
 import { ApiDataset } from '../models/ApiDataset';
 import { BASE_PATH } from '../config';
+import { useRequest } from '../hooks/useRequest';
 
 
 const DEF_DATASET_ID = 1;
@@ -77,8 +78,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       setApiDataset(apiDatasetCache[cachedIndex]);
 
     } else {
-      const datasetRequest = new ApiRequest('Datasets', id).Expand('Series').Expand('Records/Properties').Get(authState.accessToken);
-      const apiDatasetRequest = new ApiRequest('ApiDatasets').Id(id).GetApiDataset();
+      const datasetRequest = new ApiRequest().EntityType('Datasets').Id(id).Expand('Series').Token(authState.accessToken).Get();
+      const apiDatasetRequest = new ApiRequest().EntityType('ApiDatasets').Id(id).GetApiDataset();
 
       Promise.all([
         datasetRequest,
@@ -122,16 +123,14 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
-    new ApiRequest('Datasets').Filter('Archived eq false').Get(authState.accessToken)
-      .then(d => {
+    new ApiRequest().EntityType('Datasets').Filter('Archived eq false').Token(authState.accessToken).Get()
+      .then((d: any) => {
         setDatasetList(d.value as Dataset[]);
 
-        const id = defaultDatasetId(d.value);
-        
         if (!skipDatasetLoad)
-          loadDataset(id);
+          loadDataset(defaultDatasetId(d.value));
       })
-      .catch((error) => {
+      .catch((error: any) => {
         errors.push(error);
         setErrors(errors);
       });
@@ -151,14 +150,14 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
 
     // TODO: typescript private work-wround
-    var req = new ApiRequest('Datasets').Post({
+    var req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Post({
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
-    } as Dataset, authState.accessToken);
+    } as Dataset);
 
-    req.then(dataset => {
-      loadDatasetList();
+    req.then((dataset: Dataset) => {
+      loadDatasetList(true);
       loadDataset(dataset.Id);
     });
   }

@@ -106,15 +106,15 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   return (
     <>
       <Form>
+        <Form.Group>
+          <Form.Label>Date</Form.Label>
+          <DateTimePicker date={record?.DateTime ?? new Date()} updateDate={handleUpdateDate} disabled={disabled} />
+        </Form.Group>
         {map(seriesList, (s: Series, i: number) =>
           <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
             {renderPropertyInput(s, i)}
           </Form.Group>
         )}
-        <Form.Group>
-          <Form.Label>Date</Form.Label>
-          <DateTimePicker date={record?.DateTime ?? new Date()} updateDate={handleUpdateDate} disabled={disabled} />
-        </Form.Group>
         <Form.Group>
           <Form.Label>Note</Form.Label>
           <Form.Control as="textarea" defaultValue={record?.Notes.length ? record.Notes[0].Text : ''} rows="3" onBlurCapture={updateNote} disabled={disabled} />

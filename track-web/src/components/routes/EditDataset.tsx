@@ -18,8 +18,8 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
   allowPrivate = false,
 }) => {
   
-  const updateDataset = (dataset: Dataset) => new ApiRequest('Datasets').Patch(dataset);
-  const updateSeries = (series: Series) => new ApiRequest('Series').Patch(series);
+  const updateDataset = (dataset: Dataset) => new ApiRequest().EntityType('Datasets').Patch(dataset);
+  const updateSeries = (series: Series) => new ApiRequest().EntityType('Series').Patch(series);
 
   const handleDatasetPrivateChange = (e: any, datasetId: number) => {
     const updatedDataset = {
@@ -27,8 +27,8 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       Private: e.currentTarget.checked,
     } as Dataset;
     const req = updateDataset(updatedDataset);
-    req.then(_ => {
-      refreshList();
+    req.then(() => {
+      refreshList(true);
       refreshDataset(dataset.Id, true);
     });
   }
@@ -38,8 +38,8 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       Id: datasetId,
       Label: e.nativeEvent.srcElement.value
     } as Dataset);
-    req.then(_ => {
-      refreshList();
+    req.then(() => {
+      refreshList(true);
       refreshDataset(dataset.Id, true);
     });
   }
@@ -49,7 +49,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       Id: seriesId,
       Label: e.nativeEvent.srcElement.value
     } as Series);
-    req.then(_ => refreshDataset(dataset.Id, true));
+    req.then(() => refreshDataset(dataset.Id, true));
   }
 
   const handleColorChange = (e: any, seriesId: number) => {
@@ -57,7 +57,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       Id: seriesId,
       Color: e.hex.replace('#', '')
     } as Series);
-    req.then(_ => refreshDataset(dataset.Id, true));
+    req.then(() => refreshDataset(dataset.Id, true));
   }
 
   return (

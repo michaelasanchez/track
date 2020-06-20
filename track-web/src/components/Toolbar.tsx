@@ -48,7 +48,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   const [show, setShow] = useState(false);
 
-  const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
+  const archiveDataset = (dataset: Dataset) => new ApiRequest().EntityType('Datasets').Delete(dataset);
 
   const handleShow = () => setShow(true);
 

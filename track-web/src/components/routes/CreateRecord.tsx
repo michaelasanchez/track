@@ -63,14 +63,14 @@ const CreateRecord: React.FunctionComponent<CreateRecordProps> = ({ dataset, ref
   }
 
   function addRecord(e: any) {
-    const req = new ApiRequest('Records').Post(
+    const req = new ApiRequest().EntityType('Records').Post(
       {
         DatasetId: dataset.Id,
         DateTime: record.DateTime,
         Properties: filter(record.Properties, (p: Property) => p.Value.length),
       } as Record);
 
-    req.then(resp => {
+    req.then(() => {
       setRecord(newRecordState(dataset));
       refreshDataset(dataset.Id, true);
     });

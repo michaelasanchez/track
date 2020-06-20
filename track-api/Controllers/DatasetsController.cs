@@ -22,12 +22,17 @@ namespace track_api.Controllers
     {
         private ModelContext db = new ModelContext();
 
+        private User user;
+
+        public DatasetsController()
+        {
+            user = UserUtils.GetUserFromContext(db, HttpContext.Current);
+        }
+
         // GET: odata/Datasets
         [EnableQuery]
         public IQueryable<Dataset> GetDatasets()
         {
-            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
-
             if (user == null)
             {
                 return db.Datasets.Where(z => z.Private == false);
@@ -42,8 +47,6 @@ namespace track_api.Controllers
         [EnableQuery]
         public SingleResult<Dataset> GetDataset([FromODataUri] int key)
         {
-            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
-
             IQueryable<Dataset> dbDataset;
             if (user == null)
             {
@@ -103,7 +106,6 @@ namespace track_api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
             if (user != null)
             {
                 dataset.User = new User
@@ -147,7 +149,6 @@ namespace track_api.Controllers
                 return NotFound();
             }
 
-            var user = UserUtils.GetUserFromContext(db, HttpContext.Current);
             if (user == null)
             {
                 // TODO: Return a bad request instead

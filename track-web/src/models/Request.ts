@@ -1,8 +1,8 @@
 import { Dataset } from "./Dataset";
 import { Series } from "./Series";
 import { Record } from "./Record";
-import { Property } from "./Property";
-import { Note } from "./Note";
+
+import { useOktaAuth } from '@okta/okta-react';
 import { DOMAIN } from "../config";
 
 class ApiRequest {
@@ -22,24 +22,24 @@ class ApiRequest {
     // referrerPolicy: 'no-referrer', // no-referrer, *client
   };
 
-  private entity: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes';
+  private _entityType: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records';
   private id: number;
+  private _token: any;
+
   private expands: string[];
   private filters: string[];
 
-  constructor(entity: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Notes' | 'Properties' | 'SeriesTypes', id: number = null) {
-    this.entity = entity;
-    if (id) this.id = id;
+  constructor() {
     this.expands = [];
     this.filters = [];
   }
 
   private buildApiUrlString(idOverride: number = null): string {
-    return `${this.API_URL}${this.entity}/${idOverride || this.id}`;
+    return `${this.API_URL}${this._entityType}/${idOverride || this.id}`;
   }
 
   private buildOdataUrlString(idOverride: number = null): string {
-    var urlString = `${this.ODATA_URL}${this.entity}${this.getIdArg(idOverride)}`;
+    var urlString = `${this.ODATA_URL}${this._entityType}${this.getIdArg(idOverride)}`;
     if (this.expands.length || this.filters.length)
       return `${urlString}?${this.getExpandArg()}${this.getFilterArg()}`;
     return urlString;
@@ -72,6 +72,16 @@ class ApiRequest {
       });
   }
 
+  public Token = (token: any) => {
+    this._token = token;
+    return this;
+  }
+
+  public EntityType = (entityType: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records') => {
+    this._entityType = entityType;
+    return this;
+  }
+
   public Id = (id: number) => {
     this.id = id;
     return this;
@@ -88,34 +98,34 @@ class ApiRequest {
   }
 
   // GET ApiDataset
-  public GetApiDataset = (token?: any) => {
-    const params = !token ? null : {
-      headers: this.buildAuthHeader(token)
+  public GetApiDataset = () => {
+    const params = !this._token ? null : {
+      headers: this.buildAuthHeader(this._token)
     };
     return this.execute(this.buildApiUrlString(), params);
   }
   
   // DELETE ApiDataset
-  public ArchiveDataset = (idOverride: number, token?: any) => {
-    const params = !token ? null : {
-      headers: this.buildAuthHeader(token)
+  public ArchiveDataset = (idOverride: number) => {
+    const params = !this._token ? null : {
+      headers: this.buildAuthHeader(this._token)
     };
     return this.execute(this.buildApiUrlString(idOverride), params);
   }
 
-  public Get = (token?: any) => {
-    const params = !token ? null : {
-      headers: this.buildAuthHeader(token)
+  public Get = () => {
+    const params = !this._token ? null : {
+      headers: this.buildAuthHeader(this._token)
     };
     return this.execute(this.buildOdataUrlString(), params);
   }
 
-  public Post = (entity: Dataset | Record | Property | Note, token?: string) => {
+  public Post = (entity: Dataset | Record) => {
     return this.execute(this.buildOdataUrlString(),
     {
       method: 'POST',
       headers: {
-        Authorization: token ? 'Bearer ' + token : null,
+        Authorization: this._token ? 'Bearer ' + this._token : null,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(entity)
