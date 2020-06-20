@@ -147,9 +147,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const createDataset = (dataset: Dataset) => {
+    // TODO: This fires from toolbar. Dataset edits occur in form
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
 
-    // TODO: typescript private work-wround
     var req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Post({
       Private: dataset.Private,
       Label: dataset.Label,

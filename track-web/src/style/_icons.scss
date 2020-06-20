@@ -11,4 +11,9 @@
   &.disabled {
     opacity: .2;
   }
+
+  &.archive,
+  &.unarchive{
+    width: 20px;
+  }
 }

@@ -24,7 +24,7 @@ namespace track_api.Converters
             apiDataset.SeriesLabels = new List<DateTime>();
 
             var series = new List<ApiSeries>();
-            foreach (Series s in dataset.Series)
+            foreach (Series s in dataset.Series.Where(s => s.Visible))
             {
                 series.Add(new ApiSeries(s));
             }

@@ -14,6 +14,7 @@ using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
 using track_api.Models.Db;
 using track_api.Utils;
+using Z.EntityFramework.Plus;
 
 namespace track_api.Controllers
 {
@@ -57,6 +58,9 @@ namespace track_api.Controllers
                 dbDataset = db.Datasets.Where(dataset => dataset.Id == key && (dataset.UserId == user.Id || dataset.Private == false));
             }
 
+            //dbDataset = dbDataset.IncludeFilter(d => d.Series.Where(s => s.Visible));
+
+            //return dbDataset.First();
             return SingleResult.Create(dbDataset);
         }
 

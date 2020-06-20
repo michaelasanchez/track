@@ -60,6 +60,14 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
     req.then(() => refreshDataset(dataset.Id, true));
   }
 
+  const archiveSeries = (e: any, seriesId: number, value: boolean) => {
+    const req = updateSeries({
+      Id: seriesId,
+      Visible: value
+    } as Series);
+    req.then(() => refreshDataset(dataset.Id, true));
+  }
+
   return (
     <DatasetForm
       dataset={dataset}
@@ -68,6 +76,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
       onLabelChange={handleLabelChange}
       onColorChange={handleColorChange}
       allowPrivate={allowPrivate}
+      archiveSeries={archiveSeries}
     />
   );
 }

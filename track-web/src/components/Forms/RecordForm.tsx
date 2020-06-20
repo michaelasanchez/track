@@ -85,7 +85,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         break;
     }
 
-    const colorLabel = <div className="color" style={{ backgroundColor: `#${s.Color?s.Color:DEFAULT_CHARTIST_COLORS[index]}` }} />;
+    const colorLabel = <div className="color" style={{ backgroundColor: `#${s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[index]}` }} />;
 
     if (s.TypeId == SeriesType.Boolean) {
       return <>
@@ -112,7 +112,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         </Form.Group>
         {map(seriesList, (s: Series, i: number) =>
           <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
-            {renderPropertyInput(s, i)}
+            {s.Visible && renderPropertyInput(s, i)}
           </Form.Group>
         )}
         <Form.Group>

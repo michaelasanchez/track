@@ -8,6 +8,11 @@ namespace track_api.Models.Db
 
     public partial class Series
     {
+        public Series()
+        {
+            Visible = true;
+        }
+
         public int Id { get; set; }
 
         public int DatasetId { get; set; }

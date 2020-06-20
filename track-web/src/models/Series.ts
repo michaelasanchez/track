@@ -5,4 +5,5 @@ export class Series{
   public Label: string;
   public Color: string;
   public Order: number;
+  public Visible: boolean;
 }

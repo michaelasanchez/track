@@ -7,7 +7,11 @@ import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as deleteIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faTimes as deleteIcon,
+  faEye as archiveIcon,
+  faEyeSlash as unarchiveIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
 import { DEFAULT_CHARTIST_COLORS } from "../../models/ChartistOptions"
@@ -23,6 +27,7 @@ type DatasetFormProps = {
   onColorChange: Function,
   createMode?: boolean,
   deleteSeries?: Function,
+  archiveSeries?: Function,
   allowPrivate?: boolean,
 }
 
@@ -35,6 +40,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   onColorChange,
   createMode = false,
   deleteSeries = null,
+  archiveSeries = null,
   allowPrivate = false,
 }) => {
 
@@ -59,9 +65,14 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
 
             <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[index]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
 
-            {createMode && dataset.Series.length > 2 &&
-              <Button variant={'link'} onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
-                <FontAwesomeIcon icon={deleteIcon} color="gray" className={`icon ${className}`} />
+            {createMode ?
+              dataset.Series.length > 2 &&
+              <Button variant="link" onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
+                <FontAwesomeIcon color="gray" className={`icon ${className}`} icon={deleteIcon} />
+              </Button>
+              :
+              <Button variant="link" onClick={(e: any) => archiveSeries(e, s.Id, !s.Visible)} tabIndex={-1}>
+                <FontAwesomeIcon color="gray" className={`icon ${s.Visible ? 'archive' : 'unarchive'} ${className}`} icon={s.Visible ? archiveIcon : unarchiveIcon} />
               </Button>}
 
             {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}

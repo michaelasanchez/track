@@ -7,13 +7,20 @@ $pending-row-opacity: .5;
   &.flex {
     display: flex;
 
-    // TODO: var
     .form-control {
       margin-right: 1rem;
     }
 
     .color-picker {
       width: 100%;
+    }
+
+    .btn {
+      // margin-left: 1rem;
+
+      &:focus {
+        box-shadow: none;
+      }
     }
   }
 }

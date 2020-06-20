@@ -66,12 +66,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     }
   };
 
-  const renderDivider = () => {
-    return <div className="divider" />;
-  }
-
-  const getOptions = map(datasetList, d => { return { value: d.Id, label: d.Label } });
-
   /* Select */
   const renderDatasetSelect = () => {
     return (
