@@ -19,7 +19,6 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
   updateDataset,
   allowPrivate = false,
 }) => {
-  const [nextSeriesIndex, setNextSeriesIndex] = useState<number>(2);
 
   // TODO: Just get rid of this. Should happen on dataset init
   if (!dataset.Series.length) {
@@ -29,6 +28,8 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
           Id: i,
           Label: '',
           TypeId: DEF_SERIES_TYPE_ID,
+          Visible: true,
+          Order: i
         } as Series);
     });
   }
@@ -93,12 +94,13 @@ const CreateDataset: React.FunctionComponent<CreateDatasetProps> = ({
     // TODO: updateValue is based on text input blur. this could break something else
     if (updatedIndex == dataset.Series.length - 1 && updatedValue !== '') {
       dataset.Series.push({
-        Id: nextSeriesIndex,
+        Id: dataset.Series.length,
         Label: '',
         TypeId: DEF_SERIES_TYPE_ID,
+        Visible: true,
+        Order: dataset.Series.length
       } as Series);
     }
-    setNextSeriesIndex(i => i + 1);
   }
 
   const removeSeries = (e: any, seriesId: number) => {

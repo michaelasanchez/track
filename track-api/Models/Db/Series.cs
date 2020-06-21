@@ -26,7 +26,6 @@ namespace track_api.Models.Db
 
         public string Unit { get; set; }
 
-        [NotMapped]
         public int Order { get; set; }
 
         public bool Visible { get; set; }

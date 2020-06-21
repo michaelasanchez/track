@@ -279,6 +279,10 @@
     <Compile Include="Migrations\202006170328325_MakeDatasetUserIdNullable.designer.cs">
       <DependentUpon>202006170328325_MakeDatasetUserIdNullable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202006210314055_AddSeriesOrder.cs" />
+    <Compile Include="Migrations\202006210314055_AddSeriesOrder.designer.cs">
+      <DependentUpon>202006210314055_AddSeriesOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
     <Compile Include="Models\Api\ApiSeries.cs" />
@@ -331,6 +335,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202006170328325_MakeDatasetUserIdNullable.resx">
       <DependentUpon>202006170328325_MakeDatasetUserIdNullable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202006210314055_AddSeriesOrder.resx">
+      <DependentUpon>202006210314055_AddSeriesOrder.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -1,7 +1,4 @@
 import { ApiSeries } from "./ApiSeries";
-import { filter } from "lodash";
-import { SeriesType } from "../shared/enums";
-import { Moment } from "moment";
 
 export class ApiDataset {
 

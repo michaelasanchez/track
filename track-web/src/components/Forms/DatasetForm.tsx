@@ -2,7 +2,7 @@ import { Dataset } from "../../models/Dataset"
 import React from "react"
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { Series } from "../../models/Series"
-import { map } from "lodash"
+import { map, filter, some } from "lodash"
 import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
 
@@ -63,7 +63,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
               })}
             </Form.Control>}
 
-            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[index]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
+            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[s.Order]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
 
             {createMode ?
               dataset.Series.length > 2 &&
@@ -74,8 +74,6 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
               <Button variant="link" onClick={(e: any) => archiveSeries(e, s.Id, !s.Visible)} tabIndex={-1}>
                 <FontAwesomeIcon color="gray" className={`icon ${s.Visible ? 'archive' : 'unarchive'} ${className}`} icon={s.Visible ? archiveIcon : unarchiveIcon} />
               </Button>}
-
-            {/* <FontAwesomeIcon icon={visibleIcon} color="gray" className="icon visible" /> */}
           </Col>
         </Row>
       </Form.Group>
@@ -128,9 +126,17 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
         </Row>
       </Form.Group>
       <h5>Series</h5>
-      {map(dataset.Series, (s: Series, index: number) => {
+      {filter(dataset.Series, s => s.Visible).map((s: Series, index: number) => {
         return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
       })}
+      {some(dataset.Series, s => !s.Visible) &&
+        <>
+          <h6>Hidden</h6>
+          {filter(dataset.Series, s => !s.Visible).map((s: Series, index: number) => {
+            return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
+          })}
+        </>
+      }
     </Form>
   )
 }
