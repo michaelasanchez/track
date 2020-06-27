@@ -1,16 +1,50 @@
 .picker-container {
   position: absolute;
-  transform: translateX(-255px);
-  left: 50%;
-  top: 48px;
+  right: 0;
+  top: 44px;
   z-index: 1;
+
+  // compact-picker
+  > div {
+    padding: 3px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+  }
+}
+
+.compact-picker {
+  > div > span > div {
+    border-radius: 2px;
+  }
+
+  .flexbox-fix {
+    div:first-child {
+      display: none;
+    }
+    span {
+      top: 5px !important;
+    }
+
+    div:nth-child(2) input {
+      margin-left: 0px;
+    }
+
+    input {
+      border: 1px solid #e0e0e0 !important;
+      border-radius: 2px;
+      padding: 0 2px !important;
+      margin-left: 11px;
+      height: 17px !important;
+      width: 65% !important;
+    }
+  }
 }
 
 .color-picker {
   position: relative;
   max-width: 46px;
 
-  input {
+  > input {
     cursor: pointer;
   }
 
@@ -22,8 +56,5 @@
     border: 1px solid #ced4da !important;
     box-shadow: $picker-box-shadow !important;
     width: 278px !important;
-    // div:nth-child(1) {
-    //   left: calc(12px - 90%)
-    // }
   }
 }

@@ -10,7 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTimes as deleteIcon,
   faEye as archiveIcon,
-  faEyeSlash as unarchiveIcon
+  faEyeSlash as unarchiveIcon,
+  faPlusCircle as addIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
@@ -20,28 +21,30 @@ var HtmlToReactParser = require('html-to-react').Parser;
 
 type DatasetFormProps = {
   dataset: Dataset,
-  onPrivateChange: Function,
-  onDatasetLabelChange: Function,
-  onLabelChange: (e: any, seriesId: number) => void,
-  onTypeChange?: Function,
-  onColorChange: Function,
   createMode?: boolean,
-  deleteSeries?: Function,
-  archiveSeries?: Function,
   allowPrivate?: boolean,
+  onPrivateChange: (e: any, datasetId: number) => void,
+  onDatasetLabelChange: (e: any, datasetId: number) => void,
+  onLabelChange: (e: any, seriesId: number) => void,
+  onColorChange: (e: any, seriesId: number) => void,
+  onTypeChange?: (e: any, seriesId: number) => void,
+  onVisibleChange?: (e: any, seriesId: number, value: boolean) => void,
+  addSeries?: (e: any) => void,
+  deleteSeries?: (e: any, seriesId: number) => void,
 }
 
 const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   dataset,
+  createMode = false,
+  allowPrivate = false,
   onPrivateChange,
   onDatasetLabelChange,
   onLabelChange,
   onTypeChange,
   onColorChange,
-  createMode = false,
-  deleteSeries = null,
-  archiveSeries = null,
-  allowPrivate = false,
+  onVisibleChange,
+  addSeries,
+  deleteSeries,
 }) => {
 
   const colWidth = {
@@ -71,9 +74,10 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
                 <FontAwesomeIcon color="gray" className={`icon ${className}`} icon={deleteIcon} />
               </Button>
               :
-              <Button variant="link" onClick={(e: any) => archiveSeries(e, s.Id, !s.Visible)} tabIndex={-1}>
+              <Button variant="link" onClick={(e: any) => onVisibleChange(e, s.Id, !s.Visible)} tabIndex={-1}>
                 <FontAwesomeIcon color="gray" className={`icon ${s.Visible ? 'archive' : 'unarchive'} ${className}`} icon={s.Visible ? archiveIcon : unarchiveIcon} />
               </Button>}
+
           </Col>
         </Row>
       </Form.Group>
@@ -102,7 +106,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     <Form className={`form-dataset ${createMode ? 'create' : 'edit'}`}>
       <Form.Group>
         <Row>
-          <Col {...colWidth} className="d-flex justify-content-end">
+          <Col { ...colWidth} className="d-flex justify-content-end">
             <span>{dataset.Private ? 'Private' : 'Public'}</span>
             {allowPrivate ? renderPrivateSwitch() :
               <OverlayTrigger
@@ -125,18 +129,31 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
           </Col>
         </Row>
       </Form.Group>
+
       <h5>Series</h5>
       {filter(dataset.Series, s => s.Visible).map((s: Series, index: number) => {
         return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
       })}
+
+      <Form.Group>
+        <Row>
+          <Col {...colWidth} className="text-center">
+            {!createMode &&
+              <Button variant="link" className="add text-secondary" onClick={(e: any) => addSeries(e)}>
+                <FontAwesomeIcon icon={addIcon} color="gray" className={`icon`} />Add Series
+              </Button>}
+          </Col>
+        </Row>
+      </Form.Group>
+
       {some(dataset.Series, s => !s.Visible) &&
         <>
-          <h6>Hidden</h6>
+          <h6 className="text-muted">Hidden</h6>
           {filter(dataset.Series, s => !s.Visible).map((s: Series, index: number) => {
             return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
           })}
-        </>
-      }
+        </>}
+
     </Form>
   )
 }

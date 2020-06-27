@@ -1,5 +1,5 @@
 $input-transition: opacity 0.3s;
-$pending-row-opacity: .5;
+$pending-row-opacity: 0.5;
 
 // .col,
 // .col-md-6,
@@ -30,28 +30,29 @@ form {
 
   .color {
     display: inline-block;
-    background-color: red;
+    background-color: var(--red);
     border-radius: 2px;
-    height: .8em;
-    width: .8em;
-    margin-right: .5em;
+    height: 0.8em;
+    width: 0.8em;
+    margin-right: 0.5em;
 
     & + .custom-control {
       display: inline-block;
-    };
+    }
   }
 
   // Checkboxes
   .custom-control {
-    input, label {
+    input,
+    label {
       cursor: pointer;
     }
   }
-  
+
   // .form-label, input {
   //   cursor: pointer;
   // }
-  
+
   input,
   select {
     transition: $input-transition;
@@ -59,7 +60,6 @@ form {
 
   /* Dataset Form */
   &.form-dataset {
-
     //  Private/Public Switch
     .check-private {
       margin-left: 0.4rem;
@@ -68,7 +68,7 @@ form {
     // Pending series row
     .pending {
       opacity: $pending-row-opacity;
-  
+
       &:focus {
         opacity: 1;
       }
@@ -77,6 +77,21 @@ form {
     // Only series type select (for now)
     select {
       width: auto;
+    }
+
+    // Add series
+    .btn.add {
+      .icon {
+        margin-right: 0.5rem;
+      }
+
+      // hack for icon in button
+      &:hover {
+        .icon {
+          color: var(--green);
+          opacity: 1;
+        }
+      }
     }
   }
 }

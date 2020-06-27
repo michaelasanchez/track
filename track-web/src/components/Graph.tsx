@@ -34,7 +34,7 @@ const renderColorStyle = (series: ApiSeries[], className: string) => {
     <style>
       {map(series, (s, i) => {
         const prefix = SERIES_PREFIXES.substr(i, 1);
-        const color = s.Color || DEFAULT_CHARTIST_COLORS[s.Order];
+        const color = s.Color || `#${DEFAULT_CHARTIST_COLORS[s.Order]}`;
 
         return `
           .${className} .ct-series-${prefix} .ct-line,
@@ -53,10 +53,6 @@ const labelStyle = {
   transform: 'translate(-50%, -50%)',
   boxShadow: '0 0 0 4px #ffffffcc',
   backgroundColor: '#e2e3e5aa'
-}
-
-const calcZoom = (span: TimeSpan): ChartZoom => {
-  return span.days > 15 ? ChartZoom.Month : ChartZoom.Day;
 }
 
 const Graph: React.FunctionComponent<GraphProps> = ({
@@ -86,9 +82,10 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   const optionsFactory = new ChartistOptionsFactory(span, refWidth, zoomMode);
 
-  // Set initial width
+  // Set initial width & scroll
   useEffect(() => {
     setRefWidth(ref.current.offsetWidth);
+    ref.current.scrollLeft = ref.current.scrollWidth;
   }, [ref.current, dataset]);
 
   // Update width on resize

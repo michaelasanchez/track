@@ -1,15 +1,20 @@
 
 .icon {
   opacity: 0.4;
-  transition: opacity 150ms;
+  transition: all 200ms;
 
   &.active,
   &:hover {
     opacity: 1;
   }
 
+  &:hover {
+    transform: scale(1.05);
+  }
+
   &.disabled {
     opacity: .2;
+    transform: scale(1);
   }
 
   &.archive,

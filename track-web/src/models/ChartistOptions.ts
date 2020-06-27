@@ -65,36 +65,21 @@ const AXIS_Y_DEFAULT = {
   }
 } as ILineChartOptions;
 
-const calcDivisor = (span: TimeSpan, zoom: ChartZoom): number => {
+const getTimeSpanValue = (span: TimeSpan, zoom: ChartZoom): number => {
   switch (zoom) {
-    case ChartZoom.Day:
-      return Math.round(span.days);
     case ChartZoom.Month:
-      return Math.round(span.days / 30);
+      return span.months;
+    case ChartZoom.Day:
+      return span.days;
     case ChartZoom.Hour:
-      return Math.round(span.hours);
+      return span.hours;
     case ChartZoom.Minute:
-      return Math.round(span.minutes);
+      return span.minutes;
   }
 }
 
 const calcChartWidth = (span: TimeSpan, refWidth: number, zoom: ChartZoom): number => {
-
-  let chartWidth;
-  switch (zoom) {
-    case ChartZoom.Month:
-      chartWidth = span.months * 100;
-      break;
-    case ChartZoom.Day:
-      chartWidth = span.days * 100;
-      break;
-    case ChartZoom.Hour:
-      chartWidth = span.hours * 100;
-      break;
-    case ChartZoom.Minute:
-      chartWidth = span.minutes * 100;
-      break;
-  }
+  let chartWidth = getTimeSpanValue(span, zoom) * 100; // px
 
   // const zoomFill = refWidth / chartWidth;
   // return chartWidth < refWidth ? chartWidth * zoomFill : chartWidth;
@@ -108,6 +93,7 @@ const getDateFormat = (zoom: ChartZoom) => {
       return 'MMM \'YY'
     case ChartZoom.Day:
       return 'MMM D'
+      // return 'MMM D h:mma'
     case ChartZoom.Hour:
       return 'MMM D h:mma'
     case ChartZoom.Minute:
@@ -117,21 +103,17 @@ const getDateFormat = (zoom: ChartZoom) => {
 
 // TODO: Not sure if this makes sense as a class?
 export class ChartistOptionsFactory {
-
-  private _zoomMode: ChartZoom;
-
+  
   private _width: number;
   private _divisor: number;
   private _dateFormat: string;
 
   constructor(span: TimeSpan, refWidth: number, zoom: ChartZoom) {
-    this._zoomMode = zoom;
 
-    // console.log('SPAN', span)
-    // console.log('ZOOM', ChartZoom[zoom])
-
+    // When zoom is set to day, divisor is equal to number of day, rounded
+    this._divisor = Math.round(getTimeSpanValue(span, zoom));
+    
     this._width = calcChartWidth(span, refWidth, zoom);
-    this._divisor = calcDivisor(span, zoom);
     this._dateFormat = getDateFormat(zoom);
   }
 

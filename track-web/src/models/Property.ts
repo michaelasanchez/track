@@ -7,6 +7,6 @@ export class Property {
 
   constructor(seriesId: number, value: string = null) {
     this.SeriesId = seriesId;
-    if (value != null) this.Value = value;
+    if (!!value) this.Value = value;
   }
 }

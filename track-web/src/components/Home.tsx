@@ -3,13 +3,13 @@ import { Row, Col } from "react-bootstrap";
 import { map, filter, findIndex, each } from 'lodash';
 import Toolbar, { ToolbarAction } from "./Toolbar";
 import { Route } from 'react-router-dom';
-import EditDataset from "./routes/EditDataset";
+import EditDataset from "./actions/EditDataset";
 import ApiRequest from "../models/Request";
-import CreateRecord from "./routes/CreateRecord";
+import CreateRecord from "./actions/CreateRecord";
 import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
-import CreateDataset from './routes/CreateDataset';
+import CreateDataset from './actions/CreateDataset';
 import { Series } from '../models/Series';
 import { Dataset } from '../models/Dataset';
 import { Navbar } from './Navbar';

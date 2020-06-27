@@ -123,7 +123,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     <>
       <div className="toolbar-left">
         <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)} >
-          <FontAwesomeIcon icon={editActive} color="gray" className="icon cancel" />
+          <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
         </Link>
         {/* <Link to="/">
           <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />

@@ -105,7 +105,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
 
   return (
     <>
-      <Form>
+      <Form className="form-record">
         <Form.Group>
           <Form.Label>Date</Form.Label>
           <DateTimePicker date={record?.DateTime ?? new Date()} updateDate={handleUpdateDate} disabled={disabled} />

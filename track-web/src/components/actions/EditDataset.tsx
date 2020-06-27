@@ -22,15 +22,10 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
   const updateSeries = (series: Series) => new ApiRequest().EntityType('Series').Patch(series);
 
   const handleDatasetPrivateChange = (e: any, datasetId: number) => {
-    const updatedDataset = {
+    updateDataset({
       Id: datasetId,
       Private: e.currentTarget.checked,
-    } as Dataset;
-    const req = updateDataset(updatedDataset);
-    req.then(() => {
-      refreshList(true);
-      refreshDataset(dataset.Id, true);
-    });
+    } as Dataset).then(() => refreshDataset(dataset.Id, true));
   }
 
   const handleDatasetLabelChange = (e: any, datasetId: number) => {
@@ -60,7 +55,7 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
     req.then(() => refreshDataset(dataset.Id, true));
   }
 
-  const archiveSeries = (e: any, seriesId: number, value: boolean) => {
+  const handleVisibleChange = (e: any, seriesId: number, value: boolean) => {
     const req = updateSeries({
       Id: seriesId,
       Visible: value
@@ -68,15 +63,20 @@ const EditDataset: React.FunctionComponent<EditDatasetProps> = ({
     req.then(() => refreshDataset(dataset.Id, true));
   }
 
+  const handleAddSeries = (e: any) => {
+    
+  }
+
   return (
     <DatasetForm
       dataset={dataset}
+      allowPrivate={allowPrivate}
       onPrivateChange={handleDatasetPrivateChange}
       onDatasetLabelChange={handleDatasetLabelChange}
       onLabelChange={handleLabelChange}
       onColorChange={handleColorChange}
-      allowPrivate={allowPrivate}
-      archiveSeries={archiveSeries}
+      onVisibleChange={handleVisibleChange}
+      addSeries={handleAddSeries}
     />
   );
 }
