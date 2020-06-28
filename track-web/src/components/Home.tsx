@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Container } from "react-bootstrap";
 import { map, filter, findIndex, each, isEqual, cloneDeep } from 'lodash';
 import Toolbar, { ToolbarAction } from "./Toolbar";
 import { Route } from 'react-router-dom';
@@ -76,8 +76,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       setApiDataset(apiDatasetCache[cachedIndex]);
 
     } else {
-      const datasetRequest = new ApiRequest().EntityType('Datasets').Id(id).Expand('Series').Token(authState.accessToken).Get();
-      const apiDatasetRequest = new ApiRequest().EntityType('ApiDatasets').Id(id).GetApiDataset();
+      const datasetRequest = new ApiRequest().Url('Datasets').Id(id).Expand('Series').Token(authState.accessToken).Get();
+      const apiDatasetRequest = new ApiRequest().Url('ApiDatasets').Id(id).GetApiDataset();
 
       Promise.all([
         datasetRequest,
@@ -123,7 +123,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
-    new ApiRequest().EntityType('Datasets').Filter('Archived eq false').Token(authState.accessToken).Get()
+    new ApiRequest().Url('Datasets').Filter('Archived eq false').Token(authState.accessToken).Get()
       .then((d: any) => {
         setDatasetList(d.value as Dataset[]);
 
@@ -171,7 +171,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const createDataset = (dataset: Dataset) => {
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
 
-    var req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Post({
+    var req = new ApiRequest().Url('Datasets').Token(authState.accessToken).Post({
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
@@ -184,26 +184,29 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const updateDataset = (dataset: Dataset) => {
-    // let req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Id(dataset.Id).Put(dataset);
-    const updated = {
-      Id: dataset.Id,
-      Label: dataset.Label,
-      Private: dataset.Private,
-    } as Dataset;
+    let requests: any[] = [];
 
-    console.log('again', dataset);
+    if (!isEqual(dataset, currentDataset)) {
+      requests.push(new ApiRequest().Url('Datasets').Token(authState.accessToken).Patch({
+        Id: dataset.Id,
+        Label: dataset.Label,
+        Private: dataset.Private,
+      } as Dataset));
+    }
 
-    let seriesRequests: any[] = [];
     each(dataset.Series, (s: Series, index: number) => {
 
-      console.log('series id', s.Id, s);
-      if (index < currentDataset.Series.length && !isEqual(s, currentDataset.Series[index])) {
-        seriesRequests.push(new ApiRequest().EntityType('Series').Patch(s));
+      if (index >= currentDataset.Series.length) {
+        delete s.Id;
+        s.DatasetId = dataset.Id;
+        requests.push(new ApiRequest().Url('Series').Post(s));
+
+      } else if (!isEqual(s, currentDataset.Series[index])) {
+        requests.push(new ApiRequest().Url('Series').Put(s));
       }
     })
 
-    let req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Patch(updated);
-    Promise.all([seriesRequests, req])
+    Promise.all(requests)
       .then(() => {
         loadDatasetList(true);
         loadDataset(dataset.Id, true);
@@ -253,9 +256,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     return (
       <>
         <Navbar authState={authState} authService={authService} />
-        <div className="container">
-          <div className="row mt-3">
-            <div className="col-12">
+        <Container>
+          <Row className="mt-3">
+            <Col xs={6} lg={12}>
               <Toolbar
                 dataset={currentDataset}
                 datasetList={datasetList}
@@ -265,15 +268,15 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
                 updateDatasetList={loadDatasetList}
                 onAction={handleToolbarAction}
               />
-            </div>
-          </div>
+            </Col>
+          </Row>
           <hr />
-          <div className="row">
-            <div className="col-12">
+          <Row>
+            <Col>
               {renderRoutes()}
-            </div>
-          </div>
-        </div>
+            </Col>
+          </Row>
+        </Container>
       </>
     );
   }

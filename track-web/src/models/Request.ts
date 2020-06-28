@@ -7,8 +7,8 @@ import { DOMAIN } from "../config";
 
 class ApiRequest {
 
-  private ODATA_URL: string = `${DOMAIN}/odata/`;
-  protected API_URL: string = `${DOMAIN}/api/`;
+  private ODATA_URL: string = `${DOMAIN}odata/`;
+  protected API_URL: string = `${DOMAIN}api/`;
 
   private DEF_PARAMS = {
     mode: 'cors', // no-cors, *cors, same-origin
@@ -22,9 +22,9 @@ class ApiRequest {
     // referrerPolicy: 'no-referrer', // no-referrer, *client
   };
 
-  private _entityType: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records';
   private id: number;
-  private _token: any;
+  private _url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records';
+  private _token: string;
 
   private expands: string[];
   private filters: string[];
@@ -35,19 +35,23 @@ class ApiRequest {
   }
 
   private buildApiUrlString(idOverride: number = null): string {
-    return `${this.API_URL}${this._entityType}/${idOverride || this.id}`;
+
+    // {API_PATH} / {ENTITY_TYPE} / {ID}
+    return `${this.API_URL}${this._url}/${idOverride || this.id}`;
   }
 
   private buildOdataUrlString(idOverride: number = null): string {
-    var urlString = `${this.ODATA_URL}${this._entityType}${this.getIdArg(idOverride)}`;
+
+    //
+    var urlString = `${this.ODATA_URL}${this._url}${this.getIdArg(idOverride)}`;
     if (this.expands.length || this.filters.length)
       return `${urlString}?${this.getExpandArg()}${this.getFilterArg()}`;
     return urlString;
   }
 
-  private buildAuthHeader = (token: any) => {
+  private buildAuthHeader = (token: string) => {
     return {
-      Authorization: 'Bearer ' + token
+      Authorization: `Bearer ${token}`
     };
   }
 
@@ -67,9 +71,7 @@ class ApiRequest {
 
   private async execute(url: string, params: RequestInit = {}, toJson: boolean = true) {
     return await fetch(url, params)
-      .then(result => {
-        return result.ok && result.status != 204 && toJson ? result.json() : result
-      });
+      .then(result => (result.ok && result.status != 204 && toJson) ? result.json() : result);
   }
 
   public Token = (token: any) => {
@@ -77,8 +79,8 @@ class ApiRequest {
     return this;
   }
 
-  public EntityType = (entityType: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records') => {
-    this._entityType = entityType;
+  public Url = (url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records') => {
+    this._url = url;
     return this;
   }
 
@@ -108,7 +110,9 @@ class ApiRequest {
   // DELETE ApiDataset
   public ArchiveDataset = (idOverride: number) => {
     const params = !this._token ? null : {
-      headers: this.buildAuthHeader(this._token)
+      headers: {
+        ...(this.buildAuthHeader(this._token))
+      }
     };
     return this.execute(this.buildApiUrlString(idOverride), params);
   }
@@ -120,7 +124,7 @@ class ApiRequest {
     return this.execute(this.buildOdataUrlString(), params);
   }
 
-  public Post = (entity: Dataset | Record) => {
+  public Post = (entity: Dataset | Series | Record) => {
     return this.execute(this.buildOdataUrlString(),
     {
       method: 'POST',
@@ -132,8 +136,8 @@ class ApiRequest {
     } as RequestInit);
   }
 
-  public Put = (entity: Dataset) => {
-    return this.execute(this.buildOdataUrlString(), {
+  public Put = (entity: Dataset | Series) => {
+    return this.execute(this.buildOdataUrlString(entity?.Id), {
       method: 'PUT',
       headers: {
         Authorization: this._token ? 'Bearer ' + this._token : null,

@@ -63,7 +63,7 @@ const CreateRecord: React.FunctionComponent<CreateRecordProps> = ({ dataset, ref
   }
 
   function addRecord(e: any) {
-    const req = new ApiRequest().EntityType('Records').Post({
+    const req = new ApiRequest().Url('Records').Post({
       DatasetId: dataset.Id,
       DateTime: record.DateTime,
       Properties: filter(record.Properties, p => !!p.Value),

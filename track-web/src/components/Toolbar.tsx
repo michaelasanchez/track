@@ -52,7 +52,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   const [show, setShow] = useState(false);
 
-  const archiveDataset = (dataset: Dataset) => new ApiRequest().EntityType('Datasets').Delete(dataset);
+  const archiveDataset = (dataset: Dataset) => new ApiRequest().Url('Datasets').Delete(dataset);
 
   const handleShow = () => setShow(true);
 
@@ -139,9 +139,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <div className="toolbar-left">
         <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)} >
           <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
-        </Link>
-        <Link to={`${BASE_PATH}/create`}>
-          <FontAwesomeIcon icon={createIcon} color="gray" className="icon disabled" />
         </Link>
       </div>
       <div className="toolbar-right">

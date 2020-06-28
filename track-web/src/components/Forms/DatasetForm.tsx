@@ -55,20 +55,16 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   const updateSeries = (seriesId: number, updated: Partial<Series>) => {
     const index = dataset.Series.findIndex(s => s.Id == seriesId);
 
-    // console.log('updated', index, updated);
-
     dataset.Series[index] = {
       ...(dataset.Series[index]),
       ...updated  
     }
-
-    // console.log('check it', dataset.Series);
-
     updateDataset(dataset)
   }
 
   const addSeries = () => {
-    dataset.Series.push(Series.Default(maxBy(dataset.Series, s => s.Id).Id + 1));
+    const lastId = maxBy(dataset.Series, s => s.Id)?.Id || 0;
+    dataset.Series.push(Series.Default(lastId + 1));
     updateDataset(dataset);
   }
 
