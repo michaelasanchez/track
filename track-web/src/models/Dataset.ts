@@ -15,6 +15,8 @@ export class Dataset {
   constructor() {
     this.records = [];
     this.series = [];
+
+    this.series.push(Series.Default());
   }
 
   public get Records() {

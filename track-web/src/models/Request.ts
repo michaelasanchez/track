@@ -132,6 +132,17 @@ class ApiRequest {
     } as RequestInit);
   }
 
+  public Put = (entity: Dataset) => {
+    return this.execute(this.buildOdataUrlString(), {
+      method: 'PUT',
+      headers: {
+        Authorization: this._token ? 'Bearer ' + this._token : null,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(entity)
+    } as RequestInit);
+  }
+
   public Patch = (entity: Dataset | Series) => {
     // Entity id is used as fallback when id has been manually set
     // TODO: this is tied to caching. feels odd here

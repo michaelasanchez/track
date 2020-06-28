@@ -7,8 +7,11 @@
   // compact-picker
   > div {
     padding: 3px;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
+
+    > div:first-child {
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem !important;
+    }
   }
 }
 

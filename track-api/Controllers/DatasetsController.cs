@@ -65,6 +65,7 @@ namespace track_api.Controllers
         }
 
         // PUT: odata/Datasets(5)
+        [EnableQuery]
         public IHttpActionResult Put([FromODataUri] int key, Delta<Dataset> patch)
         {
             Validate(patch.GetEntity());

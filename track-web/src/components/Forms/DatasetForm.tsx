@@ -1,8 +1,8 @@
 import { Dataset } from "../../models/Dataset"
-import React from "react"
-import { Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap"
+import React, { useState } from "react"
+import { Form, Row, Col, Button, OverlayTrigger, Tooltip, Collapse } from "react-bootstrap"
 import { Series } from "../../models/Series"
-import { map, filter, some } from "lodash"
+import { map, filter, some, countBy, maxBy } from "lodash"
 import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
 
@@ -11,7 +11,9 @@ import {
   faTimes as deleteIcon,
   faEye as archiveIcon,
   faEyeSlash as unarchiveIcon,
-  faPlusCircle as addIcon
+  faPlusCircle as addIcon,
+  faAngleDown as hiddenOpenIcon,
+  faAngleUp as hiddenCloseIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
@@ -23,59 +25,81 @@ type DatasetFormProps = {
   dataset: Dataset,
   createMode?: boolean,
   allowPrivate?: boolean,
-  onPrivateChange: (e: any, datasetId: number) => void,
-  onDatasetLabelChange: (e: any, datasetId: number) => void,
-  onLabelChange: (e: any, seriesId: number) => void,
-  onColorChange: (e: any, seriesId: number) => void,
-  onTypeChange?: (e: any, seriesId: number) => void,
-  onVisibleChange?: (e: any, seriesId: number, value: boolean) => void,
-  addSeries?: (e: any) => void,
-  deleteSeries?: (e: any, seriesId: number) => void,
+  updateDataset: (dataset: Dataset) => void,
 }
 
 const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   dataset,
+  updateDataset: commitChanges,
   createMode = false,
   allowPrivate = false,
-  onPrivateChange,
-  onDatasetLabelChange,
-  onLabelChange,
-  onTypeChange,
-  onColorChange,
-  onVisibleChange,
-  addSeries,
-  deleteSeries,
 }) => {
+
+  const [hiddenOpen, setHiddenOpen] = useState<boolean>(false);
 
   const colWidth = {
     md: 8,
     lg: 6,
   }
-  const tooltip = new HtmlToReactParser().parse(strings.tooltipPrivate);
 
-  const renderSeriesRow = (s: Series, index: number, className: string) => {
+  // console.log('dataset', dataset);
+
+  const updateDataset = (updated: Partial<Dataset>) => {
+    commitChanges({
+      ...dataset,
+      ...updated,
+      Series: updated?.Series || dataset.Series
+    } as Dataset)
+  }
+
+  const updateSeries = (seriesId: number, updated: Partial<Series>) => {
+    const index = dataset.Series.findIndex(s => s.Id == seriesId);
+
+    // console.log('updated', index, updated);
+
+    dataset.Series[index] = {
+      ...(dataset.Series[index]),
+      ...updated  
+    }
+
+    // console.log('check it', dataset.Series);
+
+    updateDataset(dataset)
+  }
+
+  const addSeries = () => {
+    dataset.Series.push(Series.Default(maxBy(dataset.Series, s => s.Id).Id + 1));
+    updateDataset(dataset);
+  }
+
+  const deleteSeries = (index: number) => {
+    dataset.Series.splice(index, 1);
+    updateDataset(dataset);
+  }
+
+  /* Series Row */
+  const renderSeriesRow = (s: Series, index: number) => {
     return (
       <Form.Group key={s.Id}>
         <Row>
           <Col {...colWidth} className="flex">
-            <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => onLabelChange(e, s.Id)} className={className} />
+            <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => updateSeries(s.Id, { Label: e.nativeEvent.srcElement.value })} />
 
-            {<Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => onTypeChange(e, s.Id)} className={className} disabled={!createMode || onTypeChange == null}>
+            {<Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => updateSeries(s.Id, { TypeId: parseInt(e.target.value) })} disabled={!createMode}>
               {map(SeriesType, (i, j) => {
                 return isNaN(i) ? null : <option key={i} value={i}>{j}</option>;
               })}
             </Form.Control>}
 
-            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[s.Order]) as Color} onChange={(e: any) => onColorChange(e, s.Id)} className={className} />
+            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[s.Order]) as Color} onChange={(e: any) => updateSeries(s.Id, { Color: e.hex.replace('#', '') })} />
 
-            {createMode ?
-              dataset.Series.length > 2 &&
-              <Button variant="link" onClick={(e: any) => deleteSeries(e, s.Id)} tabIndex={-1}>
-                <FontAwesomeIcon color="gray" className={`icon ${className}`} icon={deleteIcon} />
-              </Button>
-              :
-              <Button variant="link" onClick={(e: any) => onVisibleChange(e, s.Id, !s.Visible)} tabIndex={-1}>
-                <FontAwesomeIcon color="gray" className={`icon ${s.Visible ? 'archive' : 'unarchive'} ${className}`} icon={s.Visible ? archiveIcon : unarchiveIcon} />
+            {createMode && dataset.Series.length > 1 &&
+              <Button variant="link" onClick={(e: any) => deleteSeries(s.Id)} tabIndex={-1}>
+                <FontAwesomeIcon color="gray" className="icon" icon={deleteIcon} />
+              </Button>}
+            {!createMode &&
+              <Button variant="link" onClick={(e: any) => updateSeries(s.Id, { Visible: !s.Visible })} tabIndex={-1}>
+                <FontAwesomeIcon color="gray" className={`icon ${s.Visible ? 'archive' : 'unarchive'}`} icon={s.Visible ? archiveIcon : unarchiveIcon} />
               </Button>}
 
           </Col>
@@ -84,12 +108,13 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     )
   }
 
+  /* Private Toggle */
   const renderPrivateSwitch = () => {
     // Include div for tooltip css
     return (
       <div>
         <Form.Check
-          onChange={(e: any) => onPrivateChange(e, dataset.Id)}
+          onChange={(e: any) => updateDataset({ Private: e.currentTarget.checked })}
           className="check-private"
           disabled={!allowPrivate}
           id="private"
@@ -102,18 +127,41 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     );
   }
 
+  // TODO: Clean this up
+  if (!dataset?.UserId) allowPrivate = false;
+  const tooltipMessage = new HtmlToReactParser().parse(dataset?.UserId ? strings.tooltipNotAuthenticated : strings.tooltipNoOwner);
+
+  /* Add Series */
+  const addSeriesButton = (
+    <Button variant="link" className="add text-secondary" onClick={addSeries}>
+      <FontAwesomeIcon icon={addIcon} color="gray" className={`icon`} />Add Series
+    </Button>
+  );
+
+  /* Hidden Toggle Row */
+  const toggleHidden = (
+    <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
+      <h6>
+        {`Hidden (${countBy(dataset.Series, s => !s.Visible).true})`}
+      </h6>
+      <hr />
+      <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
+    </a>
+  )
+
+  /* Render */
   return (
     <Form className={`form-dataset ${createMode ? 'create' : 'edit'}`}>
       <Form.Group>
         <Row>
-          <Col { ...colWidth} className="d-flex justify-content-end">
+          <Col {...colWidth} className="d-flex justify-content-end">
             <span>{dataset.Private ? 'Private' : 'Public'}</span>
             {allowPrivate ? renderPrivateSwitch() :
               <OverlayTrigger
                 placement="bottom"
                 overlay={
                   <Tooltip id="tooltip-private">
-                    {tooltip}
+                    {tooltipMessage}
                   </Tooltip>
                 }
               >
@@ -125,33 +173,41 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
         <Row>
           <Col {...colWidth} >
             <h5>Label</h5>
-            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => onDatasetLabelChange(e, dataset.Id)} />
+            <Form.Control type="text" defaultValue={dataset.Label} onBlurCapture={(e: any) => updateDataset({ Label: e.nativeEvent.srcElement.value })} />
           </Col>
         </Row>
       </Form.Group>
 
       <h5>Series</h5>
       {filter(dataset.Series, s => s.Visible).map((s: Series, index: number) => {
-        return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
+        return renderSeriesRow(s, index);
       })}
 
-      <Form.Group>
-        <Row>
-          <Col {...colWidth} className="text-center">
-            {!createMode &&
-              <Button variant="link" className="add text-secondary" onClick={(e: any) => addSeries(e)}>
-                <FontAwesomeIcon icon={addIcon} color="gray" className={`icon`} />Add Series
-              </Button>}
-          </Col>
-        </Row>
-      </Form.Group>
+      {addSeries &&
+        <Form.Group>
+          <Row>
+            <Col {...colWidth} className="text-center">
+              {addSeriesButton}
+            </Col>
+          </Row>
+        </Form.Group>}
 
       {some(dataset.Series, s => !s.Visible) &&
         <>
-          <h6 className="text-muted">Hidden</h6>
-          {filter(dataset.Series, s => !s.Visible).map((s: Series, index: number) => {
-            return renderSeriesRow(s, index, createMode && index === dataset.Series.length - 1 ? 'pending' : '');
-          })}
+          <Form.Group>
+            <Row>
+              <Col {...colWidth}>
+                {toggleHidden}
+              </Col>
+            </Row>
+          </Form.Group>
+          <Collapse in={hiddenOpen}>
+            <div>
+              {filter(dataset.Series, s => !s.Visible).map((s: Series, index: number) => {
+                return renderSeriesRow(s, index);
+              })}
+            </div>
+          </Collapse>
         </>}
 
     </Form>

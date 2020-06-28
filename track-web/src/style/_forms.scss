@@ -65,15 +65,39 @@ form {
       margin-left: 0.4rem;
     }
 
-    // Pending series row
-    .pending {
-      opacity: $pending-row-opacity;
+    .hidden-link-container {
+      color: grey;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      opacity: .5;
+      transition: opacity 300ms;
 
-      &:focus {
+      &:hover {
+        opacity: 1;
+      }
+
+      h6 {
+        margin: 0;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      hr {
+        flex-grow: 1;
+        margin-left: 1rem;
+        margin-right: 1rem;
+        border-top-color: grey;
+        opacity: .4;
+      }
+
+      .icon {
         opacity: 1;
       }
     }
-
+    
     // Only series type select (for now)
     select {
       width: auto;

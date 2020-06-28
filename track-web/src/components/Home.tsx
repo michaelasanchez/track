@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { Row, Col } from "react-bootstrap";
-import { map, filter, findIndex, each } from 'lodash';
+import { map, filter, findIndex, each, isEqual, cloneDeep } from 'lodash';
 import Toolbar, { ToolbarAction } from "./Toolbar";
 import { Route } from 'react-router-dom';
-import EditDataset from "./actions/EditDataset";
-import ApiRequest from "../models/Request";
 import CreateRecord from "./actions/CreateRecord";
 import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
-import CreateDataset from './actions/CreateDataset';
+import ApiRequest from "../models/Request";
 import { Series } from '../models/Series';
 import { Dataset } from '../models/Dataset';
+import { ApiDataset } from '../models/ApiDataset';
 import { Navbar } from './Navbar';
 import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
-import { ApiDataset } from '../models/ApiDataset';
 import { BASE_PATH } from '../config';
-import { useRequest } from '../hooks/useRequest';
+import DatasetForm from './forms/DatasetForm';
 
 
-const DEF_DATASET_ID = 1;
+const FALLBACK_DATASET_ID = 1;
 
 const ALLOW_DATASET_CACHING = true;
 
@@ -39,7 +37,7 @@ const defaultUserMode = (): UserMode => {
 }
 
 const defaultDatasetId = (datasetList: Dataset[]): number => {
-  const firstId = datasetList.length ? datasetList[0].Id : DEF_DATASET_ID;
+  const firstId = datasetList.length ? datasetList[0].Id : FALLBACK_DATASET_ID;
 
   // Attempt to recover from local storage
   const parsed = parseInt(window.localStorage.getItem('datasetId'));
@@ -56,9 +54,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [mode, setMode] = useState<UserMode>(defaultUserMode());
 
-  const [dataset, setDataset] = useState<Dataset>();
-  const [apiDataset, setApiDataset] = useState<ApiDataset>();
+  const [currentDataset, setCurrentDataset] = useState<Dataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset());
+
+  const [apiDataset, setApiDataset] = useState<ApiDataset>();
 
   const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
@@ -68,13 +67,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const { authState, authService } = useOktaAuth();
 
-
   const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
     window.localStorage.setItem('datasetId', id.toString());
     const cachedIndex = findIndex(datasetCache, c => c.Id == id);
 
     if (cachedIndex >= 0 && !force) {
-      setDataset(datasetCache[cachedIndex]);
+      setCurrentDataset(datasetCache[cachedIndex]);
       setApiDataset(apiDatasetCache[cachedIndex]);
 
     } else {
@@ -109,8 +107,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
             setApiDatasetCache(apiDatasetCache);
           }
 
-          setDataset(datasetExists ? d : null);
+          setCurrentDataset(datasetExists ? d : null);
           setApiDataset(apiDatasetExists ? api : null);
+
+          if (mode == UserMode.Edit) setPendingDataset(cloneDeep(d));
         })
         .catch((error) => {
           errors.push(error);
@@ -138,16 +138,37 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   /* Toolbar Actions */
   const handleToolbarAction = (action: ToolbarAction, whoa?: Dataset) => {
+
     switch (action) {
-      case ToolbarAction.Create:
+      case ToolbarAction.CreateBegin:
+        setPendingDataset(new Dataset());
+        setMode(UserMode.Edit);
+        break;
+
+      case ToolbarAction.CreateSave:
         createDataset(pendingDataset);
+        setMode(UserMode.View);
+        break;
+
+      case ToolbarAction.UpdateBegin:
+        setPendingDataset(cloneDeep(currentDataset));
+        setMode(UserMode.Create)
+        break;
+
+      case ToolbarAction.UpdateSave:
+        updateDataset(pendingDataset);
+        setMode(UserMode.View);
+        break;
+
+      case ToolbarAction.Cancel:
+        setPendingDataset(new Dataset());
         setMode(UserMode.View);
         break;
     }
   }
 
+  // TODO: This fires from toolbar. Dataset edits occur in form
   const createDataset = (dataset: Dataset) => {
-    // TODO: This fires from toolbar. Dataset edits occur in form
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
 
     var req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Post({
@@ -162,6 +183,33 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     });
   }
 
+  const updateDataset = (dataset: Dataset) => {
+    // let req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Id(dataset.Id).Put(dataset);
+    const updated = {
+      Id: dataset.Id,
+      Label: dataset.Label,
+      Private: dataset.Private,
+    } as Dataset;
+
+    console.log('again', dataset);
+
+    let seriesRequests: any[] = [];
+    each(dataset.Series, (s: Series, index: number) => {
+
+      console.log('series id', s.Id, s);
+      if (index < currentDataset.Series.length && !isEqual(s, currentDataset.Series[index])) {
+        seriesRequests.push(new ApiRequest().EntityType('Series').Patch(s));
+      }
+    })
+
+    let req = new ApiRequest().EntityType('Datasets').Token(authState.accessToken).Patch(updated);
+    Promise.all([seriesRequests, req])
+      .then(() => {
+        loadDatasetList(true);
+        loadDataset(dataset.Id, true);
+      })
+  }
+
   // Init
   useEffect(() => {
     if (!authState.isPending) {
@@ -172,7 +220,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const renderGraph = () =>
     <Row>
       <Col xs={12} lg={3} className="order-2 order-lg-1">
-        <CreateRecord dataset={dataset} refreshDataset={loadDataset} />
+        <CreateRecord dataset={currentDataset} refreshDataset={loadDataset} />
       </Col>
       <Col lg={9} className="order-1 order-lg-2">
         <Graph dataset={apiDataset} />
@@ -185,15 +233,15 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         {renderGraph()}
       </Route>
       <Route path={`${BASE_PATH}/edit`}>
-        <EditDataset
-          dataset={dataset}
-          refreshList={loadDatasetList}
-          refreshDataset={loadDataset}
+        <DatasetForm
+          dataset={pendingDataset}
+          updateDataset={setPendingDataset}
           allowPrivate={authState.isAuthenticated ? true : false}
         />
       </Route>
       <Route path={`${BASE_PATH}/create`}>
-        <CreateDataset
+        <DatasetForm
+          createMode={true}
           dataset={pendingDataset}
           updateDataset={setPendingDataset}
           allowPrivate={authState.isAuthenticated ? true : false}
@@ -209,7 +257,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           <div className="row mt-3">
             <div className="col-12">
               <Toolbar
-                dataset={dataset}
+                dataset={currentDataset}
                 datasetList={datasetList}
                 mode={mode}
                 updateMode={setMode}

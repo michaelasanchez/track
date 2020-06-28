@@ -22,7 +22,11 @@ import { UserMode } from '../shared/enums';
 import { BASE_PATH } from '../config';
 
 export enum ToolbarAction {
-  Create,
+  CreateBegin,
+  CreateSave,
+  UpdateBegin,
+  UpdateSave,
+  Cancel
 }
 
 type ToolbarProps = {
@@ -42,7 +46,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   updateDatasetList,
   datasetList,
   dataset,
-  onAction
+  onAction: doAction
 }) => {
   const hasDatasets = datasetList?.length > 0;
 
@@ -72,7 +76,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <Form.Control
         as="select"
         className="custom-select"
-        disabled={mode == UserMode.Edit || !hasDatasets}
+        disabled={disableSelect}
         onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
         value={dataset?.Id.toString()}>
         {map(datasetList, (d, i) =>
@@ -82,6 +86,10 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         )}
       </Form.Control>
     );
+  }
+
+  const renderDivider = () => {
+    return <div className="divider" />;
   }
 
   /* Modal */
@@ -105,18 +113,25 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   /* Home */
   const renderDefault = () =>
-    <>
-      <div className="toolbar-left">
-        <Link to={`${BASE_PATH}/edit`} onClick={() => updateMode(UserMode.Edit)}>
-          <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${disabled ? ' disabled' : ''}`} />
-        </Link>
-      </div>
-      <div className="toolbar-right">
-        <Link to={`${BASE_PATH}/create`} onClick={() => updateMode(UserMode.Create)}>
-          <FontAwesomeIcon icon={createIcon} color="gray" className={`icon create${disabled ? ' disabled' : ''}`} />
-        </Link>
-      </div>
-    </>;
+    <div className="toolbar-left">
+      <Link to={`${BASE_PATH}/edit`} onClick={() => doAction(ToolbarAction.UpdateBegin)}>
+        <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${disabled ? ' disabled' : ''}`} />
+      </Link>
+      <Link to={`${BASE_PATH}/create`} onClick={() => doAction(ToolbarAction.CreateBegin)}>
+        <FontAwesomeIcon icon={createIcon} color="gray" className={`icon create${disabled ? ' disabled' : ''}`} />
+      </Link>
+    </div>;
+
+  /* Create */
+  const renderCreate = () =>
+    <div className="toolbar-right">
+      <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
+        <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
+      </Link>
+      <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.CreateSave)}>
+        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
+      </Link>
+    </div>;
 
   /* Edit */
   const renderEdit = () =>
@@ -125,31 +140,20 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)} >
           <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
         </Link>
-        {/* <Link to="/">
-          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" onClick={handleClick} />
-        </Link> */}
+        <Link to={`${BASE_PATH}/create`}>
+          <FontAwesomeIcon icon={createIcon} color="gray" className="icon disabled" />
+        </Link>
       </div>
       <div className="toolbar-right">
         <Link to={`${BASE_PATH}/edit`} onClick={handleShow}>
           <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
         </Link>
-      </div>
-    </>;
-
-  /* Create */
-  const renderCreate = () =>
-    <>
-      <div className="toolbar-left">
-        <Link to={`${BASE_PATH}/create`} onClick={() => updateMode(UserMode.Create)}>
-          <FontAwesomeIcon icon={editIcon} color="gray" className="icon disabled" />
-        </Link>
-      </div>
-      <div className="toolbar-right">
-        <Link to={`${BASE_PATH}/`} onClick={() => onAction(ToolbarAction.Create)}>
-          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
-        </Link>
-        <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)}>
+        {renderDivider()}
+        <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
+        </Link>
+        <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.UpdateSave)}>
+          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
         </Link>
       </div>
     </>;
