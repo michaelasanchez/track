@@ -8,11 +8,12 @@ export const useClickOutside = (ref: any) => {
 
     useEffect(() => {
         /**
-         * Alert if clicked on outside of element
+         * Update state if clicked on outside of element
          */
         const handleClickOutside = (event: any) => {
             if (ref.current) {
-                if (event.path.indexOf(ref.current) < 0) {
+                let index = event.path.indexOf(ref.current);
+                if (index < 0) {
                   setClickedOutside(true);
                 }
             }
@@ -27,7 +28,9 @@ export const useClickOutside = (ref: any) => {
     }, [ref]);
 
     useEffect(() => {
-      setClickedOutside(false);
+      // Reset state after click outside occurs
+      if (clickedOutside)
+        setClickedOutside(false);
     }, [clickedOutside])
 
     return clickedOutside;

@@ -18,6 +18,9 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
   const [showing, setShowing] = useState<boolean>(false);
   const [color, setColor] = useState<Color>(defaultColor || DEF_COLOR);
 
+  const wrapperRef = useRef(null);
+  let clickedOutside = useClickOutside(wrapperRef);
+
   const handleChange = (e: any) => {
     setColor(e.hex);
     onChange(e);
@@ -31,31 +34,24 @@ const ColorPicker: React.FunctionComponent<ColorPickerProps> = ({ defaultColor, 
   var colorString = color.toString();
   colorString = colorString.indexOf('#') < 0 ? `#${colorString}` : colorString;
 
-  const notsure = (e: any) => {
-    // TODO: Getting an error when we remove onChange from Form.Control ?
-    console.log('ColorPicker onChange', e);
-  }
-
-  const wrapperRef = useRef(null);
-  let clickedOutside = useClickOutside(wrapperRef);
-
   useEffect(() => {
-    setShowing(false);
+    if (!!clickedOutside) {
+      setShowing(false);
+    }
   }, [clickedOutside]);
 
   return (
-    <div className="color-picker">
+    <div className="color-picker" ref={wrapperRef}>
       {/* <div className="thing"> */}
       <div className="input-container">
-        <Form.Control type="color" onChange={notsure} value={colorString} onClick={(e: any) => handleClick(e)} className={className} disabled={disabled} />
+        <Form.Control type="color" onChange={() => { }} value={colorString} onClick={(e: any) => handleClick(e)} className={className} disabled={disabled} />
       </div>
       {/* </div> */}
 
-      {showing && <div className="picker-container" ref={wrapperRef}>
+      {showing && <div className="picker-container">
         <CompactPicker
           color={color}
           onChange={handleChange}
-          
         />
       </div>}
     </div>

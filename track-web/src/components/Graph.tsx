@@ -3,7 +3,7 @@ import ChartistGraph from 'react-chartist';
 import { map } from 'lodash';
 import moment = require("moment");
 import { useState, useRef, useEffect } from "react";
-import { ChartistOptionsFactory, SERIES_PREFIXES, DEFAULT_CHARTIST_COLORS } from "../models/ChartistOptions";
+import { ChartistOptionsFactory, SERIES_PREFIXES, defaultColor } from "../models/ChartistOptions";
 import { ApiDataset } from "../models/ApiDataset";
 import { SeriesType } from "../shared/enums";
 import { ApiSeries } from "../models/ApiSeries";
@@ -34,7 +34,7 @@ const renderColorStyle = (series: ApiSeries[], className: string) => {
     <style>
       {map(series, (s, i) => {
         const prefix = SERIES_PREFIXES.substr(i, 1);
-        const color = s.Color || `#${DEFAULT_CHARTIST_COLORS[s.Order]}`;
+        const color = s.Color || `#${defaultColor(s.Order)}`;
 
         return `
           .${className} .ct-series-${prefix} .ct-line,

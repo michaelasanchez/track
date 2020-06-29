@@ -74,6 +74,7 @@ const CreateRecord: React.FunctionComponent<CreateRecordProps> = ({ dataset, ref
       refreshDataset(dataset.Id, true);
     });
   }
+  
   return (
     <RecordForm
       record={record}

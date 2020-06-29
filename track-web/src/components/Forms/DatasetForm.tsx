@@ -17,7 +17,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
-import { DEFAULT_CHARTIST_COLORS } from "../../models/ChartistOptions"
+import {  defaultColor } from "../../models/ChartistOptions"
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -77,12 +77,11 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
 
   /* Series Row */
   const renderSeriesRow = (s: Series, index: number) => {
-    if (!s.DatasetId) console.log(s.Order, DEFAULT_CHARTIST_COLORS[s.Order % DEFAULT_CHARTIST_COLORS.length])
     return (
       <Form.Group key={s.Id}>
         <Row>
           <Col {...colWidth} className="flex">
-            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[s.Order % DEFAULT_CHARTIST_COLORS.length]) as Color} onChange={(e: any) => updateSeries(s.Id, { Color: e.hex.replace('#', '') })} disabled={!s.Visible}/>
+            <ColorPicker defaultColor={(s.Color ? s.Color : defaultColor(s.Order)) as Color} onChange={(e: any) => updateSeries(s.Id, { Color: e.hex.replace('#', '') })} disabled={!s.Visible} />
 
             <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => updateSeries(s.Id, { Label: e.nativeEvent.srcElement.value })} disabled={!s.Visible} />
 
@@ -138,15 +137,18 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   );
 
   /* Hidden Toggle Row */
-  const hiddenToggle = (
+  const hiddenToggle = () => {
+    // console.log('counts', counts, counts.true || 0, counts?.true);
+    return (
     <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
       <h6>
-        {`Inactive (${countBy(dataset.Series, s => !s.Visible).true})`}
+        {`Inactive (${countBy(dataset.Series, s => !s.Visible).true || 0})`}
       </h6>
       <hr />
       <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
     </a>
-  )
+    );
+  }
 
   /* Render */
   return (
@@ -196,7 +198,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
           <Form.Group>
             <Row>
               <Col {...colWidth}>
-                {hiddenToggle}
+                {hiddenToggle()}
               </Col>
             </Row>
           </Form.Group>

@@ -7,7 +7,7 @@ import { TimeSpan } from "./TimeSpan";
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
 export const SERIES_PREFIXES = 'abcdefghijklmnoqrstuvwxyz';
-export const DEFAULT_CHARTIST_COLORS = [
+const DEFAULT_CHARTIST_COLORS = [
   'd70206',
   'f05b4f',
   'f4c63d',
@@ -17,7 +17,11 @@ export const DEFAULT_CHARTIST_COLORS = [
   '0544d3',
   '6b0392',
   'f05b4f'
-]
+];
+
+export const defaultColor = (order: number) => {
+  return DEFAULT_CHARTIST_COLORS[order % DEFAULT_CHARTIST_COLORS.length]
+}
 
 const DEFAULT_CHART_OPTIONS = {
   chartPadding: {

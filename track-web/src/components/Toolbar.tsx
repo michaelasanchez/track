@@ -127,7 +127,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     <>
       <div className="toolbar-left">
         <Link to={`${BASE_PATH}/create`} className="disabled">
-          <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
+          <FontAwesomeIcon icon={editIcon} color="gray" className="icon edit" />
         </Link>
         <Link to={`${BASE_PATH}/create`} className="active">
           <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />

@@ -45,11 +45,11 @@
 
 .color-picker {
   position: relative;
-  width: 38px;
+  min-width: 23px;
 
   .input-container {
     max-height: 60%;
-    transform: translateY(30%);
+    transform: translateY(35%);
   }
 
   > input {
