@@ -1,7 +1,7 @@
 .picker-container {
   position: absolute;
-  right: 0;
-  top: 44px;
+  // right: 0;
+  top: 36px;
   z-index: 1;
 
   // compact-picker
@@ -45,7 +45,12 @@
 
 .color-picker {
   position: relative;
-  max-width: 46px;
+  width: 38px;
+
+  .input-container {
+    max-height: 60%;
+    transform: translateY(30%);
+  }
 
   > input {
     cursor: pointer;

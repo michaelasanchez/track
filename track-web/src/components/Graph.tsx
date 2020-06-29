@@ -70,7 +70,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   const span = new TimeSpan(dataset.Ticks);
 
   let zoomMode;
-  if (span.days > 15) {
+  if (span.days > 30) {
     zoomMode = ChartZoom.Month;
   } else if (span.days > 1) {
     zoomMode = ChartZoom.Day;

@@ -78,7 +78,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         className="custom-select"
         disabled={disableSelect}
         onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
-        value={dataset?.Id.toString()}>
+        value={dataset?.Id?.toString()}>
         {map(datasetList, (d, i) =>
           <option key={i} value={d.Id.toString()}>
             {d.Label}
@@ -124,21 +124,34 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   /* Create */
   const renderCreate = () =>
-    <div className="toolbar-right">
-      <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
-        <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
-      </Link>
-      <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.CreateSave)}>
-        <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
-      </Link>
-    </div>;
+    <>
+      <div className="toolbar-left">
+        <Link to={`${BASE_PATH}/create`} className="disabled">
+          <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
+        </Link>
+        <Link to={`${BASE_PATH}/create`} className="active">
+          <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
+        </Link>
+      </div>
+      <div className="toolbar-right">
+        <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
+          <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
+        </Link>
+        <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.CreateSave)}>
+          <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
+        </Link>
+      </div>
+    </>;
 
   /* Edit */
   const renderEdit = () =>
     <>
       <div className="toolbar-left">
-        <Link to={`${BASE_PATH}/`} onClick={() => updateMode(UserMode.View)} >
+        <Link to={`${BASE_PATH}/edit`} className="active">
           <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
+        </Link>
+        <Link to={`${BASE_PATH}/edit`} className="disabled">
+          <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
         </Link>
       </div>
       <div className="toolbar-right">

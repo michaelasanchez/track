@@ -42,8 +42,6 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     lg: 6,
   }
 
-  // console.log('dataset', dataset);
-
   const updateDataset = (updated: Partial<Dataset>) => {
     commitChanges({
       ...dataset,
@@ -57,44 +55,49 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
 
     dataset.Series[index] = {
       ...(dataset.Series[index]),
-      ...updated  
+      ...updated
     }
     updateDataset(dataset)
   }
 
   const addSeries = () => {
     const lastId = maxBy(dataset.Series, s => s.Id)?.Id || 0;
+
     dataset.Series.push(Series.Default(lastId + 1));
     updateDataset(dataset);
   }
 
-  const deleteSeries = (index: number) => {
+  const deleteSeries = (seriesId: number) => {
+    const index = dataset.Series.findIndex(s => s.Id == seriesId);
+
     dataset.Series.splice(index, 1);
     updateDataset(dataset);
   }
 
+
   /* Series Row */
   const renderSeriesRow = (s: Series, index: number) => {
+    if (!s.DatasetId) console.log(s.Order, DEFAULT_CHARTIST_COLORS[s.Order % DEFAULT_CHARTIST_COLORS.length])
     return (
       <Form.Group key={s.Id}>
         <Row>
           <Col {...colWidth} className="flex">
-            <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => updateSeries(s.Id, { Label: e.nativeEvent.srcElement.value })} />
+            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[s.Order % DEFAULT_CHARTIST_COLORS.length]) as Color} onChange={(e: any) => updateSeries(s.Id, { Color: e.hex.replace('#', '') })} disabled={!s.Visible}/>
 
-            {<Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => updateSeries(s.Id, { TypeId: parseInt(e.target.value) })} disabled={!createMode}>
+            <Form.Control type="text" defaultValue={s.Label} onBlurCapture={(e: any) => updateSeries(s.Id, { Label: e.nativeEvent.srcElement.value })} disabled={!s.Visible} />
+
+            {<Form.Control as="select" value={s.TypeId.toString()} onChange={(e: any) => updateSeries(s.Id, { TypeId: parseInt(e.target.value) })} disabled={!createMode && !!s.DatasetId}>
               {map(SeriesType, (i, j) => {
                 return isNaN(i) ? null : <option key={i} value={i}>{j}</option>;
               })}
             </Form.Control>}
 
-            <ColorPicker defaultColor={(s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[s.Order]) as Color} onChange={(e: any) => updateSeries(s.Id, { Color: e.hex.replace('#', '') })} />
-
-            {createMode && dataset.Series.length > 1 &&
-              <Button variant="link" onClick={(e: any) => deleteSeries(s.Id)} tabIndex={-1}>
+            {((createMode && dataset.Series.length > 1) || !s.DatasetId /*|| !s.Visible*/) &&
+              <Button variant="link" onClick={(e: any) => deleteSeries(s.Id)} tabIndex={-1} className="series">
                 <FontAwesomeIcon color="gray" className="icon" icon={deleteIcon} />
               </Button>}
-            {!createMode &&
-              <Button variant="link" onClick={(e: any) => updateSeries(s.Id, { Visible: !s.Visible })} tabIndex={-1}>
+            {!createMode && !!s.DatasetId &&
+              <Button variant="link" onClick={(e: any) => updateSeries(s.Id, { Visible: !s.Visible })} tabIndex={-1} className="series">
                 <FontAwesomeIcon color="gray" className={`icon ${s.Visible ? 'archive' : 'unarchive'}`} icon={s.Visible ? archiveIcon : unarchiveIcon} />
               </Button>}
 
@@ -135,10 +138,10 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   );
 
   /* Hidden Toggle Row */
-  const toggleHidden = (
+  const hiddenToggle = (
     <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
       <h6>
-        {`Hidden (${countBy(dataset.Series, s => !s.Visible).true})`}
+        {`Inactive (${countBy(dataset.Series, s => !s.Visible).true})`}
       </h6>
       <hr />
       <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
@@ -193,7 +196,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
           <Form.Group>
             <Row>
               <Col {...colWidth}>
-                {toggleHidden}
+                {hiddenToggle}
               </Col>
             </Row>
           </Form.Group>

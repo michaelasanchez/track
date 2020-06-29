@@ -24,6 +24,31 @@ $dataset-select-min-width: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    &.active,
+    &.disabled {
+      cursor: default;
+    }
+
+    &.active {
+      .icon {
+        opacity: 1;
+        transform: $icon-scale-large;
+
+        &.create {
+          color: var(--green);
+        }
+        // &.edit {
+        //   color: var(--orange);
+        // }
+      }
+    }
+
+    &.disabled {
+      .icon {
+        opacity: $icon-disabled-opacity;
+      }
+    }
   }
 
   .divider {

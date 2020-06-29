@@ -258,9 +258,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         <Navbar authState={authState} authService={authService} />
         <Container>
           <Row className="mt-3">
-            <Col xs={6} lg={12}>
+            <Col xs={12} md={8} lg={6}>
               <Toolbar
-                dataset={currentDataset}
+                dataset={mode == UserMode.Create ? pendingDataset : currentDataset}
                 datasetList={datasetList}
                 mode={mode}
                 updateMode={setMode}

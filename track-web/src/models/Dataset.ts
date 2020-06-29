@@ -13,6 +13,7 @@ export class Dataset {
   private series: Series[];
 
   constructor() {
+    this.Label = '';
     this.records = [];
     this.series = [];
 
