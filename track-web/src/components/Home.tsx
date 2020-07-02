@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Row, Col, Container } from "react-bootstrap";
 import { map, filter, findIndex, each, isEqual, cloneDeep } from 'lodash';
 import Toolbar, { ToolbarAction } from "./Toolbar";
-import { Route } from 'react-router-dom';
+import { Route, useLocation } from 'react-router-dom';
 import CreateRecord from "./actions/CreateRecord";
 import Graph from "./Graph";
 
@@ -23,10 +23,8 @@ const FALLBACK_DATASET_ID = 1;
 const ALLOW_DATASET_CACHING = true;
 
 // TODO: Figure out what to do with this
-const defaultUserMode = (): UserMode => {
-  switch (window.location.pathname) {
-    case '/':
-      return UserMode.View;
+const defaultUserMode = (location: any): UserMode => {
+  switch (location.pathname) {
     case '/create':
       return UserMode.Create;
     case '/edit':
@@ -52,7 +50,7 @@ type HomeProps = {};
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [mode, setMode] = useState<UserMode>(defaultUserMode());
+  const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset());
@@ -76,8 +74,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       setApiDataset(apiDatasetCache[cachedIndex]);
 
     } else {
-      const datasetRequest = new ApiRequest().Url('Datasets').Id(id).Expand('Series').Token(authState.accessToken).Get();
-      const apiDatasetRequest = new ApiRequest().Url('ApiDatasets').Id(id).GetApiDataset();
+      const datasetRequest = new ApiRequest('Datasets', authState.accessToken).Id(id).Expand('Series').Get();
+      const apiDatasetRequest = new ApiRequest('ApiDatasets').Id(id).GetApiDataset();
 
       Promise.all([
         datasetRequest,
@@ -123,7 +121,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
-    new ApiRequest().Url('Datasets').Filter('Archived eq false').Token(authState.accessToken).Get()
+    new ApiRequest('Datasets', authState.accessToken).Filter('Archived eq false').Get()
       .then((d: any) => {
         setDatasetList(d.value as Dataset[]);
 
@@ -171,7 +169,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const createDataset = (dataset: Dataset) => {
     dataset.Series = filter(dataset.Series, (s: Series) => s.Label.length) as Series[];
 
-    var req = new ApiRequest().Url('Datasets').Token(authState.accessToken).Post({
+    var req = new ApiRequest('Datasets', authState.accessToken).Post({
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
@@ -187,7 +185,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     let requests: any[] = [];
 
     if (!isEqual(dataset, currentDataset)) {
-      requests.push(new ApiRequest().Url('Datasets').Token(authState.accessToken).Patch({
+      requests.push(new ApiRequest('Datasets', authState.accessToken).Patch({
         Id: dataset.Id,
         Label: dataset.Label,
         Private: dataset.Private,
@@ -199,10 +197,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       if (index >= currentDataset.Series.length) {
         delete s.Id;
         s.DatasetId = dataset.Id;
-        requests.push(new ApiRequest().Url('Series').Post(s));
+        requests.push(new ApiRequest('Series').Post(s));
 
       } else if (!isEqual(s, currentDataset.Series[index])) {
-        requests.push(new ApiRequest().Url('Series').Put(s));
+        requests.push(new ApiRequest('Series').Put(s));
       }
     })
 
@@ -223,28 +221,23 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const renderGraph = () =>
     <Row>
       <Col xs={12} lg={3} className="order-2 order-lg-1">
-        <CreateRecord dataset={currentDataset} refreshDataset={loadDataset} />
+        <CreateRecord dataset={currentDataset} apiDataset={apiDataset} refreshDataset={loadDataset} />
       </Col>
       <Col lg={9} className="order-1 order-lg-2">
         <Graph dataset={apiDataset} />
       </Col>
     </Row>;
 
+  const test = useLocation();
+
   const renderRoutes = () =>
     <>
       <Route exact path={`${BASE_PATH}/`}>
         {renderGraph()}
       </Route>
-      <Route path={`${BASE_PATH}/edit`}>
+      <Route path={[`${BASE_PATH}/edit`, `${BASE_PATH}/create`]}>
         <DatasetForm
-          dataset={pendingDataset}
-          updateDataset={setPendingDataset}
-          allowPrivate={authState.isAuthenticated ? true : false}
-        />
-      </Route>
-      <Route path={`${BASE_PATH}/create`}>
-        <DatasetForm
-          createMode={true}
+          createMode={mode == UserMode.Create}
           dataset={pendingDataset}
           updateDataset={setPendingDataset}
           allowPrivate={authState.isAuthenticated ? true : false}

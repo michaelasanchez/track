@@ -2,7 +2,6 @@ import { Dataset } from "./Dataset";
 import { Series } from "./Series";
 import { Record } from "./Record";
 
-import { useOktaAuth } from '@okta/okta-react';
 import { DOMAIN } from "../config";
 
 class ApiRequest {
@@ -29,7 +28,10 @@ class ApiRequest {
   private expands: string[];
   private filters: string[];
 
-  constructor() {
+  constructor(url?: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records', token?: string) {
+    this._url = url;
+    this._token = token;
+
     this.expands = [];
     this.filters = [];
   }
@@ -74,15 +76,10 @@ class ApiRequest {
       .then(result => (result.ok && result.status != 204 && toJson) ? result.json() : result);
   }
 
-  public Token = (token: any) => {
-    this._token = token;
-    return this;
-  }
-
-  public Url = (url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records') => {
-    this._url = url;
-    return this;
-  }
+  // public Token = (token: any) => {
+  //   this._token = token;
+  //   return this;
+  // }
 
   public Id = (id: number) => {
     this.id = id;
