@@ -1,5 +1,8 @@
 import { Property } from "./Property";
 import { Note } from "./Note";
+import { Dataset } from "./Dataset";
+import { Series } from "./Series";
+import { map } from "lodash";
 
 export class Record {
   public Id: number;
@@ -11,11 +14,19 @@ export class Record {
   private properties: Property[];
   private notes: Note[];
 
-  constructor(datasetId: number, dateTime: Date = null) {
-    this.DatasetId = datasetId;
+  constructor(datasetId?: number, dateTime?: Date) {
+    if (datasetId) this.DatasetId = datasetId;
     if (dateTime) this.DateTime = dateTime;
     this.properties = [];
     this.notes = [];
+  }
+
+  public static Default(series: Series[]) {
+    return {
+      DateTime: new Date(),
+      Properties: map(series, s => new Property(s.Id, '')),
+      Notes: []
+    } as Record;
   }
 
   public get Properties() {

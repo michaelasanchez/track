@@ -3,7 +3,7 @@ import { Row, Col, Container } from "react-bootstrap";
 import { map, filter, findIndex, each, isEqual, cloneDeep } from 'lodash';
 import Toolbar, { ToolbarAction } from "./Toolbar";
 import { Route, useLocation } from 'react-router-dom';
-import CreateRecord from "./actions/CreateRecord";
+import RecordForm from "./forms/RecordForm";
 import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
@@ -16,6 +16,7 @@ import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
 import { BASE_PATH } from '../config';
 import DatasetForm from './forms/DatasetForm';
+import { Record } from '../models/Record';
 
 
 const FALLBACK_DATASET_ID = 1;
@@ -49,11 +50,13 @@ const defaultDatasetId = (datasetList: Dataset[]): number => {
 type HomeProps = {};
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
+
   const [loaded, setLoaded] = useState<boolean>(false);
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
-
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset());
+
+  const [pendingRecord, setPendingRecord] = useState<Record>();
 
   const [apiDataset, setApiDataset] = useState<ApiDataset>();
 
@@ -64,6 +67,27 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   const [errors, setErrors] = useState([]);
 
   const { authState, authService } = useOktaAuth();
+
+  // Init
+  useEffect(() => {
+    if (!authState.isPending) {
+      loadDatasetList();
+    }
+  }, [authState.accessToken])
+
+  const loadDatasetList = (skipDatasetLoad: boolean = false) => {
+    new ApiRequest('Datasets', authState.accessToken).Filter('Archived eq false').Get()
+      .then((d: any) => {
+        setDatasetList(d.value as Dataset[]);
+
+        if (!skipDatasetLoad)
+          loadDataset(defaultDatasetId(d.value));
+      })
+      .catch((error: any) => {
+        errors.push(error);
+        setErrors(errors);
+      });
+  }
 
   const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
     window.localStorage.setItem('datasetId', id.toString());
@@ -108,6 +132,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           setCurrentDataset(datasetExists ? d : null);
           setApiDataset(apiDatasetExists ? api : null);
 
+          if (mode == UserMode.View) setPendingRecord(Record.Default(d.Series));
           if (mode == UserMode.Edit) setPendingDataset(cloneDeep(d));
         })
         .catch((error) => {
@@ -118,20 +143,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           setLoaded(true);
         });
     }
-  }
-
-  const loadDatasetList = (skipDatasetLoad: boolean = false) => {
-    new ApiRequest('Datasets', authState.accessToken).Filter('Archived eq false').Get()
-      .then((d: any) => {
-        setDatasetList(d.value as Dataset[]);
-
-        if (!skipDatasetLoad)
-          loadDataset(defaultDatasetId(d.value));
-      })
-      .catch((error: any) => {
-        errors.push(error);
-        setErrors(errors);
-      });
   }
 
   /* Toolbar Actions */
@@ -211,39 +222,18 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       })
   }
 
-  // Init
-  useEffect(() => {
-    if (!authState.isPending) {
-      loadDatasetList();
-    }
-  }, [authState.accessToken])
-
-  const renderGraph = () =>
-    <Row>
-      <Col xs={12} lg={3} className="order-2 order-lg-1">
-        <CreateRecord dataset={currentDataset} apiDataset={apiDataset} refreshDataset={loadDataset} />
-      </Col>
-      <Col lg={9} className="order-1 order-lg-2">
-        <Graph dataset={apiDataset} />
-      </Col>
-    </Row>;
-
-  const test = useLocation();
-
-  const renderRoutes = () =>
-    <>
-      <Route exact path={`${BASE_PATH}/`}>
-        {renderGraph()}
-      </Route>
-      <Route path={[`${BASE_PATH}/edit`, `${BASE_PATH}/create`]}>
-        <DatasetForm
-          createMode={mode == UserMode.Create}
-          dataset={pendingDataset}
-          updateDataset={setPendingDataset}
-          allowPrivate={authState.isAuthenticated ? true : false}
-        />
-      </Route>
-    </>;
+  const createRecord = () => {
+    const req = new ApiRequest('Records').Post({
+      DatasetId: currentDataset.Id,
+      DateTime: pendingRecord.DateTime,
+      Properties: filter(pendingRecord.Properties, p => !!p.Value),
+      Notes: pendingRecord.Notes
+    } as Record);
+    req.then(() => {
+      setPendingRecord(Record.Default(currentDataset.Series));
+      loadDataset(currentDataset.Id, true);
+    });
+  }
 
   if (loaded && !errors.length) {
     return (
@@ -265,9 +255,29 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           </Row>
           <hr />
           <Row>
-            <Col>
-              {renderRoutes()}
-            </Col>
+            <Route exact path={`${BASE_PATH}/`}>
+              <Col xs={12} lg={3} className="order-2 order-lg-1">
+                <RecordForm
+                  dataset={currentDataset}
+                  record={pendingRecord}
+                  updateRecord={setPendingRecord}
+                  saveRecord={createRecord}
+                />
+              </Col>
+              <Col lg={9} className="order-1 order-lg-2">
+                <Graph dataset={apiDataset} />
+              </Col>
+            </Route>
+            <Route path={[`${BASE_PATH}/edit`, `${BASE_PATH}/create`]}>
+              <Col>
+                <DatasetForm
+                  createMode={mode == UserMode.Create}
+                  dataset={pendingDataset}
+                  updateDataset={setPendingDataset}
+                  allowPrivate={authState.isAuthenticated ? true : false}
+                />
+              </Col>
+            </Route>
           </Row>
         </Container>
       </>

@@ -4,7 +4,7 @@ export class Note {
   public RecordId: number;
   public Text: string;
 
-  constructor(recordId: number, text: string = null) {
+  constructor(recordId?: number, text?: string) {
     if (text) this.Text = text;
   }
   

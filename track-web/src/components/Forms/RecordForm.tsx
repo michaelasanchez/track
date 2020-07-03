@@ -1,130 +1,118 @@
 import * as React from 'react';
-import { map } from 'lodash';
+import { Dataset } from '../../models/Dataset';
+import { findIndex, each, filter, map } from 'lodash';
 import { Series } from '../../models/Series';
-import { Form, Button } from 'react-bootstrap';
-import DateTimePicker from '../inputs/DateTimePicker';
+import { useState } from 'react';
 import { Record } from '../../models/Record';
+import { Note } from '../../models/Note';
+import { Property } from '../../models/Property';
+import ApiRequest from '../../models/Request';
 import { SeriesType } from '../../shared/enums';
-import { DEFAULT_CHARTIST_COLORS } from '../../models/ChartistOptions';
+import { Form, Button } from 'react-bootstrap';
+import { defaultColor } from '../../models/ChartistOptions';
+import DateTimePicker from '../inputs/DateTimePicker';
 
 type RecordFormProps = {
+  dataset: Dataset;
   record: Record;
-  seriesList: Series[];
-  updateDate: Function;
-  updateProperty: Function;
-  updateNote: any;
-  save: any;
+  updateRecord: (record: Record) => void;
+  saveRecord: () => void;
+  disabled?: boolean;
 };
 
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
+  dataset,
   record,
-  seriesList,
-  updateDate,
-  updateProperty,
-  updateNote,
-  save
+  updateRecord: commitChanges,
+  saveRecord,
+  disabled
 }) => {
 
-  // TODO: Be more specific
-  const disabled = !record;
+  console.log('RECORD FORM', record);
 
-  const handleUpdateDate = (d: Date) => {
-    // setAutoUpdate(false);
-    updateDate(d);
+  const updateRecord = (updated: Partial<Record>) => {
+    commitChanges({
+      ...record,
+      ...updated,
+      Properties: updated?.Properties || record.Properties,
+      Notes: updated?.Notes || record.Notes
+    } as Record)
   }
 
-  const handleSave = (e: any) => {
-    // setAutoUpdate(true);
-    save(e);
+  const updateProperty = (seriesId: number, value: string) => {
+    const index = findIndex(record.Properties, p => p.SeriesId == seriesId);
+    if (index < 0) {
+      record.Properties.push(new Property(seriesId, value));
+    } else {
+      record.Properties[index] = new Property(seriesId, value);
+
+      updateRecord({
+        Properties: record.Properties
+      } as Record);
+    }
   }
 
-  const renderPropertyInput = (s: Series, index: number) => {
-    const prop = record.Properties.filter(p => p.SeriesId == s.Id);
+  const renderColorLabel = (color: string, order: number) => {
+    return <div className="color" style={{ backgroundColor: `#${color || defaultColor(order)}` }} />;
+  }
 
-    const defaultProps = {
-      onChange: (e: any) => updateProperty(e, s),
-    }
-
-    let inputProps;
-    if (s.TypeId != SeriesType.Boolean) {
-      inputProps = {
-        ...defaultProps,
-        value: prop.length ? prop[0].Value : '',
-      }
-    }
-
-    let input;
-    switch (s.TypeId) {
-      case 1:
-        input = <Form.Control
-          type="number"
-          step={1}
-          {...inputProps}
-        />;
-        break;
-      case 2:
-        input = <Form.Control
-          type="number"
-          {...inputProps}
-        />;
-        break;
-      case 3:
-        input = <Form.Check
-          type="checkbox"
-          custom
-          label={s.Label}
-          checked={prop.length && prop[0].Value === 'true'}
-          {...defaultProps}
-        />;
-        break;
-      default:
-        input = <Form.Control
-          type="text"
-          {...inputProps}
-        />;
-        break;
-    }
-
-    const colorLabel = <div className="color" style={{ backgroundColor: `#${s.Color ? s.Color : DEFAULT_CHARTIST_COLORS[index]}` }} />;
-
-    if (s.TypeId == SeriesType.Boolean) {
-      return <>
-        {colorLabel}
-        {input}
-      </>;
-    }
-
+  const renderNumberInput = (s: Series, prop: Property) => {
     return <>
       <Form.Label>
-        {colorLabel}
+        {renderColorLabel(s.Color, s.Order)}
         {s.Label}
       </Form.Label>
-      {input}
+      <Form.Control
+        type="number"
+        // step={1}
+        value={prop.Value}
+        onChange={(e: any) => updateProperty(s.Id, e.target.value)}
+      />
+    </>;
+  }
+
+  const renderCheckInput = (s: Series, prop: Property) => {
+    return <>
+      {renderColorLabel(s.Color, s.Order)}
+      <Form.Check
+        type="checkbox"
+        custom
+        label={s.Label}
+        checked={prop.Value === 'true'}
+        onChange={(e: any) => updateProperty(s.Id, e.target.checked ? 'true' : 'false')}
+      />
     </>;
   }
 
   return (
-    <>
-      <Form className="form-record">
-        <Form.Group>
-          <Form.Label>Date</Form.Label>
-          <DateTimePicker date={record?.DateTime ?? new Date()} updateDate={handleUpdateDate} disabled={disabled} />
+    <Form className="form-record">
+      <Form.Group>
+        <Form.Label>Date</Form.Label>
+        <DateTimePicker date={record.DateTime} updateDate={(d: Date) => updateRecord({ DateTime: d })} disabled={disabled} />
+      </Form.Group>
+      {map(dataset?.Series, (s: Series, i: number) =>
+        <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
+          {s.Visible && s.TypeId == SeriesType.Boolean ?
+            renderCheckInput(s, record.Properties[i])
+            :
+            renderNumberInput(s, record.Properties[i])}
         </Form.Group>
-        {map(seriesList, (s: Series, i: number) =>
-          <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
-            {s.Visible && renderPropertyInput(s, i)}
-          </Form.Group>
-        )}
-        <Form.Group>
-          <Form.Label>Note</Form.Label>
-          <Form.Control as="textarea" defaultValue={record?.Notes.length ? record.Notes[0].Text : ''} rows="3" onBlurCapture={updateNote} disabled={disabled} />
-        </Form.Group>
-        <Button variant="primary" onClick={handleSave} disabled={disabled}>
-          Add
+      )}
+
+      <Form.Group>
+        <Form.Label>Note</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows="3"
+          disabled={disabled}
+          value={record?.Notes.length ? record.Notes[0].Text : ''}
+          onChange={(e: any) => updateRecord({ Notes: [{ Text: e.target.value } as Note] })}
+        />
+      </Form.Group>
+      <Button variant="primary" onClick={saveRecord} disabled={disabled}>
+        Add
       </Button>
-      </Form>
-    </>
+    </Form>
   );
 }
-
 export default RecordForm;

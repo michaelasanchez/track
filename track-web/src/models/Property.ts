@@ -5,7 +5,7 @@ export class Property {
   public Label: string;
   public Value: string;
 
-  constructor(seriesId: number, value: string = null) {
+  constructor(seriesId: number, value?: string) {
     this.SeriesId = seriesId;
     if (!!value) this.Value = value;
   }

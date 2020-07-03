@@ -76,11 +76,6 @@ class ApiRequest {
       .then(result => (result.ok && result.status != 204 && toJson) ? result.json() : result);
   }
 
-  // public Token = (token: any) => {
-  //   this._token = token;
-  //   return this;
-  // }
-
   public Id = (id: number) => {
     this.id = id;
     return this;
