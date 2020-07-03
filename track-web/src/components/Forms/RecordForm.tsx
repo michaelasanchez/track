@@ -65,7 +65,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       <Form.Control
         type="number"
         // step={1}
-        value={prop.Value}
+        value={prop?.Value || ''}
         onChange={(e: any) => updateProperty(s.Id, e.target.value)}
       />
     </>;
@@ -78,7 +78,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         type="checkbox"
         custom
         label={s.Label}
-        checked={prop.Value === 'true'}
+        checked={prop?.Value === 'true'}
         onChange={(e: any) => updateProperty(s.Id, e.target.checked ? 'true' : 'false')}
       />
     </>;
@@ -90,7 +90,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         <Form.Label>Date</Form.Label>
         <DateTimePicker date={record.DateTime} updateDate={(d: Date) => updateRecord({ DateTime: d })} disabled={disabled} />
       </Form.Group>
-      {map(dataset?.Series, (s: Series, i: number) =>
+      {filter(dataset?.Series, s => s.Visible).map((s: Series, i: number) =>
         <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
           {s.Visible && s.TypeId == SeriesType.Boolean ?
             renderCheckInput(s, record.Properties[i])

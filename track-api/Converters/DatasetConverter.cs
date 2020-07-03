@@ -10,6 +10,8 @@ namespace track_api.Converters
 {
     public static class DatasetConverter
     {
+        private static TimeZoneInfo easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+
         public static ApiDataset Convert(Dataset dataset)
         {
             var apiDataset = new ApiDataset();
@@ -37,7 +39,7 @@ namespace track_api.Converters
             foreach (Record record in dataset.Records.OrderBy(r => r.DateTime))
             {
                 recordCount++;
-                apiDataset.SeriesLabels.Add(record.DateTime);
+                apiDataset.SeriesLabels.Add(TimeZoneInfo.ConvertTimeFromUtc(record.DateTime, easternTimeZone));
 
                 foreach (Property prop in record.Properties)
                 {
