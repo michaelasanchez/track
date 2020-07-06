@@ -20,6 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { UserMode } from '../shared/enums';
 import { BASE_PATH } from '../config';
+import Select from 'react-select';
 
 export enum ToolbarAction {
   CreateBegin,
@@ -73,18 +74,12 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   /* Select */
   const renderDatasetSelect = () => {
     return (
-      <Form.Control
-        as="select"
-        className="custom-select"
-        disabled={disableSelect}
-        onChange={(e: React.FormEvent) => updateDataset($(e.target).val())}
-        value={dataset?.Id?.toString()}>
-        {map(datasetList, (d, i) =>
-          <option key={i} value={d.Id.toString()}>
-            {d.Label}
-          </option>
-        )}
-      </Form.Control>
+      <Select
+        isDisabled={disableSelect}
+        options={map(datasetList, d => ({ label: d.Label, value: d.Id }) )}
+        value={{ label: dataset.Label, value: dataset.Id }}
+        onChange={(option: any) => updateDataset(option.value)}
+      />
     );
   }
 
@@ -129,7 +124,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         <Link to={`${BASE_PATH}/create`} className="disabled">
           <FontAwesomeIcon icon={editIcon} color="gray" className="icon edit" />
         </Link>
-        <Link to={`${BASE_PATH}/create`} className="active">
+        <Link to={`${BASE_PATH}/`} className="active" onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
         </Link>
       </div>
@@ -147,7 +142,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderEdit = () =>
     <>
       <div className="toolbar-left">
-        <Link to={`${BASE_PATH}/edit`} className="active">
+        <Link to={`${BASE_PATH}/`} className="active" onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
         </Link>
         <Link to={`${BASE_PATH}/edit`} className="disabled">

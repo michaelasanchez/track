@@ -20,21 +20,30 @@ $dataset-select-min-width: 100px;
     min-width: $dataset-select-min-width;
   }
 
+  /* Select2 Temp */
+  div[class*="container"] {
+    width: 200px;
+  }
+
   a {
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin: 0.25rem;
 
-    &.active,
+    // &.active,
     &.disabled {
       cursor: default;
     }
 
     &.active {
       .icon {
-        opacity: 1;
+        opacity: .7;
         transform: $icon-scale-large;
+
+        &:hover {
+          opacity: 1;
+        }
 
         &.create {
           color: var(--green);
