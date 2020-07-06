@@ -24,7 +24,7 @@ export class Record {
   public static Default(series: Series[]) {
     return {
       DateTime: new Date(),
-      Properties: map(series, s => new Property(s.Id, '')),
+      Properties: map(series, s => new Property(s.Id)),
       Notes: []
     } as Record;
   }

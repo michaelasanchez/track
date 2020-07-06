@@ -53,10 +53,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const [loaded, setLoaded] = useState<boolean>(false);
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
+
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset());
-
-  const [pendingRecord, setPendingRecord] = useState<Record>();
 
   const [apiDataset, setApiDataset] = useState<ApiDataset>();
 
@@ -132,7 +131,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           setCurrentDataset(datasetExists ? d : null);
           setApiDataset(apiDatasetExists ? api : null);
 
-          setPendingRecord(Record.Default(d.Series));
           if (mode == UserMode.Edit) setPendingDataset(cloneDeep(d));
         })
         .catch((error) => {
@@ -223,18 +221,15 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   // Post pendingRecord
-  const createRecord = (): Promise<any> => {
+  const createRecord = (record: Record): Promise<any> => {
     const req = new ApiRequest('Records').Post({
       DatasetId: currentDataset.Id,
-      DateTime: pendingRecord.DateTime,
-      Properties: filter(pendingRecord.Properties, p => !!p.Value),
-      Notes: pendingRecord.Notes
+      DateTime: record.DateTime,
+      Properties: filter(record.Properties, p => !!p.Value),
+      Notes: record.Notes
     } as Record);
 
-    req.then(() => {
-      setPendingRecord(Record.Default(currentDataset.Series));
-      loadDataset(currentDataset.Id, true);
-    });
+    req.then(() => loadDataset(currentDataset.Id, true));
 
     return req;
   }
@@ -262,9 +257,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
             <Route exact path={`${BASE_PATH}/`}>
               <Col xs={12} lg={3} className="order-2 order-lg-1">
                 <RecordForm
-                  dataset={currentDataset}
-                  record={pendingRecord}
-                  updateRecord={setPendingRecord}
+                  series={currentDataset.Series}
                   saveRecord={createRecord}
                 />
               </Col>

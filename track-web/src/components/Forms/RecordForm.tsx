@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { Dataset } from '../../models/Dataset';
 import { findIndex, each, filter, map } from 'lodash';
 import { Series } from '../../models/Series';
 import { useState, useEffect } from 'react';
 import { Record } from '../../models/Record';
 import { Note } from '../../models/Note';
 import { Property } from '../../models/Property';
-import ApiRequest from '../../models/Request';
 import { SeriesType } from '../../shared/enums';
 import { Form, Button } from 'react-bootstrap';
 import { defaultColor } from '../../models/ChartistOptions';
@@ -14,28 +12,25 @@ import DateTimePicker from '../inputs/DateTimePicker';
 import useInterval from '../../hooks/useInterval';
 
 type RecordFormProps = {
-  dataset: Dataset;
-  record: Record;
-  updateRecord: (record: Record) => void;
-  saveRecord: () => Promise<any>;
+  series: Series[];
+  saveRecord: (record: Record) => Promise<any>;
   disabled?: boolean;
 };
 
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
-  dataset,
-  record,
-  updateRecord,
+  series,
   saveRecord,
   disabled
 }) => {
   const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
+  const [record, setRecord] = useState<Record>(Record.Default(series));
 
   useInterval(() => {
-    if (autoUpdate) handleRecordUpdate({ DateTime: new Date() });
+    if (autoUpdate) handleRecordUpdate({ DateTime: new Date() }) //handleRecordUpdate({ DateTime: new Date() });
   }, 1000);
 
   const handleRecordUpdate = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {
-    updateRecord({
+    setRecord({
       ...record,
       ...updated,
       Properties: updated?.Properties || record.Properties,
@@ -46,8 +41,11 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   }
 
   const handleRecordSave = () => {
-    saveRecord()
-      .then(() => setAutoUpdate(true));
+    saveRecord(record)
+      .then(() => {
+        setAutoUpdate(true)
+        setRecord(Record.Default(series));
+      });
   }
 
   const updateProperty = (seriesId: number, value: string) => {
@@ -105,7 +103,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       </Form.Group>
 
       {/* Props */}
-      {filter(dataset?.Series, s => s.Visible).map((s: Series, i: number) =>
+      {filter(series, s => s.Visible).map((s: Series, i: number) =>
         <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
           {s.Visible && s.TypeId == SeriesType.Boolean ?
             renderCheckInput(s, record.Properties[i])

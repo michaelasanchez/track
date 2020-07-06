@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'chartist/dist/chartist.css';
+import 'chartist-plugin-tooltips-updated/dist/chartist-plugin-tooltip.css'; 
 import './style/app.scss';
 
 import * as React from "react";

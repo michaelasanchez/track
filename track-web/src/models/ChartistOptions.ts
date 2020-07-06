@@ -3,6 +3,7 @@ import moment from "moment";
 import { ApiSeries } from "./ApiSeries";
 import { ChartZoom } from "../components/Graph";
 import { TimeSpan } from "./TimeSpan";
+import ChartistTooltip from 'chartist-plugin-tooltips-updated';
 
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
@@ -30,7 +31,14 @@ const DEFAULT_CHART_OPTIONS = {
   },
   axisY: {
     showLabel: false,
-  }
+  },
+  plugins: [
+    ChartistTooltip({
+      currency: '$',
+      class: 'class1 class2',
+      appendToBody: true
+    })
+  ]
 } as ILineChartOptions;
 
 const NUMERICAL_OPTIONS = {
