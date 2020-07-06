@@ -222,17 +222,21 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       })
   }
 
-  const createRecord = () => {
+  // Post pendingRecord
+  const createRecord = (): Promise<any> => {
     const req = new ApiRequest('Records').Post({
       DatasetId: currentDataset.Id,
       DateTime: pendingRecord.DateTime,
       Properties: filter(pendingRecord.Properties, p => !!p.Value),
       Notes: pendingRecord.Notes
     } as Record);
+    
     req.then(() => {
       setPendingRecord(Record.Default(currentDataset.Series));
       loadDataset(currentDataset.Id, true);
     });
+
+    return req;
   }
 
   if (loaded && !errors.length) {

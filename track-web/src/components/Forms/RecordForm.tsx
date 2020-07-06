@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dataset } from '../../models/Dataset';
 import { findIndex, each, filter, map } from 'lodash';
 import { Series } from '../../models/Series';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Record } from '../../models/Record';
 import { Note } from '../../models/Note';
 import { Property } from '../../models/Property';
@@ -11,32 +11,43 @@ import { SeriesType } from '../../shared/enums';
 import { Form, Button } from 'react-bootstrap';
 import { defaultColor } from '../../models/ChartistOptions';
 import DateTimePicker from '../inputs/DateTimePicker';
+import useInterval from '../../hooks/useInterval';
 
 type RecordFormProps = {
   dataset: Dataset;
   record: Record;
   updateRecord: (record: Record) => void;
-  saveRecord: () => void;
+  saveRecord: () => Promise<any>;
   disabled?: boolean;
 };
 
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   dataset,
   record,
-  updateRecord: commitChanges,
+  updateRecord,
   saveRecord,
   disabled
 }) => {
+  const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
 
-  console.log('RECORD FORM', record);
+  useInterval(() => {
+    if (autoUpdate) handleRecordUpdate({ DateTime: new Date() });
+  }, 1000);
 
-  const updateRecord = (updated: Partial<Record>) => {
-    commitChanges({
+  const handleRecordUpdate = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {
+    updateRecord({
       ...record,
       ...updated,
       Properties: updated?.Properties || record.Properties,
       Notes: updated?.Notes || record.Notes
     } as Record)
+
+    if (cancelAutoUpdate) setAutoUpdate(false);
+  }
+
+  const handleRecordSave = () => {
+    saveRecord()
+      .then(() => setAutoUpdate(true));
   }
 
   const updateProperty = (seriesId: number, value: string) => {
@@ -46,7 +57,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
     } else {
       record.Properties[index] = new Property(seriesId, value);
 
-      updateRecord({
+      handleRecordUpdate({
         Properties: record.Properties
       } as Record);
     }
@@ -64,7 +75,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       </Form.Label>
       <Form.Control
         type="number"
-        // step={1}
+        step={1}
         value={prop?.Value || ''}
         onChange={(e: any) => updateProperty(s.Id, e.target.value)}
       />
@@ -86,10 +97,14 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
 
   return (
     <Form className="form-record">
+
+      {/* DateTime */}
       <Form.Group>
         <Form.Label>Date</Form.Label>
-        <DateTimePicker date={record.DateTime} updateDate={(d: Date) => updateRecord({ DateTime: d })} disabled={disabled} />
+        <DateTimePicker date={record.DateTime} updateDate={(d: Date) => handleRecordUpdate({ DateTime: d }, true)} disabled={disabled} />
       </Form.Group>
+
+      {/* Props */}
       {filter(dataset?.Series, s => s.Visible).map((s: Series, i: number) =>
         <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
           {s.Visible && s.TypeId == SeriesType.Boolean ?
@@ -99,6 +114,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         </Form.Group>
       )}
 
+      {/* Note */}
       <Form.Group>
         <Form.Label>Note</Form.Label>
         <Form.Control
@@ -106,10 +122,12 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
           rows="3"
           disabled={disabled}
           value={record?.Notes.length ? record.Notes[0].Text : ''}
-          onChange={(e: any) => updateRecord({ Notes: [{ Text: e.target.value } as Note] })}
+          onChange={(e: any) => handleRecordUpdate({ Notes: [{ Text: e.target.value } as Note] })}
         />
       </Form.Group>
-      <Button variant="primary" onClick={saveRecord} disabled={disabled}>
+
+      {/* Save */}
+      <Button variant="primary" onClick={handleRecordSave} disabled={disabled}>
         Add
       </Button>
     </Form>
