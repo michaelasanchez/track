@@ -24,8 +24,8 @@ import { BASE_PATH } from '../config';
 export enum ToolbarAction {
   CreateBegin,
   CreateSave,
-  UpdateBegin,
-  UpdateSave,
+  EditBegin,
+  EditSave,
   Cancel
 }
 
@@ -114,7 +114,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   /* Home */
   const renderDefault = () =>
     <div className="toolbar-left">
-      <Link to={`${BASE_PATH}/edit`} onClick={() => doAction(ToolbarAction.UpdateBegin)}>
+      <Link to={`${BASE_PATH}/edit`} onClick={() => doAction(ToolbarAction.EditBegin)}>
         <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${disabled ? ' disabled' : ''}`} />
       </Link>
       <Link to={`${BASE_PATH}/create`} onClick={() => doAction(ToolbarAction.CreateBegin)}>
@@ -162,7 +162,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
         </Link>
-        <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.UpdateSave)}>
+        <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.EditSave)}>
           <FontAwesomeIcon icon={saveIcon} color="gray" className="icon save" />
         </Link>
       </div>

@@ -56,11 +56,11 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       record.Properties.push(new Property(seriesId, value));
     } else {
       record.Properties[index] = new Property(seriesId, value);
-
-      handleRecordUpdate({
-        Properties: record.Properties
-      } as Record);
     }
+
+    handleRecordUpdate({
+      Properties: record.Properties
+    } as Record);
   }
 
   const renderColorLabel = (color: string, order: number) => {

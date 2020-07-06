@@ -132,7 +132,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           setCurrentDataset(datasetExists ? d : null);
           setApiDataset(apiDatasetExists ? api : null);
 
-          if (mode == UserMode.View) setPendingRecord(Record.Default(d.Series));
+          setPendingRecord(Record.Default(d.Series));
           if (mode == UserMode.Edit) setPendingDataset(cloneDeep(d));
         })
         .catch((error) => {
@@ -151,7 +151,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
     switch (action) {
       case ToolbarAction.CreateBegin:
         setPendingDataset(new Dataset());
-        setMode(UserMode.Edit);
+        setMode(UserMode.Create);
         break;
 
       case ToolbarAction.CreateSave:
@@ -159,12 +159,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
         setMode(UserMode.View);
         break;
 
-      case ToolbarAction.UpdateBegin:
+      case ToolbarAction.EditBegin:
         setPendingDataset(cloneDeep(currentDataset));
-        setMode(UserMode.Create)
+        setMode(UserMode.Edit)
         break;
 
-      case ToolbarAction.UpdateSave:
+      case ToolbarAction.EditSave:
         updateDataset(pendingDataset);
         setMode(UserMode.View);
         break;
@@ -230,7 +230,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       Properties: filter(pendingRecord.Properties, p => !!p.Value),
       Notes: pendingRecord.Notes
     } as Record);
-    
+
     req.then(() => {
       setPendingRecord(Record.Default(currentDataset.Series));
       loadDataset(currentDataset.Id, true);
