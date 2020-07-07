@@ -75,8 +75,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderDatasetSelect = () => {
     return (
       <Select
+        className="select"
         isDisabled={disableSelect}
-        options={map(datasetList, d => ({ label: d.Label, value: d.Id }) )}
+        options={map(datasetList, d => ({ label: d.Label, value: d.Id }))}
         value={{ label: dataset.Label, value: dataset.Id }}
         onChange={(option: any) => updateDataset(option.value)}
       />

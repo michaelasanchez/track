@@ -1,4 +1,4 @@
-$dataset-select-min-width: 100px;
+$dataset-select-min-width: 160px;
 
 .toolbar {
   display: flex;
@@ -14,15 +14,9 @@ $dataset-select-min-width: 100px;
     margin-left: auto;
   }
 
-  select {
-    width: auto;
-    margin-right: 0.6rem;
-    min-width: $dataset-select-min-width;
-  }
-
-  /* Select2 Temp */
-  div[class*="container"] {
-    width: 200px;
+  .select {
+    width: $dataset-select-min-width;
+    margin-right: 0.75rem;
   }
 
   a {
@@ -38,7 +32,7 @@ $dataset-select-min-width: 100px;
 
     &.active {
       .icon {
-        opacity: .7;
+        opacity: 0.7;
         transform: $icon-scale-large;
 
         &:hover {
@@ -63,14 +57,13 @@ $dataset-select-min-width: 100px;
 
   .divider {
     border: 1px solid rgb(232, 232, 232);
-    margin: 10px .75rem 8px;
+    margin: 10px 0.75rem 8px;
   }
 
   .icon {
     margin: 0 0.5rem;
 
     &:hover:not(.disabled) {
-      
       &.create,
       &.save {
         color: var(--green);

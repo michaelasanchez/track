@@ -33,11 +33,7 @@ const DEFAULT_CHART_OPTIONS = {
     showLabel: false,
   },
   plugins: [
-    ChartistTooltip({
-      currency: '$',
-      class: 'class1 class2',
-      appendToBody: true
-    })
+    ChartistTooltip()
   ]
 } as ILineChartOptions;
 
