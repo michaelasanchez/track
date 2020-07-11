@@ -2,7 +2,8 @@ import moment from "moment";
 import { SeriesType } from "../shared/enums";
 import { ApiSeries } from "./ApiSeries";
 
-const ChartistRecord = (series: ApiSeries, dateTimeString: string, value?: string, index?: number) => {
+// TODO: Does this need to be a class?
+const ChartistRecord = (series: ApiSeries, timestamp: string, value?: string, index?: number) => {
   let parsed;
   switch (series.SeriesType) {
     case SeriesType.Decimal:
@@ -12,7 +13,7 @@ const ChartistRecord = (series: ApiSeries, dateTimeString: string, value?: strin
       parsed = Number.parseInt(value);
       break;
     case SeriesType.Boolean:
-      // Keep series in desc order on chart
+      // Descending order for chart
       parsed = value === 'true' ? -(index + 1) : null;
       break;
     default:
@@ -21,8 +22,8 @@ const ChartistRecord = (series: ApiSeries, dateTimeString: string, value?: strin
   }
 
   return !parsed ? null : {
-    meta: series.Label,
-    x: moment(dateTimeString),
+    meta: `${series.Label} - ${value}`,
+    x: moment(timestamp),
     y: parsed
   };
 }

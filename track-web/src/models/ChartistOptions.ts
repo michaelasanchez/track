@@ -19,6 +19,8 @@ const DEFAULT_CHARTIST_COLORS = [
   '6b0392',
   'f05b4f'
 ];
+// const TOOLTIP_DATE_FORMAT = 'MMM Do YY h:mma';
+const TOOLTIP_DATE_FORMAT = 'M/D/YY h:mma';
 
 export const defaultColor = (order: number) => {
   return DEFAULT_CHARTIST_COLORS[order % DEFAULT_CHARTIST_COLORS.length]
@@ -33,7 +35,15 @@ const DEFAULT_CHART_OPTIONS = {
     showLabel: false,
   },
   plugins: [
-    ChartistTooltip()
+    ChartistTooltip({
+      // tooltipFnc: (tooltipTitle: any, tooltipText: string) => tooltipTitle,
+      transformTooltipTextFnc: (text: string) => {
+        const [timestamp, value] = text.split(',');
+        return moment(parseInt(timestamp)).format(TOOLTIP_DATE_FORMAT);
+      },
+      appendToBody: true,
+      anchorToPoint: true
+    })
   ]
 } as ILineChartOptions;
 
@@ -101,7 +111,7 @@ const getDateFormat = (zoom: ChartZoom) => {
       return 'MMM \'YY'
     case ChartZoom.Day:
       return 'MMM D'
-      // return 'MMM D h:mma'
+    // return 'MMM D h:mma'
     case ChartZoom.Hour:
       return 'MMM D h:mma'
     case ChartZoom.Minute:
@@ -111,7 +121,7 @@ const getDateFormat = (zoom: ChartZoom) => {
 
 // TODO: Not sure if this makes sense as a class?
 export class ChartistOptionsFactory {
-  
+
   private _width: number;
   private _divisor: number;
   private _dateFormat: string;
@@ -120,7 +130,7 @@ export class ChartistOptionsFactory {
 
     // When zoom is set to day, divisor is equal to number of day, rounded
     this._divisor = Math.round(getTimeSpanValue(span, zoom));
-    
+
     this._width = calcChartWidth(span, refWidth, zoom);
     this._dateFormat = getDateFormat(zoom);
   }

@@ -11,6 +11,7 @@ import Alert from "react-bootstrap/Alert";
 import { ChartistData } from "../models/ChartistData";
 import { useResize } from "../hooks/useResize";
 import { TimeSpan } from "../models/TimeSpan";
+import Chartist from "chartist";
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -114,17 +115,6 @@ const Graph: React.FunctionComponent<GraphProps> = ({
         type={type}
       />
     </>);
-  }
-
-  const lineGraph = (dataset: ApiDataset) => {
-    return (<>
-      {renderColorStyle(dataset.NumericalSeries, 'numerical')}
-      <ChartistGraph
-        data={numericalData}
-        options={optionsFactory.getNumericalChartOptions(hasFrequencyData)}
-        type={type}
-      />
-    </>);
   };
 
   const frequencyLabels = (dataset: ApiDataset) => {
@@ -135,7 +125,19 @@ const Graph: React.FunctionComponent<GraphProps> = ({
         type={type}
       />
     </>);
-  }
+  };
+
+  const lineGraph = (dataset: ApiDataset) => {
+    return (<>
+      {renderColorStyle(dataset.NumericalSeries, 'numerical')}
+      <ChartistGraph
+        // listener={listener}
+        data={numericalData}
+        options={optionsFactory.getNumericalChartOptions(hasFrequencyData)}
+        type={type}
+      />
+    </>);
+  };
 
   const frequencyGraph = (dataset: ApiDataset) => {
     return (<>

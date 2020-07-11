@@ -5,8 +5,8 @@
   background: white;
 
   // TODO: hack
-    width: 40px;
-    padding-left: 15px;
+  width: 40px;
+  padding-left: 15px;
 
   svg {
     overflow: visible;
@@ -15,6 +15,18 @@
 
 .chartist-tooltip {
   position: absolute;
+  font-size: 0.8rem;
+  background: #453d3f;
+  color: #fff;
+  border-radius: 0.25rem;
+  
+  &.tooltip-show {
+    opacity: .9;
+  }
+
+  &::before {
+    border-top-color: #453d3f;
+  }
 }
 
 .graph-container {
@@ -26,11 +38,11 @@
   &::-webkit-scrollbar {
     width: 5px;
   }
-   
+
   &::-webkit-scrollbar-track {
     background: #dddddd33;
   }
-   
+
   &::-webkit-scrollbar-thumb {
     background: #66666633;
   }
