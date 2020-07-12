@@ -4,12 +4,15 @@ namespace track_api.Models.Db
     using System.Data.Entity;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
+    using System.Data.Entity.Infrastructure;
 
     public partial class ModelContext : DbContext
     {
         public ModelContext()
             : base("name=ModelContext")
         {
+            var objectContext = ((IObjectContextAdapter)this).ObjectContext;
+            objectContext.SavingChanges += UpdateDatedEntity;
         }
 
         public virtual DbSet<Dataset> Datasets { get; set; }
@@ -49,6 +52,27 @@ namespace track_api.Models.Db
             modelBuilder.Entity<User>()
                 .Property(e => e.Username)
                 .IsUnicode(false);
+        }
+
+        protected void UpdateDatedEntity(object sender, EventArgs args)
+        {
+            var now = DateTimeOffset.Now;
+
+            foreach (var entry in this.ChangeTracker.Entries<IDatedEntity>())
+            {
+                var entity = entry.Entity;
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entity.Created = now;
+                        entity.Updated = now;
+                        break;
+                    case EntityState.Modified:
+                        entity.Updated = now;
+                        break;
+                }
+            }
+            this.ChangeTracker.DetectChanges();
         }
     }
 }

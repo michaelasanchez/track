@@ -6,15 +6,8 @@ namespace track_api.Models.Db
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class Series
+    public partial class Series : DbEntity
     {
-        public Series()
-        {
-            Visible = true;
-        }
-
-        public int Id { get; set; }
-
         public int DatasetId { get; set; }
 
         public int TypeId { get; set; }
@@ -29,5 +22,10 @@ namespace track_api.Models.Db
         public int Order { get; set; }
 
         public bool Visible { get; set; }
+
+        public Series()
+        {
+            Visible = true;
+        }
     }
 }

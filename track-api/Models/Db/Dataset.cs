@@ -7,10 +7,8 @@ namespace track_api.Models.Db
     using System.Data.Entity.Spatial;
 
     [Table("Dataset")]
-    public partial class Dataset
+    public partial class Dataset : DbEntity
     {
-        public int Id { get; set; }
-
         public int? UserId { get; set; }
 
         [ForeignKey("UserId")]

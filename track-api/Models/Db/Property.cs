@@ -7,10 +7,8 @@ namespace track_api.Models.Db
     using System.Data.Entity.Spatial;
 
     [Table("Property")]
-    public partial class Property
+    public partial class Property : DbEntity
     {
-        public int Id { get; set; }
-
         public int RecordId { get; set; }
 
         public int SeriesId { get; set; }

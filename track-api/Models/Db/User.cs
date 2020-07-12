@@ -7,10 +7,8 @@ namespace track_api.Models.Db
     using System.Data.Entity.Spatial;
 
     [Table("User")]
-    public partial class User
+    public partial class User : DbEntity
     {
-        public int Id { get; set; }
-
         public string OktaUserId { get; set; }
 
         public string Username { get; set; }

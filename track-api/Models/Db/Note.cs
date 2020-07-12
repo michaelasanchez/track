@@ -7,10 +7,8 @@ namespace track_api.Models.Db
     using System.Data.Entity.Spatial;
 
     [Table("Note")]
-    public partial class Note
+    public partial class Note : DbEntity
     {
-        public int Id { get; set; }
-
         public int RecordId { get; set; }
 
         [Required]
