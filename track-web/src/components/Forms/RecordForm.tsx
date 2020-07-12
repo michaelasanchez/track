@@ -29,6 +29,14 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
     if (autoUpdate) handleRecordUpdate({ DateTime: new Date() }) //handleRecordUpdate({ DateTime: new Date() });
   }, 1000);
 
+  const handleRecordSave = () => {
+    saveRecord(record)
+      .then(() => {
+        setAutoUpdate(true)
+        setRecord(Record.Default(series));
+      });
+  }
+
   const handleRecordUpdate = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {
     setRecord({
       ...record,
@@ -38,14 +46,6 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
     } as Record)
 
     if (cancelAutoUpdate) setAutoUpdate(false);
-  }
-
-  const handleRecordSave = () => {
-    saveRecord(record)
-      .then(() => {
-        setAutoUpdate(true)
-        setRecord(Record.Default(series));
-      });
   }
 
   const updateProperty = (seriesId: number, value: string) => {

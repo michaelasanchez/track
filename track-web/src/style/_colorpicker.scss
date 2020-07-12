@@ -45,12 +45,7 @@
 
 .color-picker {
   position: relative;
-  min-width: 23px;
-
-  .input-container {
-    max-height: 60%;
-    transform: translateY(35%);
-  }
+  min-width: 30px;
 
   > input {
     cursor: pointer;

@@ -1,4 +1,4 @@
-$dataset-select-min-width: 160px;
+$dataset-select-min-width: 200px;
 
 .toolbar {
   display: flex;
@@ -7,11 +7,15 @@ $dataset-select-min-width: 160px;
   .toolbar-left,
   .toolbar-right {
     display: flex;
-    align-items: stretch;
+  }
+
+  .toolbar-left {
+    align-items: center;
   }
 
   .toolbar-right {
     margin-left: auto;
+    align-items: stretch;
   }
 
   .select {

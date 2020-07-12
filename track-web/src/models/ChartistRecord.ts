@@ -2,6 +2,9 @@ import moment from "moment";
 import { SeriesType } from "../shared/enums";
 import { ApiSeries } from "./ApiSeries";
 
+// TODO: Relocate this?
+const getRecordTooltip = (label: string, value: string) => `${label}: ${value}`;
+
 // TODO: Does this need to be a class?
 const ChartistRecord = (series: ApiSeries, timestamp: string, value?: string, index?: number) => {
   let parsed;
@@ -22,7 +25,7 @@ const ChartistRecord = (series: ApiSeries, timestamp: string, value?: string, in
   }
 
   return !parsed ? null : {
-    meta: `${series.Label} - ${value}`,
+    meta: getRecordTooltip(series.Label, value),
     x: moment(timestamp),
     y: parsed
   };

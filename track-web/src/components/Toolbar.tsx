@@ -49,21 +49,17 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   dataset,
   onAction: doAction
 }) => {
+
   const hasDatasets = datasetList?.length > 0;
-
-  const [show, setShow] = useState(false);
-
-  const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
-
-  const handleShow = () => setShow(true);
 
   const disabled = !hasDatasets;
   const disableSelect = mode == UserMode.Edit || mode == UserMode.Create || disabled;
-  const disableEdit = disabled;
-  const disableCreate = false;
 
-  const handleClose = (confirm: boolean = false) => {
-    setShow(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
+  const handleCloseModal = (confirm: boolean = false) => {
+    setShowModal(false);
     updateMode(UserMode.View);
     if (confirm) {
       const req = archiveDataset(dataset);
@@ -77,29 +73,25 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <Select
         className="select"
         isDisabled={disableSelect}
-        options={map(datasetList, d => ({ label: d.Label, value: d.Id }))}
-        value={{ label: dataset.Label, value: dataset.Id }}
+        options={map(datasetList, ds => ({ label: ds.Label, value: ds.Id }))}
+        defaultValue={{ label: dataset.Label, value: dataset.Id }}
         onChange={(option: any) => updateDataset(option.value)}
       />
     );
   }
 
-  const renderDivider = () => {
-    return <div className="divider" />;
-  }
-
   /* Modal */
   const renderModal = () =>
-    <Modal show={show} onHide={handleClose} animation={false}>
+    <Modal show={showModal} onHide={handleCloseModal} animation={false}>
       <Modal.Header closeButton>
         <Modal.Title>You Sure?</Modal.Title>
       </Modal.Header>
       <Modal.Body>Dataset "{dataset.Label}" is about to be <strong>archived</strong></Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => handleClose()}>
+        <Button variant="secondary" onClick={() => handleCloseModal()}>
           Nevermind
       </Button>
-        <Link to={`${BASE_PATH}/`} onClick={() => handleClose(true)}>
+        <Link to={`${BASE_PATH}/`} onClick={() => handleCloseModal(true)}>
           <Button variant="primary">
             Confirm
         </Button>
@@ -107,8 +99,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </Modal.Footer>
     </Modal>
 
-  /* Home */
-  const renderDefault = () =>
+  /* Home Actions */
+  const defaultActions = () =>
     <div className="toolbar-left">
       <Link to={`${BASE_PATH}/edit`} onClick={() => doAction(ToolbarAction.EditBegin)}>
         <FontAwesomeIcon icon={editIcon} color="gray" className={`icon edit${disabled ? ' disabled' : ''}`} />
@@ -119,7 +111,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     </div>;
 
   /* Create */
-  const renderCreate = () =>
+  const createActions = () =>
     <>
       <div className="toolbar-left">
         <Link to={`${BASE_PATH}/create`} className="disabled">
@@ -128,6 +120,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         <Link to={`${BASE_PATH}/`} className="active" onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
         </Link>
+          <span>Create</span>
       </div>
       <div className="toolbar-right">
         <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
@@ -140,21 +133,22 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     </>;
 
   /* Edit */
-  const renderEdit = () =>
+  const editActions = () =>
     <>
       <div className="toolbar-left">
         <Link to={`${BASE_PATH}/`} className="active" onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={editActive} color="gray" className="icon edit" />
         </Link>
+          <span>Edit</span>
         <Link to={`${BASE_PATH}/edit`} className="disabled">
           <FontAwesomeIcon icon={createIcon} color="gray" className="icon create" />
         </Link>
       </div>
       <div className="toolbar-right">
-        <Link to={`${BASE_PATH}/edit`} onClick={handleShow}>
+        <Link to={`${BASE_PATH}/edit`} onClick={() => setShowModal(true)}>
           <FontAwesomeIcon icon={deleteIcon} color="gray" className="icon delete" />
         </Link>
-        {renderDivider()}
+        <div className="divider" />
         <Link to={`${BASE_PATH}/`} onClick={() => doAction(ToolbarAction.Cancel)}>
           <FontAwesomeIcon icon={cancelIcon} color="gray" className="icon cancel" />
         </Link>
@@ -164,14 +158,23 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </div>
     </>;
 
+  const renderActions = () => {
+    switch (mode) {
+      case UserMode.View:
+        return defaultActions();
+      case UserMode.Create:
+        return createActions();
+      case UserMode.Edit:
+        return editActions();
+    }
+  }
+
   /* Render */
   return (
     <Form className="toolbar">
       {renderDatasetSelect()}
-      <Route exact path={`${BASE_PATH}/`} render={renderDefault}></Route>
-      <Route path={`${BASE_PATH}/edit`} render={renderEdit}></Route>
-      <Route path={`${BASE_PATH}/create`} render={renderCreate}></Route>
-      {show && renderModal()}
+      {renderActions()}
+      {showModal && renderModal()}
     </Form>
   )
 }
