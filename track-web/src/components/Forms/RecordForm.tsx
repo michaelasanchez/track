@@ -10,12 +10,21 @@ import { Form, Button } from 'react-bootstrap';
 import { defaultColor } from '../../models/ChartistOptions';
 import DateTimePicker from '../inputs/DateTimePicker';
 import useInterval from '../../hooks/useInterval';
+import { Location } from '../../models/Location';
 
 type RecordFormProps = {
   series: Series[];
   saveRecord: (record: Record) => Promise<any>;
   disabled?: boolean;
 };
+
+const positionToLocation = (position: Position): Location => {
+  return {
+    Latitude: position.coords.latitude,
+    Longitude: position.coords.longitude,
+    Accuracy: position.coords.accuracy
+  } as Location;
+}
 
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   series,
@@ -25,16 +34,27 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
   const [record, setRecord] = useState<Record>(Record.Default(series));
 
+  const [position, setPosition] = useState<Position>();
+
+  // DateTime
   useInterval(() => {
     if (autoUpdate) handleRecordUpdate({ DateTime: new Date() }) //handleRecordUpdate({ DateTime: new Date() });
   }, 1000);
 
   const handleRecordSave = () => {
+    record.Location = positionToLocation(position);
     saveRecord(record)
       .then(() => {
         setAutoUpdate(true)
         setRecord(Record.Default(series));
       });
+  }
+
+  // Lat/Long
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition((newPosition) => {
+      if (!position) setPosition(newPosition);
+    }, null, { maximumAge: 600000, timeout: 0, enableHighAccuracy: true });
   }
 
   const handleRecordUpdate = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {

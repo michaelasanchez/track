@@ -31,6 +31,7 @@ namespace track_api
             builder.EntitySet<Dataset>("Datasets");
             builder.EntitySet<User>("Users");
             builder.EntitySet<Record>("Records");
+            builder.EntitySet<Location>("Locations");
             builder.EntitySet<Series>("Series");
             builder.EntitySet<Property>("Properties");
             builder.EntitySet<Note>("Notes");

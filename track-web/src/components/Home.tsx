@@ -226,7 +226,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       DatasetId: currentDataset.Id,
       DateTime: record.DateTime,
       Properties: filter(record.Properties, p => !!p.Value),
-      Notes: record.Notes
+      Notes: record.Notes,
+      Location: record.Location
     } as Record);
 
     req.then(() => loadDataset(currentDataset.Id, true));

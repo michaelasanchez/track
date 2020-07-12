@@ -287,6 +287,10 @@
     <Compile Include="Migrations\202007121523530_AddDatedProps.designer.cs">
       <DependentUpon>202007121523530_AddDatedProps.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202007121716185_AddLocation.cs" />
+    <Compile Include="Migrations\202007121716185_AddLocation.designer.cs">
+      <DependentUpon>202007121716185_AddLocation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
     <Compile Include="Models\Api\ApiSeries.cs" />
@@ -295,6 +299,7 @@
     <Compile Include="Models\Db\Dataset.cs" />
     <Compile Include="Models\Db\ModelContext.cs" />
     <Compile Include="Models\Db\Note.cs" />
+    <Compile Include="Models\Db\Location.cs" />
     <Compile Include="Models\Db\Property.cs" />
     <Compile Include="Models\Db\Record.cs" />
     <Compile Include="Models\Db\Series.cs" />
@@ -347,6 +352,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202007121523530_AddDatedProps.resx">
       <DependentUpon>202007121523530_AddDatedProps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202007121716185_AddLocation.resx">
+      <DependentUpon>202007121716185_AddLocation.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

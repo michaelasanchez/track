@@ -16,6 +16,7 @@ namespace track_api.Models.Db
         }
 
         public virtual DbSet<Dataset> Datasets { get; set; }
+        public virtual DbSet<Location> Locations { get; set; }
         public virtual DbSet<Note> Notes { get; set; }
         public virtual DbSet<Property> Properties { get; set; }
         public virtual DbSet<Record> Records { get; set; }

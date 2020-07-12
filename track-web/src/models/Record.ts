@@ -3,12 +3,14 @@ import { Note } from "./Note";
 import { Dataset } from "./Dataset";
 import { Series } from "./Series";
 import { map } from "lodash";
+import { Location } from './Location';
 
 export class Record {
   public Id: number;
   public DatasetId: number; // Not sure if we need this
-  public DateTime: Date;
 
+  public DateTime: Date;
+  public Location: Location;
 
   // This should probably be private
   private properties: Property[];

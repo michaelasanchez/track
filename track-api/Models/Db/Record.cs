@@ -13,6 +13,8 @@ namespace track_api.Models.Db
 
         public DateTime DateTime { get; set; }
 
+        public Location Location { get; set; }
+
         public ICollection<Property> Properties { get; set; }
 
         public ICollection<Note> Notes { get; set; }
