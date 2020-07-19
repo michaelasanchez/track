@@ -13,7 +13,7 @@ namespace track_api.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202007121716185_AddLocation"; }
+            get { return "202007180836275_AddLocation"; }
         }
         
         string IMigrationMetadata.Source

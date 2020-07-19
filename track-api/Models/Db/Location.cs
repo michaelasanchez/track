@@ -14,6 +14,6 @@ namespace track_api.Models.Db
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
-        public int Accuracy { get; set; }
+        public double Accuracy { get; set; }
     }
 }

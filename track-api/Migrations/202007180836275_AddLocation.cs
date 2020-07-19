@@ -14,7 +14,7 @@
                         Id = c.Int(nullable: false, identity: true),
                         Latitude = c.Double(nullable: false),
                         Longitude = c.Double(nullable: false),
-                        Accuracy = c.Int(nullable: false),
+                        Accuracy = c.Double(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             
