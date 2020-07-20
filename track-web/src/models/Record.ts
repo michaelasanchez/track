@@ -23,12 +23,15 @@ export class Record {
     this.notes = [];
   }
 
-  public static Default(series: Series[]) {
-    return {
+  public static Default(series: Series[], location?: Location): Record {
+    let record = {
       DateTime: new Date(),
       Properties: map(series, s => new Property(s.Id)),
-      Notes: []
+      Notes: [],
     } as Record;
+    if (location) record.Location = location;
+    
+    return record;
   }
 
   public get Properties() {

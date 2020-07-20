@@ -17,7 +17,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
-import {  defaultColor } from "../../models/ChartistOptions"
+import { defaultColor } from "../../models/ChartistOptionsFactory"
 
 var HtmlToReactParser = require('html-to-react').Parser;
 

@@ -1,17 +1,14 @@
 import * as React from "react"
 import ChartistGraph from 'react-chartist';
 import { map } from 'lodash';
-import moment = require("moment");
 import { useState, useRef, useEffect } from "react";
-import { ChartistOptionsFactory, SERIES_PREFIXES, defaultColor } from "../models/ChartistOptions";
+import { ChartistOptionsFactory, SERIES_PREFIXES, defaultColor } from "../models/ChartistOptionsFactory";
 import { ApiDataset } from "../models/ApiDataset";
-import { SeriesType } from "../shared/enums";
 import { ApiSeries } from "../models/ApiSeries";
 import Alert from "react-bootstrap/Alert";
 import { ChartistData } from "../models/ChartistData";
 import { useResize } from "../hooks/useResize";
 import { TimeSpan } from "../models/TimeSpan";
-import Chartist from "chartist";
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -47,6 +44,17 @@ const renderColorStyle = (series: ApiSeries[], className: string) => {
   )
 }
 
+const getChartZoom = (span: TimeSpan): ChartZoom => {
+  if (span.days > 60) {
+    return ChartZoom.Month;
+  } else if (span.days > 1) {
+    return ChartZoom.Day;
+  } else if (span.hours > 1) {
+    return ChartZoom.Hour;
+  }
+  return ChartZoom.Minute;
+}
+
 // "No Dataset" label
 const labelStyle = {
   left: '50%',
@@ -70,24 +78,12 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   const span = new TimeSpan(dataset.Ticks);
 
-  let zoomMode;
-  if (span.days > 30) {
-    zoomMode = ChartZoom.Month;
-  } else if (span.days > 1) {
-    zoomMode = ChartZoom.Day;
-  } else if (span.hours > 1) {
-    zoomMode = ChartZoom.Hour;
-  } else {
-    zoomMode = ChartZoom.Minute;
-  }
-
-  const optionsFactory = new ChartistOptionsFactory(span, refWidth, zoomMode);
+  const optionsFactory = new ChartistOptionsFactory(span, refWidth, getChartZoom(span));
 
   // Set initial width & scroll
   useEffect(() => {
     setRefWidth(ref.current.offsetWidth);
-    ref.current.scrollLeft = ref.current.scrollWidth;
-  }, [ref.current, dataset]);
+  }, [ref]);
 
   // Update width on resize
   useEffect(() => {
@@ -95,6 +91,15 @@ const Graph: React.FunctionComponent<GraphProps> = ({
       setRefWidth(width);
     }
   }, [width]);
+
+  let graphWidth = 0;
+  const onDrawHandler = (e: any) => {
+    const scrollWidth = ref.current?.scrollWidth;
+    if (!!scrollWidth && graphWidth != scrollWidth) {
+      ref.current.scrollLeft = scrollWidth;
+      graphWidth = scrollWidth;
+    }
+  }
 
   let hasNumericalData = dataset?.NumericalSeries.length > 0;
   let hasFrequencyData: boolean,
@@ -105,6 +110,10 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
     hasFrequencyData = dataset.FrequencySeries.length > 0;
     frequencyData = new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries);
+  }
+
+  const listeners = {
+    draw: (e: any) => onDrawHandler(e)
   }
 
   const lineLabels = () => {
@@ -131,7 +140,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     return (<>
       {renderColorStyle(dataset.NumericalSeries, 'numerical')}
       <ChartistGraph
-        // listener={listener}
+        listener={listeners}
         data={numericalData}
         options={optionsFactory.getNumericalChartOptions(hasFrequencyData)}
         type={type}
@@ -143,6 +152,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     return (<>
       {renderColorStyle(dataset.FrequencySeries, 'frequency')}
       <ChartistGraph
+        listener={listeners}
         data={frequencyData}
         options={optionsFactory.getFrequencyChartOptions(dataset.FrequencySeries, hasNumericalData)}
         type={type}

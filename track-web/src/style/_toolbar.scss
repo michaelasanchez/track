@@ -23,11 +23,16 @@ $dataset-select-min-width: 200px;
     margin-right: 0.75rem;
   }
 
+  // .icon-container
   a {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
     margin: 0.25rem;
+
+    span {
+      color: grey;
+    }
 
     // &.active,
     &.disabled {

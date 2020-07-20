@@ -7,14 +7,13 @@ import RecordForm from "./forms/RecordForm";
 import Graph from "./Graph";
 
 import { useOktaAuth } from '@okta/okta-react';
-import ApiRequest from "../models/Request";
+import ApiRequest from "./utils/Request";
 import { Series } from '../models/Series';
 import { Dataset } from '../models/Dataset';
 import { ApiDataset } from '../models/ApiDataset';
 import { Navbar } from './Navbar';
 import { UserMode } from '../shared/enums';
 import { Loading } from './Loading';
-import { BASE_PATH } from '../config';
 import DatasetForm from './forms/DatasetForm';
 import { Record } from '../models/Record';
 
@@ -51,7 +50,12 @@ type HomeProps = {};
 
 export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
+  const [isListLoading, setIsListLoading] = useState<boolean>(false);
+  const [isDatasetLoading, setIsDatasetLoading] = useState<boolean>(false);
+  const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
+
   const [loaded, setLoaded] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
@@ -67,6 +71,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   const { authState, authService } = useOktaAuth();
 
+  useEffect(() => {
+    if (loading != isListLoading || isDatasetLoading) setLoading(!loading);
+  }, [isListLoading, isDatasetLoading])
+
   // Init
   useEffect(() => {
     if (!authState.isPending) {
@@ -75,6 +83,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }, [authState.accessToken])
 
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
+    setIsListLoading(true);
     new ApiRequest('Datasets', authState.accessToken).Filter('Archived eq false').Get()
       .then((d: any) => {
         setDatasetList(d.value as Dataset[]);
@@ -85,6 +94,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       .catch((error: any) => {
         errors.push(error);
         setErrors(errors);
+      })
+      .finally(() => {
+        setIsListLoading(false);
       });
   }
 
@@ -97,6 +109,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       setApiDataset(apiDatasetCache[cachedIndex]);
 
     } else {
+      setIsDatasetLoading(true);
       const datasetRequest = new ApiRequest('Datasets', authState.accessToken).Id(id).Expand('Series').Get();
       const apiDatasetRequest = new ApiRequest('ApiDatasets').Id(id).GetApiDataset();
 
@@ -138,13 +151,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           setErrors(errors);
         })
         .finally(() => {
-          setLoaded(true);
+          // TODO: move to dataset list load finally
+          if (!loaded) setLoaded(true);
+          setIsDatasetLoading(false);
         });
     }
   }
 
   /* Toolbar Actions */
   const handleToolbarAction = (action: ToolbarAction, whoa?: Dataset) => {
+
+    console.log('action', action)
 
     switch (action) {
       case ToolbarAction.CreateBegin:
@@ -201,8 +218,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
       } as Dataset));
     }
 
+    setIsDatasetLoading(true);
     each(dataset.Series, (s: Series, index: number) => {
-
       if (index >= currentDataset.Series.length) {
         delete s.Id;
         s.DatasetId = dataset.Id;
@@ -222,15 +239,20 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
 
   // Post pendingRecord
   const createRecord = (record: Record): Promise<any> => {
+    setIsRecordLoading(true);
     const req = new ApiRequest('Records').Post({
       DatasetId: currentDataset.Id,
       DateTime: record.DateTime,
       Properties: filter(record.Properties, p => !!p.Value),
       Notes: record.Notes,
       Location: record.Location
-    } as Record);
-
-    req.then(() => loadDataset(currentDataset.Id, true));
+    } as Record)
+      .then(() => {
+        loadDataset(currentDataset.Id, true);
+      })
+      .finally(() => {
+        setIsRecordLoading(false);
+      });
 
     return req;
   }
@@ -246,6 +268,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
                 dataset={mode == UserMode.Create ? pendingDataset : currentDataset}
                 datasetList={datasetList}
                 mode={mode}
+                disabled={loading}
                 updateMode={setMode}
                 updateDataset={loadDataset}
                 updateDatasetList={loadDatasetList}
@@ -255,18 +278,19 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
           </Row>
           <hr />
           <Row>
-            <Route exact path={`${BASE_PATH}/`}>
+            <Route exact path={`/`}>
               <Col xs={12} lg={3} className="order-2 order-lg-1">
                 <RecordForm
                   series={currentDataset.Series}
                   saveRecord={createRecord}
+                  disabled={isRecordLoading}
                 />
               </Col>
               <Col lg={9} className="order-1 order-lg-2">
                 <Graph dataset={apiDataset} />
               </Col>
             </Route>
-            <Route path={[`${BASE_PATH}/edit`, `${BASE_PATH}/create`]}>
+            <Route path={[`/edit`, `/create`]}>
               <Col>
                 <DatasetForm
                   createMode={mode == UserMode.Create}

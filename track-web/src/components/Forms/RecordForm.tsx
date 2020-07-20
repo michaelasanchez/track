@@ -7,10 +7,10 @@ import { Note } from '../../models/Note';
 import { Property } from '../../models/Property';
 import { SeriesType } from '../../shared/enums';
 import { Form, Button } from 'react-bootstrap';
-import { defaultColor } from '../../models/ChartistOptions';
+import { defaultColor } from '../../models/ChartistOptionsFactory';
 import DateTimePicker from '../inputs/DateTimePicker';
 import useInterval from '../../hooks/useInterval';
-import { Location } from '../../models/Location';
+import { useLocation } from '../../hooks/useLocation';
 
 type RecordFormProps = {
   series: Series[];
@@ -18,31 +18,33 @@ type RecordFormProps = {
   disabled?: boolean;
 };
 
-const positionToLocation = (position: Position): Location => {
-  return {
-    Latitude: position.coords.latitude,
-    Longitude: position.coords.longitude,
-    Accuracy: position.coords.accuracy
-  } as Location;
-}
-
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
   series,
   saveRecord,
   disabled
 }) => {
-  const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
-  const [record, setRecord] = useState<Record>(Record.Default(series));
 
-  const [position, setPosition] = useState<Position>();
+  const [record, setRecord] = useState<Record>(Record.Default(series));
+  const [autoUpdate, setAutoUpdate] = useState<boolean>(false);
+
+  // Keep props up to date
+  useEffect(() => {
+    setRecord(Record.Default(series, location));
+  }, [series]);
 
   // DateTime
   useInterval(() => {
-    if (autoUpdate) handleRecordUpdate({ DateTime: new Date() }) //handleRecordUpdate({ DateTime: new Date() });
+    if (autoUpdate) handleUpdateRecord({ DateTime: new Date() });
   }, 1000);
 
-  const handleRecordSave = () => {
-    record.Location = positionToLocation(position);
+  // Location
+  const location = useLocation();
+  useEffect(() => {
+    location && handleUpdateRecord({ Location: location })
+  }, [location]);
+
+  const handleSaveRecord = () => {
+    console.log('save', record);
     saveRecord(record)
       .then(() => {
         setAutoUpdate(true)
@@ -50,20 +52,14 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       });
   }
 
-  // Lat/Long
-  if ('geolocation' in navigator) {
-    navigator.geolocation.getCurrentPosition((newPosition) => {
-      if (!position) setPosition(newPosition);
-    }, null, { maximumAge: 600000, timeout: 0, enableHighAccuracy: true });
-  }
-
-  const handleRecordUpdate = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {
+  const handleUpdateRecord = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {
     setRecord({
       ...record,
       ...updated,
       Properties: updated?.Properties || record.Properties,
-      Notes: updated?.Notes || record.Notes
-    } as Record)
+      Notes: updated?.Notes || record.Notes,
+      Location: updated?.Location || record?.Location
+    } as Record);
 
     if (cancelAutoUpdate) setAutoUpdate(false);
   }
@@ -76,7 +72,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       record.Properties[index] = new Property(seriesId, value);
     }
 
-    handleRecordUpdate({
+    handleUpdateRecord({
       Properties: record.Properties
     } as Record);
   }
@@ -95,6 +91,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         type="number"
         step={1}
         value={prop?.Value || ''}
+        disabled={disabled}
         onChange={(e: any) => updateProperty(s.Id, e.target.value)}
       />
     </>;
@@ -108,6 +105,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         custom
         label={s.Label}
         checked={prop?.Value === 'true'}
+        disabled={disabled}
         onChange={(e: any) => updateProperty(s.Id, e.target.checked ? 'true' : 'false')}
       />
     </>;
@@ -119,7 +117,11 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       {/* DateTime */}
       <Form.Group>
         <Form.Label>Date</Form.Label>
-        <DateTimePicker date={record.DateTime} updateDate={(d: Date) => handleRecordUpdate({ DateTime: d }, true)} disabled={disabled} />
+        <DateTimePicker
+          date={record.DateTime}
+          updateDate={(d: Date) => handleUpdateRecord({ DateTime: d }, true)}
+          disabled={disabled}
+        />
       </Form.Group>
 
       {/* Props */}
@@ -140,12 +142,12 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
           rows="3"
           disabled={disabled}
           value={record?.Notes.length ? record.Notes[0].Text : ''}
-          onChange={(e: any) => handleRecordUpdate({ Notes: [{ Text: e.target.value } as Note] })}
+          onChange={(e: any) => handleUpdateRecord({ Notes: [{ Text: e.target.value } as Note] })}
         />
       </Form.Group>
 
       {/* Save */}
-      <Button variant="primary" onClick={handleRecordSave} disabled={disabled}>
+      <Button variant="primary" onClick={handleSaveRecord} disabled={disabled}>
         Add
       </Button>
     </Form>

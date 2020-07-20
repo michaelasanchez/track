@@ -1,13 +1,13 @@
-import { Dataset } from "./Dataset";
-import { Series } from "./Series";
-import { Record } from "./Record";
+import { Dataset } from "../../models/Dataset";
+import { Series } from "../../models/Series";
+import { Record } from "../../models/Record";
 
-import { DOMAIN } from "../config";
+import { API_URL } from "../../config";
 
 class ApiRequest {
 
-  private ODATA_URL: string = `${DOMAIN}odata/`;
-  protected API_URL: string = `${DOMAIN}api/`;
+  private ODATA_URL: string = `${API_URL}odata/`;
+  protected API_URL: string = `${API_URL}api/`;
 
   private DEF_PARAMS = {
     mode: 'cors', // no-cors, *cors, same-origin
@@ -102,9 +102,7 @@ class ApiRequest {
   // DELETE ApiDataset
   public ArchiveDataset = (idOverride: number) => {
     const params = !this._token ? null : {
-      headers: {
-        ...(this.buildAuthHeader(this._token))
-      }
+      headers: this.buildAuthHeader(this._token)
     };
     return this.execute(this.buildApiUrlString(idOverride), params);
   }
