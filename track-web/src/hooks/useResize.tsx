@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from 'react';
 
 export const useResize = (ref: any) => {
   const [width, setWidth] = useState(0);

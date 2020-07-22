@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { Row, Col, Container } from "react-bootstrap";
-import { map, filter, findIndex, each, isEqual, cloneDeep } from 'lodash';
-import Toolbar, { ToolbarAction } from "./Toolbar";
-import { Route, useLocation } from 'react-router-dom';
-import RecordForm from "./forms/RecordForm";
-import Graph from "./Graph";
-
 import { useOktaAuth } from '@okta/okta-react';
-import ApiRequest from "./utils/Request";
-import { Series } from '../models/Series';
-import { Dataset } from '../models/Dataset';
-import { ApiDataset } from '../models/ApiDataset';
-import { Navbar } from './Navbar';
-import { UserMode } from '../shared/enums';
-import { Loading } from './Loading';
-import DatasetForm from './forms/DatasetForm';
-import { Record } from '../models/Record';
+import { cloneDeep, each, filter, findIndex, isEqual } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { Col, Container, Row } from 'react-bootstrap';
+import { Route, useLocation } from 'react-router-dom';
 
+import { ApiDataset } from '../models/api';
+import { Dataset, Record, Series } from '../models/odata';
+import { UserMode } from '../shared/enums';
+import ApiRequest from '../utils/Request';
+import DatasetForm from './forms/DatasetForm';
+import RecordForm from './forms/RecordForm';
+import Graph from './Graph';
+import { Loading } from './Loading';
+import { Navbar } from './Navbar';
+import Toolbar, { ToolbarAction } from './Toolbar';
 
 const FALLBACK_DATASET_ID = 1;
 
@@ -159,9 +156,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ }) => {
   }
 
   /* Toolbar Actions */
-  const handleToolbarAction = (action: ToolbarAction, whoa?: Dataset) => {
-
-    console.log('action', action)
+  const handleToolbarAction = (action: ToolbarAction) => {
 
     switch (action) {
       case ToolbarAction.CreateBegin:

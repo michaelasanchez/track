@@ -1,12 +1,12 @@
-import React from "react";
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-type IconProps = {
+type ToolbarButtonProps = {
   icon: IconDefinition;
   onClick: () => void;
-  path?: string;
+  link?: string;
   label?: string;
   className?: string;
   iconClass?: string;
@@ -15,10 +15,10 @@ type IconProps = {
   disabled?: boolean;
 };
 
-const Icon: React.FunctionComponent<IconProps> = ({
+const ToolbarButton: React.FunctionComponent<ToolbarButtonProps> = ({
   icon,
   onClick,
-  path,
+  link,
   label,
   className,
   iconClass,
@@ -45,8 +45,8 @@ const Icon: React.FunctionComponent<IconProps> = ({
     );
   }
 
-  return path ?
-    <Link to={path} className={linkClassName} onClick={onClick}>
+  return link ?
+    <Link to={link} className={linkClassName} onClick={onClick}>
       {renderLinkContent()}
     </Link>
     :
@@ -55,4 +55,4 @@ const Icon: React.FunctionComponent<IconProps> = ({
     </a>;
 }
 
-export default Icon;
+export default ToolbarButton;

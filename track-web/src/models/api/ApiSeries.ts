@@ -1,4 +1,4 @@
-import { SeriesType } from "../shared/enums";
+import { SeriesType } from '../../shared/enums';
 
 export class ApiSeries {
 

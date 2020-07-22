@@ -1,26 +1,16 @@
-import * as React from 'react';
-import $ from 'jquery';
+import { faEdit as editIcon } from '@fortawesome/free-regular-svg-icons';
+import { faTimes as cancelIcon, faPlusCircle as createIcon, faTrash as deleteIcon, faEdit as editActive, faCheck as saveIcon } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'lodash';
-import { Link, Route } from 'react-router-dom';
-import ApiRequest from './utils/Request';
-import { Form, Button, Modal } from 'react-bootstrap';
-import { Dataset } from '../models/Dataset';
+import * as React from 'react';
 import { useState } from 'react';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit as editIcon } from '@fortawesome/free-regular-svg-icons'
-import {
-  faCheck as saveIcon,
-  faEdit as editActive,
-  faTimes as cancelIcon,
-  faTrash as deleteIcon,
-  faPlus,
-  faPlusSquare,
-  faPlusCircle as createIcon
-} from '@fortawesome/free-solid-svg-icons'
-import { UserMode } from '../shared/enums';
+import { Button, Form, Modal } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import Select from 'react-select';
-import Icon from './inputs/Icon';
+
+import { Dataset } from '../models/odata/Dataset';
+import { UserMode } from '../shared/enums';
+import ApiRequest from '../utils/Request';
+import ToolbarButton from './inputs/ToolbarButton';
 
 export enum ToolbarAction {
   CreateBegin,
@@ -62,6 +52,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   const [showModal, setShowModal] = useState(false);
 
+  const editMode = mode == UserMode.Edit;
+  const createMode = mode == UserMode.Create;
+
   const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
   const handleCloseModal = (confirm: boolean = false) => {
     setShowModal(false);
@@ -90,9 +83,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderModal = () =>
     <Modal show={showModal} onHide={handleCloseModal} animation={false}>
       <Modal.Header closeButton>
-        <Modal.Title>You Sure?</Modal.Title>
+        <Modal.Title>Just checking</Modal.Title>
       </Modal.Header>
-      <Modal.Body>Dataset "{dataset.Label}" is about to be <strong>archived</strong></Modal.Body>
+      <Modal.Body>Dataset "{dataset.Label}" is about to be <strong>deleted</strong></Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={() => handleCloseModal()}>
           Nevermind
@@ -105,14 +98,11 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </Modal.Footer>
     </Modal>
 
-  const toolbarLeft = () => {
-    const editMode = mode == UserMode.Edit;
-    const createMode = mode == UserMode.Create;
-
-    return <>
-      <Icon
+  const toolbarLeft = () =>
+    <>
+      <ToolbarButton
         label="Edit"
-        path={editMode ? '/' : '/edit'}
+        link={editMode ? '/' : '/edit'}
         className={editMode ? 'active' : ''}
         onClick={() => doAction(editMode ? ToolbarAction.Cancel : ToolbarAction.EditBegin)}
         icon={editIcon}
@@ -121,9 +111,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         active={editMode}
         disabled={createMode}
       />
-      <Icon
+      <ToolbarButton
         label="Create"
-        path={createMode ? '/' : '/create'}
+        link={createMode ? '/' : '/create'}
         className={createMode ? 'active' : ''}
         onClick={() => doAction(createMode ? ToolbarAction.Cancel : ToolbarAction.CreateBegin)}
         icon={createIcon}
@@ -132,70 +122,51 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         disabled={editMode}
       />
     </>;
-  }
 
-  /* Create */
-  const createActions = () =>
+  const toolbarRight = () =>
     <>
-      <div className="toolbar-right">
-        <Icon
-          path="/"
-          onClick={() => doAction(ToolbarAction.Cancel)}
-          icon={cancelIcon}
-          iconClass="cancel"
-        />
-        <Icon
-          path="/"
-          onClick={() => doAction(ToolbarAction.CreateSave)}
-          icon={saveIcon}
-          iconClass="save"
-        />
-      </div>
-    </>;
-
-  /* Edit */
-  const editActions = () =>
-    <>
-      <div className="toolbar-right">
-        <Icon
-          onClick={() => setShowModal(true)}
-          icon={deleteIcon}
-          iconClass="delete"
-        />
-        <div className="divider" />
-        <Icon
-          path="/"
-          onClick={() => doAction(ToolbarAction.Cancel)}
-          icon={cancelIcon}
-          iconClass="cancel"
-        />
-        <Icon
-          path="/"
-          onClick={() => doAction(ToolbarAction.EditSave)}
-          icon={saveIcon}
-          iconClass="save"
-        />
-      </div>
-    </>;
-
-  const renderActions = () => {
-    switch (mode) {
-      case UserMode.Create:
-        return createActions();
-      case UserMode.Edit:
-        return editActions();
-    }
-  }
+      {editMode &&
+        <>
+          <ToolbarButton
+            onClick={() => setShowModal(true)}
+            icon={deleteIcon}
+            iconClass="delete"
+          />
+          <div className="divider" />
+        </>}
+      {(editMode || createMode) &&
+        <>
+          <ToolbarButton
+            link="/"
+            onClick={() => doAction(ToolbarAction.Cancel)}
+            icon={cancelIcon}
+            iconClass="cancel"
+          />
+          <ToolbarButton
+            link="/"
+            onClick={() => doAction(editMode ? ToolbarAction.EditSave : ToolbarAction.CreateSave)}
+            icon={saveIcon}
+            iconClass="save"
+          />
+        </>}
+    </>
 
   /* Render */
   return (
     <Form className="toolbar">
+
       {renderDatasetSelect()}
+
       <div className="toolbar-left">
         {toolbarLeft()}
       </div>
-      {renderActions()}
-      {showModal && renderModal()}
+
+      <div className="toolbar-right">
+        {toolbarRight()}
+      </div>
+
+      {renderModal()}
+
     </Form>
   )
 }

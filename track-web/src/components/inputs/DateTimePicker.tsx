@@ -1,8 +1,7 @@
+import moment from 'moment';
 import * as React from 'react';
+import { useState } from 'react';
 import DateTime from 'react-datetime';
-import moment, { Moment } from 'moment';
-import { useState, useEffect } from 'react';
-
 
 type DateTimePickerProps = {
   date: Date;

@@ -1,6 +1,7 @@
-import moment from "moment";
-import { SeriesType } from "../shared/enums";
-import { ApiSeries } from "./ApiSeries";
+import moment from 'moment';
+
+import { SeriesType } from '../../shared/enums';
+import { ApiSeries } from '../api/ApiSeries';
 
 // TODO: Relocate this?
 const getRecordTooltip = (label: string, value: string) => `${label}: ${value}`;

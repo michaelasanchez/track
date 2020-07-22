@@ -1,9 +1,9 @@
-import { Property } from "./Property";
-import { Note } from "./Note";
-import { Dataset } from "./Dataset";
-import { Series } from "./Series";
-import { map } from "lodash";
+import { map } from 'lodash';
+
 import { Location } from './Location';
+import { Note } from './Note';
+import { Property } from './Property';
+import { Series } from './Series';
 
 export class Record {
   public Id: number;

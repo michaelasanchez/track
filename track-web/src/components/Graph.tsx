@@ -1,14 +1,14 @@
-import * as React from "react"
-import ChartistGraph from 'react-chartist';
 import { map } from 'lodash';
-import { useState, useRef, useEffect } from "react";
-import { ChartistOptionsFactory, SERIES_PREFIXES, defaultColor } from "../models/ChartistOptionsFactory";
-import { ApiDataset } from "../models/ApiDataset";
-import { ApiSeries } from "../models/ApiSeries";
-import Alert from "react-bootstrap/Alert";
-import { ChartistData } from "../models/ChartistData";
-import { useResize } from "../hooks/useResize";
-import { TimeSpan } from "../models/TimeSpan";
+import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
+import ChartistGraph from 'react-chartist';
+
+import { useResize } from '../hooks';
+import { ApiDataset, ApiSeries } from '../models/api';
+import { ChartistData } from '../models/chartist';
+import { ChartistOptionsFactory, defaultColor, SERIES_PREFIXES } from '../utils/ChartistOptionsFactory';
+import { TimeSpan } from '../utils/TimeSpan';
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -82,7 +82,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
 
   // Set initial width & scroll
   useEffect(() => {
-    setRefWidth(ref.current.offsetWidth);
+    ref?.current?.offsetWidth && setRefWidth(ref.current.offsetWidth);
   }, [ref]);
 
   // Update width on resize
@@ -102,13 +102,11 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   }
 
   let hasNumericalData = dataset?.NumericalSeries.length > 0;
-  let hasFrequencyData: boolean,
-    numericalData: ChartistData,
-    frequencyData: ChartistData;
+  let hasFrequencyData = dataset?.FrequencySeries.length > 0;
+
+  let numericalData: ChartistData, frequencyData: ChartistData;
   if (dataset) {
     numericalData = new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries);
-
-    hasFrequencyData = dataset.FrequencySeries.length > 0;
     frequencyData = new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries);
   }
 
@@ -168,7 +166,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     />);
   }
 
-  return dataset ?
+  return dataset  ?
     (
       <>
         <div className="label-container">

@@ -1,6 +1,5 @@
-import { Navbar as BootstrapNavbar, Nav, Button } from 'react-bootstrap';
-import React, { useState, useEffect } from 'react';
-import { OktaUser as User } from '../models/OktaUser';
+import React from 'react';
+import { Navbar as BootstrapNavbar, Button, Nav } from 'react-bootstrap';
 
 type TrackNavbarProps = {
   authState: any;

@@ -1,7 +1,6 @@
-import { Dataset } from "../../models/Dataset"
+import { Dataset, Series } from "../../models/odata"
 import React, { useState } from "react"
 import { Form, Row, Col, Button, OverlayTrigger, Tooltip, Collapse } from "react-bootstrap"
-import { Series } from "../../models/Series"
 import { map, filter, some, countBy, maxBy } from "lodash"
 import ColorPicker from "../inputs/ColorPicker"
 import { Color } from "react-color"
@@ -17,7 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { strings } from "../../shared/strings"
 import { SeriesType } from '../../shared/enums';
-import { defaultColor } from "../../models/ChartistOptionsFactory"
+import { defaultColor } from "../../utils/ChartistOptionsFactory"
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -140,13 +139,13 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   const hiddenToggle = () => {
     // console.log('counts', counts, counts.true || 0, counts?.true);
     return (
-    <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
-      <h6>
-        {`Inactive (${countBy(dataset.Series, s => !s.Visible).true || 0})`}
-      </h6>
-      <hr />
-      <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
-    </a>
+      <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
+        <h6>
+          {`Inactive (${countBy(dataset.Series, s => !s.Visible).true || 0})`}
+        </h6>
+        <hr />
+        <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
+      </a>
     );
   }
 

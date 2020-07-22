@@ -1,7 +1,7 @@
-import { FunctionComponent } from "react";
-import React from "react";
-import { map } from "lodash";
-import { Alert } from "react-bootstrap";
+import { map } from 'lodash';
+import { FunctionComponent } from 'react';
+import React from 'react';
+import { Alert } from 'react-bootstrap';
 
 type LoadingProps = {
   errors?: any[];

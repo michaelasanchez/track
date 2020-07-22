@@ -1,6 +1,7 @@
-import { ApiSeries } from "./ApiSeries";
-import { map } from "lodash";
-import ChartistRecord from "./ChartistRecord";
+import { map } from 'lodash';
+
+import { ApiSeries } from '../api/ApiSeries';
+import ChartistRecord from './ChartistRecord';
 
 export class ChartistData {
   private _labels: string[];

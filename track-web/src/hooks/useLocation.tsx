@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react"
-import { Location } from '../models/Location';
+import { useEffect, useState } from 'react';
+
+import { Location } from '../models/odata/Location';
 
 const positionToLocation = (position: Position): Location => {
   return {

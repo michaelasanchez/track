@@ -1,6 +1,6 @@
 import { ILineChartOptions, FixedScaleAxis, AutoScaleAxis, StepAxis, IChartistFixedScaleAxis, IChartPadding } from "chartist";
 import moment from "moment";
-import { ApiSeries } from "./ApiSeries";
+import { ApiSeries } from "../models/api/ApiSeries";
 import { ChartZoom } from "../components/Graph";
 import { TimeSpan } from "./TimeSpan";
 import ChartistTooltip from 'chartist-plugin-tooltips-updated';

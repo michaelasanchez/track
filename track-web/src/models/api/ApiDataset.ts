@@ -1,4 +1,4 @@
-import { ApiSeries } from "./ApiSeries";
+import { ApiSeries } from './ApiSeries';
 
 export class ApiDataset {
 

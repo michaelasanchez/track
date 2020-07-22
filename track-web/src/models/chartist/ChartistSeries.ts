@@ -1,5 +1,5 @@
-import { Series } from "./Series";
-import { SeriesType } from "../shared/enums";
+import { SeriesType } from '../../shared/enums';
+import { Series } from '../odata/Series';
 
 export enum GraphFormat {
   Numerical = 1,

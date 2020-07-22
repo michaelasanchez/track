@@ -1,8 +1,8 @@
-import { Dataset } from "../../models/Dataset";
-import { Series } from "../../models/Series";
-import { Record } from "../../models/Record";
+import { Dataset } from "../models/odata/Dataset";
+import { Series } from "../models/odata/Series";
+import { Record } from "../models/odata/Record";
 
-import { API_URL } from "../../config";
+import { API_URL } from "../config";
 
 class ApiRequest {
 

@@ -1,4 +1,4 @@
-export class OktaUser {
+class OktaUser {
 
   public sub: string;
   public name: string;
@@ -15,3 +15,5 @@ export class OktaUser {
   public updated_at: number;
   public email_verified: boolean;
 }
+
+export default OktaUser;

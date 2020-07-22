@@ -1,16 +1,13 @@
+import { filter, findIndex } from 'lodash';
 import * as React from 'react';
-import { findIndex, each, filter, map } from 'lodash';
-import { Series } from '../../models/Series';
-import { useState, useEffect } from 'react';
-import { Record } from '../../models/Record';
-import { Note } from '../../models/Note';
-import { Property } from '../../models/Property';
+import { useEffect, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
+
+import { useInterval, useLocation } from '../../hooks';
+import { Note, Property, Record, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
-import { Form, Button } from 'react-bootstrap';
-import { defaultColor } from '../../models/ChartistOptionsFactory';
+import { defaultColor } from '../../utils/ChartistOptionsFactory';
 import DateTimePicker from '../inputs/DateTimePicker';
-import useInterval from '../../hooks/useInterval';
-import { useLocation } from '../../hooks/useLocation';
 
 type RecordFormProps = {
   series: Series[];
