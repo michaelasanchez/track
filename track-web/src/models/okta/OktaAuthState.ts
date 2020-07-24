@@ -1,4 +1,4 @@
-class OktaUser {
+export class OktaAuthState {
 
   public isAuthenticated: boolean;
 
@@ -6,5 +6,3 @@ class OktaUser {
   public accessToken: string;
 
 }
-
-export default OktaUser

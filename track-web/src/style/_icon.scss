@@ -5,6 +5,10 @@ $icon-scale-large: scale(1.05);
 .icon-container {
   position: relative;
 
+  &:empty {
+    margin: 0;
+  }
+
   &:hover {
     span {
       width: 100%;

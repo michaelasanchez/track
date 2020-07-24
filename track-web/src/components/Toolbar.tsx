@@ -1,6 +1,12 @@
 import { faEdit as editIcon } from '@fortawesome/free-regular-svg-icons';
-import { faTimes as cancelIcon, faPlusCircle as createIcon, faTrash as deleteIcon, faEdit as editActive, faCheck as saveIcon } from '@fortawesome/free-solid-svg-icons';
-import { map } from 'lodash';
+import {
+  faCheck as saveIcon,
+  faEdit as editActive,
+  faPlusCircle as createIcon,
+  faTimes as cancelIcon,
+  faTrash as deleteIcon,
+} from '@fortawesome/free-solid-svg-icons';
+import { map, findIndex } from 'lodash';
 import * as React from 'react';
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
@@ -42,38 +48,40 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   disabled
 }) => {
 
+  const editMode = mode == UserMode.Edit;
+  const createMode = mode == UserMode.Create;
+
   const hasDatasets = datasetList?.length > 0;
 
   const disableAll = !hasDatasets || disabled;
-  const disableSelect = mode == UserMode.Edit || mode == UserMode.Create || disableAll;
-  // const disableCreate = ;
-  // const disableEdit = ;
+  const disableSelect = editMode || createMode || disableAll;
   const disableAllClass = disableAll ? ' disabled' : '';
 
-  const [showModal, setShowModal] = useState(false);
+  const selectedIndex = findIndex(datasetList, ds => ds.Id == dataset.Id);
 
-  const editMode = mode == UserMode.Edit;
-  const createMode = mode == UserMode.Create;
+  const [showModal, setShowModal] = useState(false);
 
   const archiveDataset = (dataset: Dataset) => new ApiRequest('Datasets').Delete(dataset);
   const handleCloseModal = (confirm: boolean = false) => {
     setShowModal(false);
     updateMode(UserMode.View);
     if (confirm) {
-      const req = archiveDataset(dataset);
-      req.then(() => updateDatasetList());
+      archiveDataset(dataset)
+        .then(() => updateDatasetList());
     }
   };
 
+
   /* Select */
   const renderDatasetSelect = () => {
+    const options = map(datasetList, ds => ({ label: ds.Label, value: ds.Id }));
     return (
       <Select
         className="select"
         isDisabled={disableSelect}
         isSearchable={false}
-        options={map(datasetList, ds => ({ label: ds.Label, value: ds.Id }))}
-        value={{ label: dataset.Label, value: dataset.Id }}
+        options={options}
+        value={options[selectedIndex]}
         onChange={(option: any) => updateDataset(option.value)}
       />
     );
