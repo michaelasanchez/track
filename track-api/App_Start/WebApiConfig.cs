@@ -4,8 +4,8 @@ using System.Linq;
 using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Extensions;
-using track_api.Models.Db;
 using track_api.Models.Api;
+using track_api.Models.Db;
 
 namespace track_api
 {
@@ -26,7 +26,7 @@ namespace track_api
             );
 
             //
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            ODataModelBuilder builder = new ODataConventionModelBuilder();
 
             builder.EntitySet<Dataset>("Datasets");
             builder.EntitySet<User>("Users");

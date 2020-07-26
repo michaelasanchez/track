@@ -135,6 +135,12 @@ export class ChartistOptionsFactory {
     this._dateFormat = getDateFormat(zoom);
   }
 
+  public static getDefaultOptions = (): ILineChartOptions => {
+    return {
+      ...DEFAULT_CHART_OPTIONS
+    } as ILineChartOptions;
+  }
+
   public getNumericalLabelOptions = (): ILineChartOptions => {
     return {
       ...AXIS_Y_DEFAULT,

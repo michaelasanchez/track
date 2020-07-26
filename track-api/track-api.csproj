@@ -262,6 +262,8 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RecordsController.cs" />
     <Compile Include="Controllers\SeriesController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Controllers\UsersOldController.cs" />
     <Compile Include="Converters\DatasetConverter.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Global.asax.cs">

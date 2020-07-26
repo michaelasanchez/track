@@ -1,22 +1,22 @@
-import { Dataset, Series } from "../../models/odata"
-import React, { useState } from "react"
-import { Form, Row, Col, Button, OverlayTrigger, Tooltip, Collapse } from "react-bootstrap"
-import { map, filter, some, countBy, maxBy } from "lodash"
-import ColorPicker from "../inputs/ColorPicker"
-import { Color } from "react-color"
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faTimes as deleteIcon,
+  faAngleDown as hiddenOpenIcon,
+  faAngleUp as hiddenCloseIcon,
   faEye as archiveIcon,
   faEyeSlash as unarchiveIcon,
   faPlusCircle as addIcon,
-  faAngleDown as hiddenOpenIcon,
-  faAngleUp as hiddenCloseIcon
-} from '@fortawesome/free-solid-svg-icons'
-import { strings } from "../../shared/strings"
+  faTimes as deleteIcon,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { countBy, filter, map, maxBy, some, isUndefined } from 'lodash';
+import React, { useState } from 'react';
+import { Button, Col, Collapse, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { Color } from 'react-color';
+
+import { Dataset, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
-import { defaultColor } from "../../utils/ChartistOptionsFactory"
+import { strings } from '../../shared/strings';
+import { defaultColor } from '../../utils/ChartistOptionsFactory';
+import ColorPicker from '../inputs/ColorPicker';
 
 var HtmlToReactParser = require('html-to-react').Parser;
 
@@ -72,7 +72,16 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     dataset.Series.splice(index, 1);
     updateDataset(dataset);
   }
-
+  
+  const tooltipHtml = () => {
+    if (isUndefined(dataset?.UserId)) {
+      return strings.tooltip.notAuthenticated;
+    } else if (dataset?.UserId == null) {
+      return strings.tooltip.noOwner;
+    } else {
+      return strings.tooltip.notOwner;
+    }
+  }
 
   /* Series Row */
   const renderSeriesRow = (s: Series, index: number) => {
@@ -105,49 +114,42 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
     )
   }
 
-  /* Private Toggle */
-  const renderPrivateSwitch = () => {
-    // Include div for tooltip css
-    return (
-      <div>
-        <Form.Check
-          onChange={(e: any) => updateDataset({ Private: e.currentTarget.checked })}
-          className="check-private"
-          disabled={!allowPrivate}
-          id="private"
-          label={''}
-          type="switch"
-          defaultChecked={dataset.Private}
-          value={dataset.Private ? 'true' : 'false'}
-        />
-      </div>
-    );
-  }
+  console.log('private', dataset.Private);
 
-  // TODO: Clean this up
-  if (!dataset?.UserId) allowPrivate = false;
-  const tooltipMessage = new HtmlToReactParser().parse(dataset?.UserId ? strings.tooltipNotAuthenticated : strings.tooltipNoOwner);
+  /* Private Toggle */
+  const privateSwitch = (
+    // Include div for tooltip css
+    <div>
+      <Form.Check
+        onChange={(e: any) => updateDataset({ Private: e.currentTarget.checked })}
+        className="check-private"
+        disabled={!allowPrivate}
+        id="private"
+        label={''}
+        type="switch"
+        defaultChecked={dataset.Private}
+        value={dataset.Private ? 'true' : 'false'}
+      />
+    </div>
+  );
+
+  /* Hidden Toggle Row */
+  const hiddenToggle = (
+    <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
+      <h6>
+        {`Inactive (${countBy(dataset.Series, s => !s.Visible).true || 0})`}
+      </h6>
+      <hr />
+      <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
+    </a>
+  );
 
   /* Add Series */
   const addSeriesButton = (
     <Button variant="link" className="add text-secondary" onClick={addSeries}>
-      <FontAwesomeIcon icon={addIcon} color="gray" className={`icon`} />Add Series
+      <FontAwesomeIcon icon={addIcon} color="gray" className={`icon`} />{strings.addSeriesButtonLabel}
     </Button>
   );
-
-  /* Hidden Toggle Row */
-  const hiddenToggle = () => {
-    // console.log('counts', counts, counts.true || 0, counts?.true);
-    return (
-      <a onClick={() => setHiddenOpen(!hiddenOpen)} className="hidden-link-container">
-        <h6>
-          {`Inactive (${countBy(dataset.Series, s => !s.Visible).true || 0})`}
-        </h6>
-        <hr />
-        <FontAwesomeIcon color="gray" className={`icon`} icon={hiddenOpen ? hiddenOpenIcon : hiddenCloseIcon} />
-      </a>
-    );
-  }
 
   /* Render */
   return (
@@ -156,16 +158,16 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
         <Row>
           <Col {...colWidth} className="d-flex justify-content-end">
             <span>{dataset.Private ? 'Private' : 'Public'}</span>
-            {allowPrivate ? renderPrivateSwitch() :
+            {allowPrivate ? privateSwitch :
               <OverlayTrigger
                 placement="bottom"
                 overlay={
                   <Tooltip id="tooltip-private">
-                    {tooltipMessage}
+                    {new HtmlToReactParser().parse(tooltipHtml())}
                   </Tooltip>
                 }
               >
-                {renderPrivateSwitch()}
+                {privateSwitch}
               </OverlayTrigger>
             }
           </Col>
@@ -197,7 +199,7 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
           <Form.Group>
             <Row>
               <Col {...colWidth}>
-                {hiddenToggle()}
+                {hiddenToggle}
               </Col>
             </Row>
           </Form.Group>

@@ -22,13 +22,13 @@ class ApiRequest {
   };
 
   private id: number;
-  private _url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records';
+  private _url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Users';
   private _token: string;
 
   private expands: string[];
   private filters: string[];
 
-  constructor(url?: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records', token?: string) {
+  constructor(url?: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Users', token?: string) {
     this._url = url;
     this._token = token;
 
@@ -105,6 +105,15 @@ class ApiRequest {
       headers: this.buildAuthHeader(this._token)
     };
     return this.execute(this.buildApiUrlString(idOverride), params);
+  }
+
+  public Custom = (customUrl: string) => {
+    const params = !this._token ? null : {
+      headers: this.buildAuthHeader(this._token)
+    };
+
+    var urlString = `${this.API_URL}${customUrl}`;
+    return this.execute(urlString, params);
   }
 
   public Get = () => {

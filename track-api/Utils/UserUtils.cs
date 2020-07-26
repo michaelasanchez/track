@@ -8,7 +8,7 @@ namespace track_api.Utils
 {
     public static class UserUtils
     {
-        public static User GetUserFromContext(ModelContext context, HttpContext httpContext)
+        public static User GetUser(ModelContext context, HttpContext httpContext)
         {
             var userClaims = httpContext.GetOwinContext().Authentication.User.Claims;
 

@@ -3,11 +3,12 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
-import { useInterval, useLocation } from '../../hooks';
+import { useInterval, useLocation, positionToLocation } from '../../hooks';
 import { Note, Property, Record, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
 import { defaultColor } from '../../utils/ChartistOptionsFactory';
 import DateTimePicker from '../inputs/DateTimePicker';
+import { strings } from '../../shared/strings';
 
 type RecordFormProps = {
   series: Series[];
@@ -26,7 +27,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
 
   // Keep props up to date
   useEffect(() => {
-    setRecord(Record.Default(series, location));
+    setRecord(Record.Default(series));
   }, [series]);
 
   // DateTime
@@ -34,19 +35,28 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
     if (autoUpdate) handleUpdateRecord({ DateTime: new Date() });
   }, 1000);
 
-  // Location
-  const location = useLocation();
-  useEffect(() => {
-    location && handleUpdateRecord({ Location: location })
-  }, [location]);
+  const handleSaveClick = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          record.Location = positionToLocation(position);
+          handleSaveRecord(record);
+        },
+        (error: PositionError) => {
+          console.error(error.message);
+          handleSaveRecord(record);
+        },
+        { enableHighAccuracy: true });
+    } else {
+      handleSaveRecord(record);
+    }
+  }
 
-  const handleSaveRecord = () => {
-    console.log('save', record);
-    saveRecord(record)
-      .then(() => {
-        setAutoUpdate(true)
-        setRecord(Record.Default(series));
-      });
+  const handleSaveRecord = (record: Record) => {
+    saveRecord(record).then(() => {
+      setAutoUpdate(true)
+      setRecord(Record.Default(series));
+    });
   }
 
   const handleUpdateRecord = (updated: Partial<Record>, cancelAutoUpdate: boolean = false) => {
@@ -144,8 +154,8 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       </Form.Group>
 
       {/* Save */}
-      <Button variant="primary" onClick={handleSaveRecord} disabled={disabled}>
-        Add
+      <Button variant="primary" onClick={handleSaveClick} disabled={disabled}>
+        {strings.createRecordButtonLabel}
       </Button>
     </Form>
   );

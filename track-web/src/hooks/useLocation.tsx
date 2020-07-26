@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Location } from '../models/odata/Location';
 
-const positionToLocation = (position: Position): Location => {
+export const positionToLocation = (position: Position): Location => {
   return {
     Latitude: position.coords.latitude,
     Longitude: position.coords.longitude,
@@ -17,7 +17,7 @@ export const useLocation = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
         setLocation(positionToLocation(position));
-      });
+      }, null, {enableHighAccuracy: true });
     }
   }, []);
 

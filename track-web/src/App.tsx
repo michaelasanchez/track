@@ -1,25 +1,58 @@
+import { useOktaAuth } from '@okta/okta-react';
 import React = require('react');
-import { Home } from './components/Home';
+import { useEffect, useState } from 'react';
 
-import { Security, LoginCallback } from '@okta/okta-react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
-import { AUTH_URL, CLIENT_ID } from './config';
+import { Home, HomeProps } from './components/Home';
+import { Loading } from './components/Loading';
+import { Navbar } from './components/Navbar';
+import { User } from './models/odata';
+import { OktaUser } from './models/okta';
+import ApiRequest from './utils/Request';
 
 type AppProps = {};
 
-const App: React.FunctionComponent<AppProps> = ({ }) => {
+const App: React.FunctionComponent<AppProps> = ({}) => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [oktaUser, setOktaUser] = useState<OktaUser>();
+
+  const [homeProps, setHomeProps] = useState<HomeProps>({} as HomeProps);
+
+  const { authState, authService } = useOktaAuth();
+
+  useEffect(() => {
+    if (!authState?.isPending) {
+      if (authState.isAuthenticated) {
+        authService.getUser().then((oktaUser: OktaUser) => {
+          setOktaUser(oktaUser);
+
+          const datasetRequest = new ApiRequest(null, authState.accessToken)
+            .Custom('User')
+            .then((resp) => {
+              setHomeProps({
+                token: authState?.accessToken,
+                user: resp
+              });
+              setIsLoading(false);
+            });
+        });
+      } else {
+        setIsLoading(false);
+      }
+    }
+  }, [authState]);
+
+
   return (
-    <Router>
-      <Security
-        issuer={`${AUTH_URL}/oauth2/default`}
-        clientId={CLIENT_ID}
-        redirectUri={`${window.location.origin}/callback`}
-      >
-        <Route path={`/`} component={Home} />
-        <Route path={`/callback`} component={LoginCallback} />
-      </Security>
-    </Router>
-  )
-} 
+    <>
+      <Navbar
+        authState={authState}
+        authService={authService}
+        user={oktaUser}
+        userIsLoading={isLoading}
+      />
+      {isLoading ? <Loading /> : <Home {...homeProps} />}
+    </>
+  );
+};
 
 export default App;

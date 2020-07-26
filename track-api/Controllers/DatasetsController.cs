@@ -27,7 +27,7 @@ namespace track_api.Controllers
 
         public DatasetsController()
         {
-            user = UserUtils.GetUserFromContext(db, HttpContext.Current);
+            user = UserUtils.GetUser(db, HttpContext.Current);
         }
 
         // GET: odata/Datasets

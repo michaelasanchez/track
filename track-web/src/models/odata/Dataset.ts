@@ -12,7 +12,9 @@ export class Dataset {
   private records: Record[];
   private series: Series[];
 
-  constructor() {
+  constructor(userId?: number) {
+    this.UserId = userId;
+
     this.Label = '';
     this.records = [];
     this.series = [];

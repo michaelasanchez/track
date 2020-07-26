@@ -21,15 +21,6 @@ const DateTimePicker: React.FunctionComponent<DateTimePickerProps> = ({
   timeFormat = 'h:mm:ss a'
 }) => {
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (autoUpdate == true) {
-  //       updateDate(new Date());
-  //     }
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
   const [valid, setValid] = useState<boolean>(true);
 
   const handleDateUpdate = (m: string) => {

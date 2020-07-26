@@ -9,6 +9,7 @@ import { ApiDataset, ApiSeries } from '../models/api';
 import { ChartistData } from '../models/chartist';
 import { ChartistOptionsFactory, defaultColor, SERIES_PREFIXES } from '../utils/ChartistOptionsFactory';
 import { TimeSpan } from '../utils/TimeSpan';
+import { strings } from '../shared/strings';
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -76,9 +77,21 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   const ref = useRef<HTMLHeadingElement>(null);
   const { width, height } = useResize(ref);
 
-  const span = new TimeSpan(dataset.Ticks);
+  const [span, setSpan] = useState<TimeSpan>(new TimeSpan(dataset?.Ticks));
 
   const optionsFactory = new ChartistOptionsFactory(span, refWidth, getChartZoom(span));
+
+  // useEffect(() => {
+  //   console.log('do do do', span, refWidth);
+  //   if (span && refWidth) setOptionsFactory(new ChartistOptionsFactory(span, refWidth, getChartZoom(span)));
+  // }, [span, refWidth])
+
+  useEffect(() => {
+    if (dataset) {
+      setSpan(new TimeSpan(dataset.Ticks))
+      // setOptionsFactory(new ChartistOptionsFactory(span, refWidth, getChartZoom(span)))
+    }
+  }, [dataset]);
 
   // Set initial width & scroll
   useEffect(() => {
@@ -161,12 +174,12 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   const blankGraph = () => {
     return (<ChartistGraph
       data={{}}
-      options={optionsFactory.getNumericalChartOptions()}
+      options={ChartistOptionsFactory.getDefaultOptions()}
       type={type}
     />);
   }
 
-  return dataset  ?
+  return dataset ?
     (
       <>
         <div className="label-container">
@@ -183,7 +196,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     (
       <div className="position-relative">
         <Alert variant="secondary" style={labelStyle} className="position-absolute">
-          No Dataset
+          {strings.graph.noDataset}
         </Alert>
         {blankGraph()}
       </div>
