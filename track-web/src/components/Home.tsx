@@ -4,7 +4,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
 
 import { ApiDataset } from '../models/api';
-import { Dataset, Record, Series, User } from '../models/odata';
+import { Category, Dataset, Record, Series, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
 import ApiRequest from '../utils/Request';
 import DatasetForm from './forms/DatasetForm';
@@ -57,13 +57,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
-  const [pendingDataset, setPendingDataset] = useState<Dataset>(new Dataset(user?.Id));
+  const [pendingDataset, setPendingDataset] = useState<Dataset>(
+    new Dataset(user?.Id)
+  );
 
   const [apiDataset, setApiDataset] = useState<ApiDataset>();
 
   const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
   const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
+
+  const [categoryList, setCategoryList] = useState<Category[]>();
 
   const [errors, setErrors] = useState([]);
 
@@ -74,11 +78,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   // Init
   useEffect(() => {
     loadDatasetList();
+    loadCategoryList();
   }, []);
 
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
     setIsListLoading(true);
-    console.log('TOKEN TOKEN', token);
     new ApiRequest('Datasets', token)
       .Filter('Archived eq false')
       .Get()
@@ -94,6 +98,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       .finally(() => {
         setIsListLoading(false);
       });
+  };
+
+  const loadCategoryList = () => {
+    new ApiRequest('Categories', token).Get().then((resp: any) => {
+      setCategoryList(resp.value);
+    });
   };
 
   const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
@@ -192,10 +202,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       (s: Series) => s.Label.length
     ) as Series[];
 
-    var req = new ApiRequest('Datasets', token).Post({
+    var req = new ApiRequest('Datasets', token).Patch({
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
+      CategoryId: dataset?.CategoryId,
     } as Dataset);
 
     req.then((dataset: Dataset) => {
@@ -205,17 +216,34 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   };
 
   const updateDataset = (dataset: Dataset) => {
+    if (!isEqual(dataset, currentDataset)) {
+      if (dataset?.Category) {
+        let req = new ApiRequest('Categories', token).Post({
+          Label: dataset.Category.Label,
+        } as Category);
+
+        req.then((category) => {
+          dataset.CategoryId = category.Id;
+        })
+
+        completeDatasetUpdate(dataset);
+      } else {
+        completeDatasetUpdate(dataset);
+      }
+    }
+  };
+
+  const completeDatasetUpdate = (dataset: Dataset) => {
     let requests: any[] = [];
 
-    if (!isEqual(dataset, currentDataset)) {
-      requests.push(
-        new ApiRequest('Datasets', token).Patch({
-          Id: dataset.Id,
-          Label: dataset.Label,
-          Private: dataset.Private,
-        } as Dataset)
-      );
-    }
+    requests.push(
+      new ApiRequest('Datasets', token).Put({
+        Id: dataset.Id,
+        Label: dataset.Label,
+        Private: dataset.Private,
+        CategoryId: dataset.CategoryId
+      } as Dataset)
+    );
 
     setIsDatasetLoading(true);
     each(dataset.Series, (s: Series, index: number) => {
@@ -232,7 +260,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       loadDatasetList(true);
       loadDataset(dataset.Id, true);
     });
-  };
+  }
 
   const createRecord = (record: Record): Promise<any> => {
     setIsRecordLoading(true);
@@ -295,8 +323,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
                 <DatasetForm
                   createMode={mode == UserMode.Create}
                   dataset={pendingDataset}
+                  categoryList={categoryList}
                   updateDataset={setPendingDataset}
-                  allowPrivate={token && pendingDataset.UserId === user?.Id ? true : false}
+                  allowPrivate={
+                    token && pendingDataset.UserId === user?.Id ? true : false
+                  }
                 />
               </Col>
             </Route>

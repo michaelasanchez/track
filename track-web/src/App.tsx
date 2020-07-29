@@ -50,6 +50,7 @@ const App: React.FunctionComponent<AppProps> = ({}) => {
         user={oktaUser}
         userIsLoading={isLoading}
       />
+      {/* <Loading /> */}
       {isLoading ? <Loading /> : <Home {...homeProps} />}
     </>
   );

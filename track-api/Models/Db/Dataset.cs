@@ -14,6 +14,11 @@ namespace track_api.Models.Db
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
 
+        public int? CategoryId { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public virtual Category Category { get; set; }
+
         public bool Archived { get; set; }
 
         public string Label { get; set; }

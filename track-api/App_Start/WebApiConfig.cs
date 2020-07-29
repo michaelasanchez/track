@@ -35,6 +35,7 @@ namespace track_api
             builder.EntitySet<Series>("Series");
             builder.EntitySet<Property>("Properties");
             builder.EntitySet<Note>("Notes");
+            builder.EntitySet<Category>("Categories");
 
             builder.EntitySet<ApiDataset>("ApiDatasets");
             builder.EntitySet<ApiSeries>("ApiSeries");

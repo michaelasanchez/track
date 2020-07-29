@@ -1,8 +1,8 @@
-import { Dataset } from "../models/odata/Dataset";
-import { Series } from "../models/odata/Series";
-import { Record } from "../models/odata/Record";
-
 import { API_URL } from "../config";
+import { Category } from "../models/odata";
+import { Dataset } from "../models/odata/Dataset";
+import { Record } from "../models/odata/Record";
+import { Series } from "../models/odata/Series";
 
 class ApiRequest {
 
@@ -22,13 +22,13 @@ class ApiRequest {
   };
 
   private id: number;
-  private _url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Users';
+  private _url: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Users' | 'Categories';
   private _token: string;
 
   private expands: string[];
   private filters: string[];
 
-  constructor(url?: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Users', token?: string) {
+  constructor(url?: 'ApiDatasets' | 'Datasets' | 'Series' | 'Records' | 'Users' | 'Categories', token?: string) {
     this._url = url;
     this._token = token;
 
@@ -46,8 +46,9 @@ class ApiRequest {
 
     //
     var urlString = `${this.ODATA_URL}${this._url}${this.getIdArg(idOverride)}`;
+    const both = this.expands.length && this.filters.length ? '&' : '';
     if (this.expands.length || this.filters.length)
-      return `${urlString}?${this.getExpandArg()}${this.getFilterArg()}`;
+      return `${urlString}?${this.getExpandArg()}${both}${this.getFilterArg()}`;
     return urlString;
   }
 
@@ -123,7 +124,7 @@ class ApiRequest {
     return this.execute(this.buildOdataUrlString(), params);
   }
 
-  public Post = (entity: Dataset | Series | Record) => {
+  public Post = (entity: Dataset | Series | Record | Category) => {
     return this.execute(this.buildOdataUrlString(),
     {
       method: 'POST',

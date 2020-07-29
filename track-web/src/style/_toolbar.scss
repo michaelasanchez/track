@@ -23,12 +23,12 @@ $dataset-select-min-width: 200px;
     margin-right: 0.75rem;
   }
 
-  // .icon-container
-  a {
+  a.icon-container {
     display: flex;
     flex-direction: row;
     align-items: center;
     margin: 0.25rem;
+    cursor: pointer;
 
     span {
       color: grey;

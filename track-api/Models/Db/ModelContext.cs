@@ -75,5 +75,7 @@ namespace track_api.Models.Db
             }
             this.ChangeTracker.DetectChanges();
         }
+
+        public System.Data.Entity.DbSet<track_api.Models.Db.Category> Categories { get; set; }
     }
 }

@@ -258,6 +258,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ApiDatasetsController.cs" />
+    <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\DatasetsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RecordsController.cs" />
@@ -293,11 +294,16 @@
     <Compile Include="Migrations\202007180836275_AddLocation.designer.cs">
       <DependentUpon>202007180836275_AddLocation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202007290249599_AddCategory.cs" />
+    <Compile Include="Migrations\202007290249599_AddCategory.designer.cs">
+      <DependentUpon>202007290249599_AddCategory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
     <Compile Include="Models\Api\ApiSeries.cs" />
     <Compile Include="Models\Dataset.ext.cs" />
     <Compile Include="Models\DbEntity.cs" />
+    <Compile Include="Models\Db\Category.cs" />
     <Compile Include="Models\Db\Dataset.cs" />
     <Compile Include="Models\Db\ModelContext.cs" />
     <Compile Include="Models\Db\Note.cs" />
@@ -357,6 +363,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202007180836275_AddLocation.resx">
       <DependentUpon>202007180836275_AddLocation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202007290249599_AddCategory.resx">
+      <DependentUpon>202007290249599_AddCategory.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

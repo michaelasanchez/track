@@ -1,5 +1,6 @@
 import { Record } from './Record';
 import { Series } from './Series';
+import { Category } from '.';
 
 export class Dataset {
   public Id: number;
@@ -7,6 +8,10 @@ export class Dataset {
   public Private: boolean;
   public Archived: boolean;
   public Label: string;
+
+  public CategoryId?: number;
+  public Category: Category;
+
   public Span: string;
 
   private records: Record[];
