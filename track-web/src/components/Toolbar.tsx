@@ -1,23 +1,18 @@
-import { faEdit as editIcon } from "@fortawesome/free-regular-svg-icons";
-import {
-  faCheck as saveIcon,
-  faEdit as editActive,
-  faPlusCircle as createIcon,
-  faTimes as cancelIcon,
-  faTrash as deleteIcon,
-} from "@fortawesome/free-solid-svg-icons";
-import { findIndex, map } from "lodash";
-import * as React from "react";
-import { useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import Select from "react-select";
+import { faEdit as editIcon } from '@fortawesome/free-regular-svg-icons';
+import { faTimes as cancelIcon, faPlusCircle as createIcon, faTrash as deleteIcon, faEdit as editActive, faCheck as saveIcon } from '@fortawesome/free-solid-svg-icons';
+import { each, filter, findIndex, map } from 'lodash';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { Button, Form, Modal } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import Select, { OptionsType } from 'react-select';
 
-import { Dataset } from "../models/odata/Dataset";
-import { UserMode } from "../shared/enums";
-import { strings } from "../shared/strings";
-import ApiRequest from "../utils/Request";
-import ToolbarButton from "./inputs/ToolbarButton";
+import { Category } from '../models/odata';
+import { Dataset } from '../models/odata/Dataset';
+import { UserMode } from '../shared/enums';
+import { strings } from '../shared/strings';
+import ApiRequest from '../utils/Request';
+import ToolbarButton from './inputs/ToolbarButton';
 
 export enum ToolbarAction {
   CreateBegin,
@@ -27,9 +22,40 @@ export enum ToolbarAction {
   Cancel,
 }
 
+const groupStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+};
+
+const groupLabelStyles = {
+  color: '#999'
+}
+
+const groupBadgeStyles = {
+  backgroundColor: '#EBECF0',
+  borderRadius: '2em',
+  color: '#888',
+  display: 'inline-block',
+  fontSize: 10,
+  fontWeight: 'bold',
+  lineHeight: '1',
+  minWidth: 1,
+  padding: '0.25em 0.7em',
+  textAlign: 'center',
+} as React.CSSProperties;
+
+const formatGroupLabel = (data: any) => (
+  <div style={groupStyles}>
+    <span style={groupLabelStyles}>{data.label}</span>
+    <span style={groupBadgeStyles}>{data.options.length}</span>
+  </div>
+);
+
 type ToolbarProps = {
   dataset: Dataset;
   datasetList: Dataset[];
+  categoryList: Category[];
   mode: UserMode;
   updateMode: Function;
   updateDataset: Function;
@@ -37,6 +63,16 @@ type ToolbarProps = {
   onAction: Function;
   disabled?: boolean;
 };
+
+interface SelectOption extends OptionsType<any> {
+  label: string;
+  value: any;
+}
+
+type SelectOptionGroup = {
+  label: string;
+  options: SelectOption[];
+}
 
 const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   mode,
@@ -47,6 +83,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   dataset,
   onAction: doAction,
   disabled,
+  categoryList
 }) => {
   const editMode = mode == UserMode.Edit;
   const createMode = mode == UserMode.Create;
@@ -56,8 +93,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const disableAll = !hasDatasets || disabled;
   const disableSelect = editMode || createMode || disableAll;
   const disableAllClass = disableAll ? " disabled" : "";
-
-  const selectedIndex = findIndex(datasetList, (ds) => ds.Id == dataset.Id);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -71,20 +106,72 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     }
   };
 
-  /* Select */
-  const renderDatasetSelect = () => {
-    const options = map(datasetList, (ds) => ({
+  // const selectedIndex = findIndex(datasetList, (ds) => ds.Id == dataset.Id);
+
+  const groupedOptions = () => {
+    let current: SelectOption;
+    
+    const options: SelectOption[] = map(datasetList, (ds) => ({
       label: ds.Label,
       value: ds.Id,
-    }));
+    } as SelectOption));
+
+    let groups: SelectOptionGroup[] = [{
+      label: 'Uncategorized',
+      options: []
+    }];
+
+    // datasetList.reduce((prev: Dataset, current: Dataset, index: number, array: Dataset[]) => {
+    //   console.log(prev, current, index, array);
+    //   return current;
+    // });
+    // console.log('===============================================================================');
+
+    each(datasetList, ds => {
+      const category = filter(categoryList, c => c.Id == ds?.CategoryId);
+      const datasetIndex = findIndex(options, o => o.value == ds.Id);
+      const option = options[datasetIndex];
+      
+      // console.log('CATEGORY', category, category.length == 1 && category[0].Label);
+      if (category.length == 1) {
+        const groupIndex = findIndex(groups, g =>  g.label == category[0].Label);
+        // console.log('GROUP INDEX', groups, groupIndex);
+        if (groupIndex < 0) {
+          groups.unshift({
+            label: category[0].Label,
+            options: [option]
+          })
+        } else {
+          groups[groupIndex].options[groups[groupIndex].options.length] = option;
+        }
+      } else {
+        groups[groups.length - 1].options[groups[groups.length - 1].options.length]  = option;
+      }
+
+      if (dataset.Id == ds.Id) current = option;
+    });
+
+    // console.log('GROUPS', datasetList, groups);
+
+    return [groups.sort((a, b) => a.label > b.label ? 1 : -1), current];
+  }
+
+  /* Select */
+  const renderDatasetSelect = () => {
+    const [options, current] = groupedOptions();
+    // const options = groupedOptions();
+    
     return (
       <Select
         className="select"
         isDisabled={disableSelect}
         isSearchable={false}
         options={options}
-        value={options[selectedIndex]}
+        value={current}
+        // menuIsOpen={true} // dev
+        // value={options[selectedIndex]}
         onChange={(option: any) => updateDataset(option.value)}
+        formatGroupLabel={formatGroupLabel}
       />
     );
   };

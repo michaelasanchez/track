@@ -293,6 +293,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
                   mode == UserMode.Create ? pendingDataset : currentDataset
                 }
                 datasetList={datasetList}
+                categoryList={categoryList}
                 mode={mode}
                 disabled={loading}
                 updateMode={setMode}

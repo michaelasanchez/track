@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { Button, Col, Collapse, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { Color } from 'react-color';
 import CreatableSelect from 'react-select/creatable';
-import { handleInputChange } from 'react-select/src/utils';
 
 import { Category, Dataset, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
