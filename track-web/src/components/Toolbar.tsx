@@ -1,13 +1,18 @@
 import { faEdit as editIcon } from '@fortawesome/free-regular-svg-icons';
-import { faTimes as cancelIcon, faPlusCircle as createIcon, faTrash as deleteIcon, faEdit as editActive, faCheck as saveIcon } from '@fortawesome/free-solid-svg-icons';
-import { each, filter, findIndex, map } from 'lodash';
+import {
+  faCheck as saveIcon,
+  faEdit as editActive,
+  faPlusCircle as createIcon,
+  faTimes as cancelIcon,
+  faTrash as deleteIcon,
+} from '@fortawesome/free-solid-svg-icons';
+import { each, findIndex, map } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Select, { OptionsType } from 'react-select';
 
-import { Category } from '../models/odata';
 import { Dataset } from '../models/odata/Dataset';
 import { UserMode } from '../shared/enums';
 import { strings } from '../shared/strings';
@@ -22,8 +27,20 @@ export enum ToolbarAction {
   Cancel,
 }
 
+enum SortOrder {
+  Ascending = 1,
+  Descending = -1,
+  Id = 0,
+}
+
 // TODO: move into toolbar options
 const groupOptions = true;
+const groupSort = SortOrder.Ascending;
+const optionSort = SortOrder.Ascending;
+
+const sortFn = (a: SelectOption, b: SelectOption, sort: SortOrder): number => {
+  return a.label.toLowerCase() > b.label.toLowerCase() ? sort : -sort;
+};
 
 const groupStyles = {
   display: 'flex',
@@ -99,6 +116,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   const archiveDataset = (dataset: Dataset) =>
     new ApiRequest('Datasets').Delete(dataset);
+
   const handleCloseModal = (confirm: boolean = false) => {
     setShowModal(false);
     updateMode(UserMode.View);
@@ -108,7 +126,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   };
 
   const groupedOptions = () => {
-    const options: SelectOption[] = map(
+    let options: SelectOption[] = map(
       datasetList,
       (ds) =>
         ({
@@ -151,10 +169,23 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         }
       });
 
-      const sortedGroups = groups.sort((a, b) => (a.label > b.label ? 1 : -1));
+      if (!!groupSort) {
+        groups = groups.sort((a, b) =>
+          a.label.toLowerCase() > b.label.toLowerCase() ? groupSort : -groupSort
+        );
+      }
 
-      return [sortedGroups, current];
+      if (!!optionSort) {
+        each(groups, (g) => {
+          g.options = g.options.sort((a, b) => sortFn(a, b, optionSort));
+        });
+      }
+
+      return [groups, current];
     } else {
+      if (!!optionSort) {
+        options = options.sort((a, b) => sortFn(a, b, optionSort));
+      }
       return [options, current];
     }
   };

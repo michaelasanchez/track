@@ -47,6 +47,7 @@ export type HomeProps = {
 };
 
 export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
+  
   const [isListLoading, setIsListLoading] = useState<boolean>(false);
   const [isDatasetLoading, setIsDatasetLoading] = useState<boolean>(false);
   const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
@@ -56,18 +57,18 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
 
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
+  const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
+  const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
+
+  const [datasetList, setDatasetList] = useState<Dataset[]>();
+  const [categoryList, setCategoryList] = useState<Category[]>();
+
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(
     new Dataset(user?.Id)
   );
 
   const [apiDataset, setApiDataset] = useState<ApiDataset>();
-
-  const [datasetList, setDatasetList] = useState<Dataset[]>();
-  const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
-  const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
-
-  const [categoryList, setCategoryList] = useState<Category[]>();
 
   const [errors, setErrors] = useState([]);
 

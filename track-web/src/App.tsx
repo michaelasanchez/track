@@ -27,7 +27,7 @@ const App: React.FunctionComponent<AppProps> = ({}) => {
 
           const datasetRequest = new ApiRequest(null, authState.accessToken)
             .Custom('User')
-            .then((resp) => {
+            .then((resp: User) => {
               setHomeProps({
                 token: authState?.accessToken,
                 user: resp
