@@ -31,10 +31,12 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
 }) => {
   const [hiddenOpen, setHiddenOpen] = useState<boolean>(false);
 
-  const categoryOptions = map(categoryList, c => {
+  const categoryOptions = map(categoryList, (c) => {
     return { label: c.Label, value: c.Id };
   });
-  const categoryIndex = dataset?.CategoryId && findIndex(categoryOptions, c => dataset.CategoryId == c.value);
+  const categoryIndex =
+    dataset?.CategoryId &&
+    findIndex(categoryOptions, (c) => dataset.CategoryId == c.value);
 
   const colWidth = {
     md: 8,
@@ -51,13 +53,20 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
 
   const updateCategory = (option: any) => {
     if (option) {
-
       if (option?.__isNew__) {
-        updateDataset({ Category: {
-          Label: option.label,
-        } as Category });
+        updateDataset({
+          Category: {
+            Label: option.label,
+          } as Category,
+        });
       } else {
-        updateDataset({ CategoryId: option.value });
+        updateDataset({
+          CategoryId: option.value,
+          Category: {
+            Id: option.value,
+            Label: option.label,
+          },
+        });
       }
     } else {
       delete dataset.Category;

@@ -6,7 +6,7 @@ $icon-scale-large: scale(1.05);
   position: relative;
 
   &:empty {
-    margin: 0;
+    margin: 0 !important;
   }
 
   &:hover {

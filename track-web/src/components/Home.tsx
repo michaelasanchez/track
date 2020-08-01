@@ -84,6 +84,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
     setIsListLoading(true);
     new ApiRequest('Datasets', token)
+      .Expand('Category')
       .Filter('Archived eq false')
       .Get()
       .then((d: any) => {
@@ -118,6 +119,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       const datasetRequest = new ApiRequest('Datasets', token)
         .Id(id)
         .Expand('Series')
+        .Expand('Category')
         .Get();
       const apiDatasetRequest = new ApiRequest('ApiDatasets')
         .Id(id)
@@ -217,23 +219,23 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
 
   const updateDataset = (dataset: Dataset) => {
     if (!isEqual(dataset, currentDataset)) {
-      if (dataset?.Category) {
-        let req = new ApiRequest('Categories', token).Post({
-          Label: dataset.Category.Label,
-        } as Category);
-
-        req.then((category) => {
-          dataset.CategoryId = category.Id;
-        })
-
-        completeDatasetUpdate(dataset);
+      if (!dataset?.CategoryId && !dataset?.Category?.Id && dataset?.Category?.Label) {
+        new ApiRequest('Categories', token)
+          .Post({
+            Label: dataset.Category.Label,
+          } as Category)
+          .then((category) => {
+            dataset.CategoryId = category.Id;
+            completeUpdateDataset(dataset);
+            loadCategoryList();
+          });
       } else {
-        completeDatasetUpdate(dataset);
+        completeUpdateDataset(dataset);
       }
     }
   };
 
-  const completeDatasetUpdate = (dataset: Dataset) => {
+  const completeUpdateDataset = (dataset: Dataset) => {
     let requests: any[] = [];
 
     requests.push(
@@ -241,7 +243,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
         Id: dataset.Id,
         Label: dataset.Label,
         Private: dataset.Private,
-        CategoryId: dataset.CategoryId
+        CategoryId: dataset.CategoryId,
       } as Dataset)
     );
 
@@ -260,7 +262,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       loadDatasetList(true);
       loadDataset(dataset.Id, true);
     });
-  }
+  };
 
   const createRecord = (record: Record): Promise<any> => {
     setIsRecordLoading(true);
@@ -293,7 +295,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
                   mode == UserMode.Create ? pendingDataset : currentDataset
                 }
                 datasetList={datasetList}
-                categoryList={categoryList}
                 mode={mode}
                 disabled={loading}
                 updateMode={setMode}

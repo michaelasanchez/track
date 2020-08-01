@@ -294,9 +294,9 @@
     <Compile Include="Migrations\202007180836275_AddLocation.designer.cs">
       <DependentUpon>202007180836275_AddLocation.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202007290249599_AddCategory.cs" />
-    <Compile Include="Migrations\202007290249599_AddCategory.designer.cs">
-      <DependentUpon>202007290249599_AddCategory.cs</DependentUpon>
+    <Compile Include="Migrations\202008010556465_AddCategory.cs" />
+    <Compile Include="Migrations\202008010556465_AddCategory.designer.cs">
+      <DependentUpon>202008010556465_AddCategory.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApiDataset.cs" />
@@ -364,8 +364,8 @@
     <EmbeddedResource Include="Migrations\202007180836275_AddLocation.resx">
       <DependentUpon>202007180836275_AddLocation.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202007290249599_AddCategory.resx">
-      <DependentUpon>202007290249599_AddCategory.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202008010556465_AddCategory.resx">
+      <DependentUpon>202008010556465_AddCategory.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

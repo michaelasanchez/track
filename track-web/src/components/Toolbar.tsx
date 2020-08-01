@@ -22,6 +22,9 @@ export enum ToolbarAction {
   Cancel,
 }
 
+// TODO: move into toolbar options
+const groupOptions = true;
+
 const groupStyles = {
   display: 'flex',
   alignItems: 'center',
@@ -29,8 +32,8 @@ const groupStyles = {
 };
 
 const groupLabelStyles = {
-  color: '#999'
-}
+  color: '#999',
+};
 
 const groupBadgeStyles = {
   backgroundColor: '#EBECF0',
@@ -55,7 +58,6 @@ const formatGroupLabel = (data: any) => (
 type ToolbarProps = {
   dataset: Dataset;
   datasetList: Dataset[];
-  categoryList: Category[];
   mode: UserMode;
   updateMode: Function;
   updateDataset: Function;
@@ -72,7 +74,7 @@ interface SelectOption extends OptionsType<any> {
 type SelectOptionGroup = {
   label: string;
   options: SelectOption[];
-}
+};
 
 const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   mode,
@@ -83,7 +85,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   dataset,
   onAction: doAction,
   disabled,
-  categoryList
 }) => {
   const editMode = mode == UserMode.Edit;
   const createMode = mode == UserMode.Create;
@@ -92,12 +93,12 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   const disableAll = !hasDatasets || disabled;
   const disableSelect = editMode || createMode || disableAll;
-  const disableAllClass = disableAll ? " disabled" : "";
+  const disableAllClass = disableAll ? ' disabled' : '';
 
   const [showModal, setShowModal] = useState(false);
 
   const archiveDataset = (dataset: Dataset) =>
-    new ApiRequest("Datasets").Delete(dataset);
+    new ApiRequest('Datasets').Delete(dataset);
   const handleCloseModal = (confirm: boolean = false) => {
     setShowModal(false);
     updateMode(UserMode.View);
@@ -106,61 +107,62 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     }
   };
 
-  // const selectedIndex = findIndex(datasetList, (ds) => ds.Id == dataset.Id);
-
   const groupedOptions = () => {
-    let current: SelectOption;
-    
-    const options: SelectOption[] = map(datasetList, (ds) => ({
-      label: ds.Label,
-      value: ds.Id,
-    } as SelectOption));
+    const options: SelectOption[] = map(
+      datasetList,
+      (ds) =>
+        ({
+          label: ds.Label,
+          value: ds.Id,
+        } as SelectOption)
+    );
 
-    let groups: SelectOptionGroup[] = [{
-      label: 'Uncategorized',
-      options: []
-    }];
+    const current =
+      options[findIndex(datasetList, (ds) => ds.Id == dataset.Id)];
 
-    // datasetList.reduce((prev: Dataset, current: Dataset, index: number, array: Dataset[]) => {
-    //   console.log(prev, current, index, array);
-    //   return current;
-    // });
-    // console.log('===============================================================================');
+    if (groupOptions) {
+      let groups: SelectOptionGroup[] = [
+        {
+          label: 'Uncategorized',
+          options: [],
+        },
+      ];
 
-    each(datasetList, ds => {
-      const category = filter(categoryList, c => c.Id == ds?.CategoryId);
-      const datasetIndex = findIndex(options, o => o.value == ds.Id);
-      const option = options[datasetIndex];
-      
-      // console.log('CATEGORY', category, category.length == 1 && category[0].Label);
-      if (category.length == 1) {
-        const groupIndex = findIndex(groups, g =>  g.label == category[0].Label);
-        // console.log('GROUP INDEX', groups, groupIndex);
-        if (groupIndex < 0) {
-          groups.unshift({
-            label: category[0].Label,
-            options: [option]
-          })
+      each(datasetList, (ds: Dataset, datasetIndex: number) => {
+        const option = options[datasetIndex];
+
+        if (ds.Category) {
+          // TODO: shouldn't be based on label
+          const groupIndex = findIndex(
+            groups,
+            (g) => g.label == ds.Category.Label
+          );
+
+          if (groupIndex < 0) {
+            groups.push({
+              label: ds.Category.Label,
+              options: [option],
+            });
+          } else {
+            groups[groupIndex].options.push(option);
+          }
         } else {
-          groups[groupIndex].options[groups[groupIndex].options.length] = option;
+          groups[0].options.push(option);
         }
-      } else {
-        groups[groups.length - 1].options[groups[groups.length - 1].options.length]  = option;
-      }
+      });
 
-      if (dataset.Id == ds.Id) current = option;
-    });
+      const sortedGroups = groups.sort((a, b) => (a.label > b.label ? 1 : -1));
 
-    // console.log('GROUPS', datasetList, groups);
-
-    return [groups.sort((a, b) => a.label > b.label ? 1 : -1), current];
-  }
+      return [sortedGroups, current];
+    } else {
+      return [options, current];
+    }
+  };
 
   /* Select */
   const renderDatasetSelect = () => {
     const [options, current] = groupedOptions();
-    // const options = groupedOptions();
-    
+
     return (
       <Select
         className="select"
@@ -169,7 +171,6 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         options={options}
         value={current}
         // menuIsOpen={true} // dev
-        // value={options[selectedIndex]}
         onChange={(option: any) => updateDataset(option.value)}
         formatGroupLabel={formatGroupLabel}
       />
@@ -198,8 +199,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     <>
       <ToolbarButton
         label="Edit"
-        link={editMode ? "/" : "/edit"}
-        className={editMode ? "active" : ""}
+        link={editMode ? '/' : '/edit'}
+        className={editMode ? 'active' : ''}
         onClick={() =>
           doAction(editMode ? ToolbarAction.Cancel : ToolbarAction.EditBegin)
         }
@@ -211,8 +212,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       />
       <ToolbarButton
         label="Create"
-        link={createMode ? "/" : "/create"}
-        className={createMode ? "active" : ""}
+        link={createMode ? '/' : '/create'}
+        className={createMode ? 'active' : ''}
         onClick={() =>
           doAction(
             createMode ? ToolbarAction.Cancel : ToolbarAction.CreateBegin

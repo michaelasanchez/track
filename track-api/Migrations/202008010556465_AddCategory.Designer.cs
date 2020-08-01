@@ -13,7 +13,7 @@ namespace track_api.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202007290249599_AddCategory"; }
+            get { return "202008010556465_AddCategory"; }
         }
         
         string IMigrationMetadata.Source

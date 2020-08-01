@@ -8,7 +8,7 @@
         public override void Up()
         {
             CreateTable(
-                "dbo.Categories",
+                "dbo.Category",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
@@ -20,15 +20,15 @@
             
             AddColumn("dbo.Dataset", "CategoryId", c => c.Int());
             CreateIndex("dbo.Dataset", "CategoryId");
-            AddForeignKey("dbo.Dataset", "CategoryId", "dbo.Categories", "Id");
+            AddForeignKey("dbo.Dataset", "CategoryId", "dbo.Category", "Id");
         }
         
         public override void Down()
         {
-            DropForeignKey("dbo.Dataset", "CategoryId", "dbo.Categories");
+            DropForeignKey("dbo.Dataset", "CategoryId", "dbo.Category");
             DropIndex("dbo.Dataset", new[] { "CategoryId" });
             DropColumn("dbo.Dataset", "CategoryId");
-            DropTable("dbo.Categories");
+            DropTable("dbo.Category");
         }
     }
 }
