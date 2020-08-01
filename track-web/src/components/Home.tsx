@@ -239,7 +239,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
     let requests: any[] = [];
 
     requests.push(
-      new ApiRequest('Datasets', token).Put({
+      new ApiRequest('Datasets', token).Patch({
         Id: dataset.Id,
         Label: dataset.Label,
         Private: dataset.Private,
