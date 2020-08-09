@@ -6,6 +6,7 @@ export class ApiDataset {
   
   public Label: string;
 
+  public SeriesIds: number[];
   public SeriesLabels: string[];
   
   public Span: string;

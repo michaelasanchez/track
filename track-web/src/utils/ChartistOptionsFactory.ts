@@ -4,6 +4,7 @@ import { ApiSeries } from "../models/api/ApiSeries";
 import { ChartZoom } from "../components/Graph";
 import { TimeSpan } from "./TimeSpan";
 import ChartistTooltip from 'chartist-plugin-tooltips-updated';
+import { ChartistData } from "../models/chartist";
 
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
@@ -38,12 +39,13 @@ const DEFAULT_CHART_OPTIONS = {
     ChartistTooltip({
       // tooltipFnc: (tooltipTitle: any, tooltipText: string) => tooltipTitle,
       transformTooltipTextFnc: (text: string) => {
+        console.log(text);
         const [timestamp, value] = text.split(',');
         return moment(parseInt(timestamp)).format(TOOLTIP_DATE_FORMAT);
       },
       appendToBody: true,
       anchorToPoint: true
-    })
+    }),
   ]
 } as ILineChartOptions;
 
@@ -83,6 +85,11 @@ const AXIS_Y_DEFAULT = {
   }
 } as ILineChartOptions;
 
+const calcChartWidth = (span: TimeSpan, refWidth: number, zoom: ChartZoom): number => {
+  let chartWidth = getTimeSpanValue(span, zoom) * 100; // px
+  return chartWidth < refWidth ? refWidth : chartWidth;
+}
+
 const getTimeSpanValue = (span: TimeSpan, zoom: ChartZoom): number => {
   switch (zoom) {
     case ChartZoom.Month:
@@ -96,40 +103,35 @@ const getTimeSpanValue = (span: TimeSpan, zoom: ChartZoom): number => {
   }
 }
 
-const calcChartWidth = (span: TimeSpan, refWidth: number, zoom: ChartZoom): number => {
-  let chartWidth = getTimeSpanValue(span, zoom) * 100; // px
-
-  // const zoomFill = refWidth / chartWidth;
-  // return chartWidth < refWidth ? chartWidth * zoomFill : chartWidth;
-
-  return chartWidth < refWidth ? refWidth : chartWidth;
-}
-
-const getDateFormat = (zoom: ChartZoom) => {
+// X-axis labels
+const getDateFormat = (zoom: ChartZoom, precise: boolean = true) => {
+  console.log('ZOOM ZOOM', zoom);
   switch (zoom) {
     case ChartZoom.Month:
-      return 'MMM \'YY'
+      return precise ? 'MMM \'YY D' : 'MMM\'YY' 
     case ChartZoom.Day:
-      return 'MMM D'
-    // return 'MMM D h:mma'
+      return precise ? 'MMM D h:mma' : 'MMM D';
     case ChartZoom.Hour:
-      return 'MMM D h:mma'
+      return precise ? 'MMM D h:mm:ssa' : 'MMM D h:mm:a'
     case ChartZoom.Minute:
-      return 'h:mma'
+      return 'h:mm:ss a'
   }
 }
 
 // TODO: Not sure if this makes sense as a class?
 export class ChartistOptionsFactory {
+  private _zoom: ChartZoom;
 
   private _width: number;
   private _divisor: number;
   private _dateFormat: string;
 
   constructor(span: TimeSpan, refWidth: number, zoom: ChartZoom) {
+    this._zoom = zoom;
 
-    // When zoom is set to day, divisor is equal to number of day, rounded
-    this._divisor = Math.round(getTimeSpanValue(span, zoom));
+    // When zoom is set to day, divisor is equal to number of day, rounded.
+    // Add 1 for padding and keeping dates rounded
+    this._divisor = Math.max(Math.floor(getTimeSpanValue(span, zoom)) + 1, 2);
 
     this._width = calcChartWidth(span, refWidth, zoom);
     this._dateFormat = getDateFormat(zoom);
@@ -148,7 +150,7 @@ export class ChartistOptionsFactory {
     } as ILineChartOptions;
   }
 
-  public getNumericalChartOptions = (hasFrequencyData: boolean = false): ILineChartOptions => {
+  public getNumericalChartOptions = (data: ChartistData, hasFrequencyData: boolean = false): ILineChartOptions => {
     return {
       ...DEFAULT_CHART_OPTIONS,
       ...NUMERICAL_OPTIONS,
@@ -161,6 +163,7 @@ export class ChartistOptionsFactory {
           y: hasFrequencyData ? 12.5 : AXIS_X_DEFAULT.labelOffset.y
         },
         labelInterpolationFnc: (value: any, i: number) => {
+          console.log(value, i);
           return moment(value).format(this._dateFormat)
         }
       }
@@ -174,10 +177,12 @@ export class ChartistOptionsFactory {
       axisY: {
         ...(AXIS_Y_DEFAULT.axisY),
         onlyInteger: true,
+        divisor: 2,
         labelInterpolationFnc: function (value: any, index: number) {
           const l = series.length;
           if (index < l) {
             // Based on boolean values equals -(index + 1) in ChartistRecord
+            // console.log('doog', index, value, series[index].Label)
             return series[l - 1 - index].Label;
           }
         },
@@ -185,11 +190,11 @@ export class ChartistOptionsFactory {
     } as ILineChartOptions;
   }
 
-  public getFrequencyChartOptions = (series: ApiSeries[], hideLabels: boolean = false): ILineChartOptions => {
+  public getFrequencyChartOptions = (numSeries: number, hideLabels: boolean = false): ILineChartOptions => {
     return {
       ...DEFAULT_CHART_OPTIONS,
       ...FREQUENCY_OPTIONS,
-      height: series.length * 40,
+      height: (numSeries - 1) * 40,
       width: this._width,
       axisX: {
         ...AXIS_X_DEFAULT,

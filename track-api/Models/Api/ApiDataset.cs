@@ -15,6 +15,7 @@ namespace track_api.Models.Api
 
         public long Ticks { get; set; }
 
+        public List<int> SeriesIds { get; set; }
         public List<DateTime> SeriesLabels { get; set; }
 
         public List<ApiSeries> NumericalSeries { get; set; }

@@ -3,32 +3,39 @@ import moment from 'moment';
 import { SeriesType } from '../../shared/enums';
 import { ApiSeries } from '../api/ApiSeries';
 
+export interface IChartistRecord {
+  meta?: string;
+  x: any;
+  y: any;
+}
+
 // TODO: Relocate this?
-const getRecordTooltip = (label: string, value: string) => `${label}: ${value}`;
+const getRecordTooltip = (id: number, label: string, value: string) => `Id: ${id} ${label}: ${value}`;
 
 // TODO: Does this need to be a class?
-const ChartistRecord = (series: ApiSeries, timestamp: string, value?: string, index?: number) => {
-  let parsed;
+const ChartistRecord = (series: ApiSeries, id: number, timestamp: string, value?: string, index?: number): IChartistRecord => {
+  
+  let parsedValue;
   switch (series.SeriesType) {
     case SeriesType.Decimal:
-      parsed = Number.parseFloat(value);
+      parsedValue = Number.parseFloat(value);
       break;
     case SeriesType.Integer:
-      parsed = Number.parseInt(value);
+      parsedValue = Number.parseInt(value);
       break;
     case SeriesType.Boolean:
       // Descending order for chart
-      parsed = value === 'true' ? -(index + 1) : null;
+      parsedValue = value === 'true' ? -(index + 1) : null;
       break;
     default:
-      parsed = null;
+      parsedValue = null;
       break;
   }
 
-  return !parsed ? null : {
-    meta: getRecordTooltip(series.Label, value),
+  return !parsedValue ? null : {
+    meta: getRecordTooltip(id, series.Label, value),
     x: moment(timestamp),
-    y: parsed
+    y: parsedValue
   };
 }
 

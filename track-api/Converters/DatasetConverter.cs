@@ -21,6 +21,8 @@ namespace track_api.Converters
             apiDataset.Span = span;
             apiDataset.Ticks = span.Ticks;
 
+            // TODO: These should be called record ids/labels
+            apiDataset.SeriesIds = new List<int>();
             apiDataset.SeriesLabels = new List<DateTime>();
 
             var series = new List<ApiSeries>();
@@ -37,6 +39,7 @@ namespace track_api.Converters
             foreach (Record record in dataset.Records.OrderBy(r => r.DateTime))
             {
                 recordCount++;
+                apiDataset.SeriesIds.Add(record.Id);
                 apiDataset.SeriesLabels.Add(TimeZoneInfo.ConvertTimeFromUtc(record.DateTime, easternTimeZone));
 
                 foreach (Property prop in record.Properties)

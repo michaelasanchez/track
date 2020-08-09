@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { map, each } from 'lodash';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
@@ -6,10 +6,16 @@ import ChartistGraph from 'react-chartist';
 
 import { useResize } from '../hooks';
 import { ApiDataset, ApiSeries } from '../models/api';
-import { ChartistData } from '../models/chartist';
-import { ChartistOptionsFactory, defaultColor, SERIES_PREFIXES } from '../utils/ChartistOptionsFactory';
+import { ChartistData, ChartistDataType, ChartistSeries } from '../models/chartist';
+import {
+  ChartistOptionsFactory,
+  defaultColor,
+  SERIES_PREFIXES,
+} from '../utils/ChartistOptionsFactory';
 import { TimeSpan } from '../utils/TimeSpan';
 import { strings } from '../shared/strings';
+import moment, { Moment } from 'moment';
+import ChartistRecord from '../models/chartist/ChartistRecord';
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -22,18 +28,21 @@ export enum GraphType {
 }
 
 export enum ChartZoom {
-  Month,
-  Day,
-  Hour,
-  Minute
+  Month = 'month',
+  Day = 'day',
+  Hour = 'hour',
+  Minute = 'minute',
 }
 
-const renderColorStyle = (series: ApiSeries[], className: string) => {
+const renderColorStyle = (apiSeries: ApiSeries[], className: string, chartistSeries: ChartistSeries[]) => {
+  console.log(apiSeries, chartistSeries);
   return (
     <style>
-      {map(series, (s, i) => {
+      {map(chartistSeries, (ss, i) => {
         const prefix = SERIES_PREFIXES.substr(i, 1);
-        const color = s.Color || `#${defaultColor(s.Order)}`;
+        const s = apiSeries[i];
+        // TODO: hack to hide span series
+        const color = s ? s.Color || `#${defaultColor(s.Order)}` : '#00000000';
 
         return `
           .${className} .ct-series-${prefix} .ct-line,
@@ -42,8 +51,8 @@ const renderColorStyle = (series: ApiSeries[], className: string) => {
           }`;
       })}
     </style>
-  )
-}
+  );
+};
 
 const getChartZoom = (span: TimeSpan): ChartZoom => {
   if (span.days > 60) {
@@ -54,7 +63,7 @@ const getChartZoom = (span: TimeSpan): ChartZoom => {
     return ChartZoom.Hour;
   }
   return ChartZoom.Minute;
-}
+};
 
 // "No Dataset" label
 const labelStyle = {
@@ -62,38 +71,69 @@ const labelStyle = {
   top: '50%',
   transform: 'translate(-50%, -50%)',
   boxShadow: '0 0 0 4px #ffffffcc',
-  backgroundColor: '#e2e3e5aa'
+  backgroundColor: '#e2e3e5aa',
+};
+
+const getSpanSeries = (start: Moment, end: Moment, value: any) => {
+  return [
+    { x: start, y: value },
+    { x: end, y: value },
+  ];
 }
 
 const Graph: React.FunctionComponent<GraphProps> = ({
   dataset,
-  defaultType = GraphType.Line
+  defaultType = GraphType.Line,
 }) => {
-  // TODO: Toggle line/bar for frequency graph
-  const [type, setType] = useState<GraphType>(defaultType);
-
   const [refWidth, setRefWidth] = useState<number>();
 
-  const ref = useRef<HTMLHeadingElement>(null);
-  const { width, height } = useResize(ref);
+  const ref = useRef<HTMLHeadingElement>();
+  const { width } = useResize(ref);
 
   const [span, setSpan] = useState<TimeSpan>(new TimeSpan(dataset?.Ticks));
 
-  const optionsFactory = new ChartistOptionsFactory(span, refWidth, getChartZoom(span));
+  const [numericalData, setNumericalData] = useState<ChartistData>();
+  const [frequencyData, setFrequencyData] = useState<ChartistData>();
 
-  // useEffect(() => {
-  //   console.log('do do do', span, refWidth);
-  //   if (span && refWidth) setOptionsFactory(new ChartistOptionsFactory(span, refWidth, getChartZoom(span)));
-  // }, [span, refWidth])
+  const optionsFactory = new ChartistOptionsFactory(
+    span,
+    refWidth,
+    getChartZoom(span)
+  );
 
   useEffect(() => {
     if (dataset) {
-      setSpan(new TimeSpan(dataset.Ticks))
-      // setOptionsFactory(new ChartistOptionsFactory(span, refWidth, getChartZoom(span)))
+      const span = new TimeSpan(dataset.Ticks);
+
+      const zoom = getChartZoom(span) as moment.unitOfTime.Base;
+
+      const labels = dataset.SeriesLabels;
+      const startDate = moment(labels[0]).startOf(zoom);
+      const endDate = moment(labels[labels.length - 1])
+        .add(1, zoom)
+        .startOf(zoom);
+
+      let numerical;
+      if (dataset?.NumericalSeries.length) {
+        numerical = new ChartistData(dataset, ChartistDataType.Numerical);
+        const spanSeries = getSpanSeries(startDate, endDate, 0);
+        numerical.series.push(spanSeries);
+      }
+      setNumericalData(numerical);
+
+      let frequency;
+      if (dataset?.FrequencySeries.length) {
+        frequency = new ChartistData(dataset, ChartistDataType.Frequency);
+        const spanSeries = getSpanSeries(startDate, endDate, -1);
+        frequency.series.push(spanSeries);
+      }
+      setFrequencyData(frequency);
+
+      setSpan(span);
     }
   }, [dataset]);
 
-  // Set initial width & scroll
+  // Set initial graph container width
   useEffect(() => {
     ref?.current?.offsetWidth && setRefWidth(ref.current.offsetWidth);
   }, [ref]);
@@ -105,102 +145,116 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     }
   }, [width]);
 
+  // Set scroll position
   let graphWidth = 0;
   const onDrawHandler = (e: any) => {
+    // if (e.type === 'point') {
+    //   console.log('POINT', e);
+    // }
     const scrollWidth = ref.current?.scrollWidth;
     if (!!scrollWidth && graphWidth != scrollWidth) {
       ref.current.scrollLeft = scrollWidth;
       graphWidth = scrollWidth;
     }
-  }
-
-  let hasNumericalData = dataset?.NumericalSeries.length > 0;
-  let hasFrequencyData = dataset?.FrequencySeries.length > 0;
-
-  let numericalData: ChartistData, frequencyData: ChartistData;
-  if (dataset) {
-    numericalData = new ChartistData(dataset.SeriesLabels, dataset.NumericalSeries);
-    frequencyData = new ChartistData(dataset.SeriesLabels, dataset.FrequencySeries);
-  }
+  };
 
   const listeners = {
-    draw: (e: any) => onDrawHandler(e)
-  }
+    draw: (e: any) => onDrawHandler(e),
+  };
 
   const lineLabels = () => {
-    return (<>
-      <ChartistGraph
-        data={numericalData}
-        options={optionsFactory.getNumericalLabelOptions()}
-        type={type}
-      />
-    </>);
+    return (
+      <>
+        <ChartistGraph
+          data={numericalData}
+          options={optionsFactory.getNumericalLabelOptions()}
+          type={defaultType}
+        />
+      </>
+    );
   };
 
   const frequencyLabels = (dataset: ApiDataset) => {
-    return (<>
-      <ChartistGraph
-        data={frequencyData}
-        options={optionsFactory.getFrequencyLabelOptions(dataset.FrequencySeries)}
-        type={type}
-      />
-    </>);
+    return (
+      <>
+        <ChartistGraph
+          data={frequencyData}
+          options={optionsFactory.getFrequencyLabelOptions(
+            dataset.FrequencySeries
+          )}
+          type={defaultType}
+        />
+      </>
+    );
   };
 
   const lineGraph = (dataset: ApiDataset) => {
-    return (<>
-      {renderColorStyle(dataset.NumericalSeries, 'numerical')}
-      <ChartistGraph
-        listener={listeners}
-        data={numericalData}
-        options={optionsFactory.getNumericalChartOptions(hasFrequencyData)}
-        type={type}
-      />
-    </>);
+    return (
+      <>
+        {renderColorStyle(dataset.NumericalSeries, 'numerical', numericalData.series)}
+        <ChartistGraph
+          listener={listeners}
+          data={numericalData}
+          options={optionsFactory.getNumericalChartOptions(
+            numericalData,
+            !!frequencyData
+          )}
+          type={defaultType}
+        />
+      </>
+    );
   };
 
   const frequencyGraph = (dataset: ApiDataset) => {
-    return (<>
-      {renderColorStyle(dataset.FrequencySeries, 'frequency')}
-      <ChartistGraph
-        listener={listeners}
-        data={frequencyData}
-        options={optionsFactory.getFrequencyChartOptions(dataset.FrequencySeries, hasNumericalData)}
-        type={type}
-      />
-    </>);
+    return (
+      <>
+        {renderColorStyle(dataset.FrequencySeries, 'frequency', frequencyData.series)}
+        <ChartistGraph
+          listener={listeners}
+          data={frequencyData}
+          options={optionsFactory.getFrequencyChartOptions(
+            frequencyData.series.length,
+            !!numericalData
+          )}
+          type={defaultType}
+        />
+      </>
+    );
   };
 
   const blankGraph = () => {
-    return (<ChartistGraph
-      data={{}}
-      options={ChartistOptionsFactory.getDefaultOptions()}
-      type={type}
-    />);
-  }
-
-  return dataset ?
-    (
-      <>
-        <div className="label-container">
-          {hasNumericalData && lineLabels()}
-          {hasFrequencyData && frequencyLabels(dataset)}
-        </div>
-        <div className="graph-container" ref={ref}>
-          {hasNumericalData && lineGraph(dataset)}
-          {hasFrequencyData && frequencyGraph(dataset)}
-        </div>
-      </>
-    )
-    :
-    (
-      <div className="position-relative">
-        <Alert variant="secondary" style={labelStyle} className="position-absolute">
-          {strings.graph.noDataset}
-        </Alert>
-        {blankGraph()}
-      </div>
+    return (
+      <ChartistGraph
+        data={{}}
+        options={ChartistOptionsFactory.getDefaultOptions()}
+        type={defaultType}
+      />
     );
-}
+  };
+
+  return dataset ? (
+    <>
+      <div className="label-container">
+        {numericalData && lineLabels()}
+        {frequencyData && frequencyLabels(dataset)}
+      </div>
+      <div className="graph-container" ref={ref}>
+        {numericalData && lineGraph(dataset)}
+        {frequencyData && frequencyGraph(dataset)}
+      </div>
+    </>
+  ) : (
+    <div className="position-relative">
+      <Alert
+        variant="secondary"
+        style={labelStyle}
+        className="position-absolute"
+      >
+        {strings.graph.noDataset}
+      </Alert>
+      {blankGraph()}
+    </div>
+  );
+};
 
 export default Graph;
