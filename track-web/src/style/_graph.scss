@@ -1,3 +1,19 @@
+.chartist-tooltip {
+  position: absolute;
+  font-size: 0.8rem;
+  background: #453d3f;
+  color: #fff;
+  border-radius: 0.25rem;
+
+  &.tooltip-show {
+    opacity: 0.9;
+  }
+
+  &::before {
+    border-top-color: #453d3f;
+  }
+}
+
 .label-container {
   position: absolute;
   top: 0;
@@ -13,27 +29,15 @@
   }
 }
 
-.chartist-tooltip {
-  position: absolute;
-  font-size: 0.8rem;
-  background: #453d3f;
-  color: #fff;
-  border-radius: 0.25rem;
-  
-  &.tooltip-show {
-    opacity: .9;
-  }
-
-  &::before {
-    border-top-color: #453d3f;
-  }
-}
-
 .graph-container {
   overflow-x: auto;
   scrollbar-width: thin;
   margin-left: 50px;
   margin-bottom: 1em;
+
+  .ct-labels foreignObject:last-child {
+    display: none;
+  }
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -52,6 +56,11 @@
       background: #66666666;
     }
   }
+
+  // .ct-chart:last-child {
+  //   position: absolute;
+  //   top: 0;
+  // }
 }
 
 svg.ct-chart-line.frequency {

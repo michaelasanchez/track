@@ -31,10 +31,6 @@ namespace track_api.Converters
                 series.Add(new ApiSeries(s));
             }
 
-            // TODO: Result of adding constraints to prod db
-            //  Keeping this in until confirmed not happening
-            int mismatchCount = 0;
-
             int recordCount = 0;
             foreach (Record record in dataset.Records.OrderBy(r => r.DateTime))
             {
@@ -48,8 +44,19 @@ namespace track_api.Converters
 
                     if (propSeries != null)
                         propSeries.Data.Add(prop.Value);
-                    else
-                        mismatchCount++;
+
+                    if (propSeries.SeriesType != SeriesType.Boolean)
+                    {
+                        if (string.IsNullOrEmpty(propSeries.Min) || decimal.Parse(propSeries.Min) > decimal.Parse(prop.Value))
+                        {
+                            propSeries.Min = prop.Value;
+                        }
+
+                        if (string.IsNullOrEmpty(propSeries.Max) || decimal.Parse(propSeries.Max) < decimal.Parse(prop.Value))
+                        {
+                            propSeries.Max = prop.Value;
+                        }
+                    }
                 }
 
                 foreach (ApiSeries s in series)

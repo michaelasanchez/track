@@ -18,6 +18,9 @@ namespace track_api.Models.Api
 
         public int Order { get; set; }
 
+        public string Min { get; set; }
+        public string Max { get; set; }
+
         public List<string> Data { get; set; }
 
         public ApiSeries(Series series = null)

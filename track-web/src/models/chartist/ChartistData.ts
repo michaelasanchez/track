@@ -4,6 +4,7 @@ import { ApiSeries } from '../api/ApiSeries';
 import ChartistRecord from './ChartistRecord';
 import moment from 'moment';
 import { ApiDataset } from '../api';
+import { ChartistSeries } from './ChartistSeries';
 
 export enum ChartistDataType {
   Numerical = 'numerical',
@@ -12,7 +13,7 @@ export enum ChartistDataType {
 
 export class ChartistData {
 
-  public series: any[];
+  public series: any;
 
   constructor(dataset: ApiDataset, dataType: ChartistDataType) {
 
@@ -23,7 +24,7 @@ export class ChartistData {
     // Create an array of "series"
     // Each "series" is an array of ChartistRecords
     this.series = map(series, (s: ApiSeries, i: number) => {
-      return map(s.Data, (value: string, j: number) => ChartistRecord(s, ids[i], labels[j], value, i));
+      return map(s.Data, (value: string, j: number) => new ChartistRecord(s, ids[i], labels[j], value, i));
     })
   }
 }

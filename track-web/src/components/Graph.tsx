@@ -1,21 +1,23 @@
-import { map, each } from 'lodash';
+import { map } from 'lodash';
+import moment, { Moment } from 'moment';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import ChartistGraph from 'react-chartist';
-
 import { useResize } from '../hooks';
 import { ApiDataset, ApiSeries } from '../models/api';
-import { ChartistData, ChartistDataType, ChartistSeries } from '../models/chartist';
+import {
+  ChartistData,
+  ChartistDataType,
+  ChartistSeries,
+} from '../models/chartist';
+import { strings } from '../shared/strings';
 import {
   ChartistOptionsFactory,
   defaultColor,
   SERIES_PREFIXES,
 } from '../utils/ChartistOptionsFactory';
 import { TimeSpan } from '../utils/TimeSpan';
-import { strings } from '../shared/strings';
-import moment, { Moment } from 'moment';
-import ChartistRecord from '../models/chartist/ChartistRecord';
 
 type GraphProps = {
   dataset: ApiDataset;
@@ -34,13 +36,17 @@ export enum ChartZoom {
   Minute = 'minute',
 }
 
-const renderColorStyle = (apiSeries: ApiSeries[], className: string, chartistSeries: ChartistSeries[]) => {
-  console.log(apiSeries, chartistSeries);
+const renderColorStyle = (
+  apiSeries: ApiSeries[],
+  className: string,
+  chartistSeries: ChartistSeries[]
+) => {
   return (
     <style>
       {map(chartistSeries, (ss, i) => {
         const prefix = SERIES_PREFIXES.substr(i, 1);
         const s = apiSeries[i];
+
         // TODO: hack to hide span series
         const color = s ? s.Color || `#${defaultColor(s.Order)}` : '#00000000';
 
@@ -79,7 +85,7 @@ const getSpanSeries = (start: Moment, end: Moment, value: any) => {
     { x: start, y: value },
     { x: end, y: value },
   ];
-}
+};
 
 const Graph: React.FunctionComponent<GraphProps> = ({
   dataset,
@@ -104,7 +110,6 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   useEffect(() => {
     if (dataset) {
       const span = new TimeSpan(dataset.Ticks);
-
       const zoom = getChartZoom(span) as moment.unitOfTime.Base;
 
       const labels = dataset.SeriesLabels;
@@ -162,7 +167,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     draw: (e: any) => onDrawHandler(e),
   };
 
-  const lineLabels = () => {
+  const numericalLabels = () => {
     return (
       <>
         <ChartistGraph
@@ -188,15 +193,19 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     );
   };
 
-  const lineGraph = (dataset: ApiDataset) => {
+  const numericalGraph = (dataset: ApiDataset) => {
     return (
       <>
-        {renderColorStyle(dataset.NumericalSeries, 'numerical', numericalData.series)}
+        {renderColorStyle(
+          dataset.NumericalSeries,
+          'numerical',
+          numericalData.series
+        )}
         <ChartistGraph
           listener={listeners}
           data={numericalData}
           options={optionsFactory.getNumericalChartOptions(
-            numericalData,
+            numericalData.series,
             !!frequencyData
           )}
           type={defaultType}
@@ -206,14 +215,19 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   };
 
   const frequencyGraph = (dataset: ApiDataset) => {
+    console.log('numerical', !!numericalData);
     return (
       <>
-        {renderColorStyle(dataset.FrequencySeries, 'frequency', frequencyData.series)}
+        {renderColorStyle(
+          dataset.FrequencySeries,
+          'frequency',
+          frequencyData.series
+        )}
         <ChartistGraph
           listener={listeners}
           data={frequencyData}
           options={optionsFactory.getFrequencyChartOptions(
-            frequencyData.series.length,
+            frequencyData.series,
             !!numericalData
           )}
           type={defaultType}
@@ -235,11 +249,11 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   return dataset ? (
     <>
       <div className="label-container">
-        {numericalData && lineLabels()}
+        {numericalData && numericalLabels()}
         {frequencyData && frequencyLabels(dataset)}
       </div>
       <div className="graph-container" ref={ref}>
-        {numericalData && lineGraph(dataset)}
+        {numericalData && numericalGraph(dataset)}
         {frequencyData && frequencyGraph(dataset)}
       </div>
     </>

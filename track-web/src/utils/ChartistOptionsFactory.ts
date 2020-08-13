@@ -1,10 +1,12 @@
-import { ILineChartOptions, FixedScaleAxis, AutoScaleAxis, StepAxis, IChartistFixedScaleAxis, IChartPadding } from "chartist";
-import moment from "moment";
-import { ApiSeries } from "../models/api/ApiSeries";
-import { ChartZoom } from "../components/Graph";
-import { TimeSpan } from "./TimeSpan";
+import { AutoScaleAxis, FixedScaleAxis, IChartistFixedScaleAxis, IChartPadding, ILineChartOptions, StepAxis } from "chartist";
 import ChartistTooltip from 'chartist-plugin-tooltips-updated';
-import { ChartistData } from "../models/chartist";
+import { times } from "lodash";
+import moment, { Moment } from "moment";
+
+import { ChartZoom } from "../components/Graph";
+import { ApiSeries } from "../models/api/ApiSeries";
+import { ChartistData, ChartistRecord, ChartistSeries } from "../models/chartist";
+import { TimeSpan } from "./TimeSpan";
 
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
@@ -23,11 +25,14 @@ const DEFAULT_CHARTIST_COLORS = [
 // const TOOLTIP_DATE_FORMAT = 'MMM Do YY h:mma';
 const TOOLTIP_DATE_FORMAT = 'M/D/YY h:mma';
 
+// Axis-X Label "precision"
+const DEFAULT_PRECISE = false;
+
 export const defaultColor = (order: number) => {
   return DEFAULT_CHARTIST_COLORS[order % DEFAULT_CHARTIST_COLORS.length]
 }
 
-const DEFAULT_CHART_OPTIONS = {
+const DEFAULT_OPTIONS = {
   chartPadding: {
     left: -35,
     right: 5
@@ -35,6 +40,9 @@ const DEFAULT_CHART_OPTIONS = {
   axisY: {
     showLabel: false,
   },
+  // axisX: {
+  //   showLabel: false,
+  // },
   plugins: [
     ChartistTooltip({
       // tooltipFnc: (tooltipTitle: any, tooltipText: string) => tooltipTitle,
@@ -75,7 +83,7 @@ const AXIS_Y_DEFAULT = {
   showPoint: false,
   axisX: {
     showGrid: false,
-    showLabel: false
+    showLabel: false,
   },
   axisY: {
     showGrid: false,
@@ -103,12 +111,11 @@ const getTimeSpanValue = (span: TimeSpan, zoom: ChartZoom): number => {
   }
 }
 
-// X-axis labels
-const getDateFormat = (zoom: ChartZoom, precise: boolean = true) => {
-  console.log('ZOOM ZOOM', zoom);
+// Axis-X labels
+const getDateFormat = (zoom: ChartZoom, precise: boolean = DEFAULT_PRECISE) => {
   switch (zoom) {
     case ChartZoom.Month:
-      return precise ? 'MMM \'YY D' : 'MMM\'YY' 
+      return precise ? 'MMM \'YY D' : 'MMM' 
     case ChartZoom.Day:
       return precise ? 'MMM D h:mma' : 'MMM D';
     case ChartZoom.Hour:
@@ -126,47 +133,45 @@ export class ChartistOptionsFactory {
   private _divisor: number;
   private _dateFormat: string;
 
+  /* Constructor */
   constructor(span: TimeSpan, refWidth: number, zoom: ChartZoom) {
     this._zoom = zoom;
 
     // When zoom is set to day, divisor is equal to number of day, rounded.
     // Add 1 for padding and keeping dates rounded
-    this._divisor = Math.max(Math.floor(getTimeSpanValue(span, zoom)) + 1, 2);
+    this._divisor = Math.max(Math.floor(getTimeSpanValue(span, zoom)) + 2, 2);
 
     this._width = calcChartWidth(span, refWidth, zoom);
     this._dateFormat = getDateFormat(zoom);
   }
 
+  private formatAxisXLabels = (value: any, i: number) => {
+    return moment(value).format(this._dateFormat)
+  }
+
+  private convertSpanSeriesToTicks = (series: any) => {
+    const ticks: Date[] = [];
+
+    times(this._divisor, (n: number) => {
+      const clone = series[0].x.clone();
+      ticks.push(clone.add(n, this._zoom).toDate());
+    });
+
+    return ticks;
+  }
+
+  /* Default */
   public static getDefaultOptions = (): ILineChartOptions => {
     return {
-      ...DEFAULT_CHART_OPTIONS
+      ...DEFAULT_OPTIONS
     } as ILineChartOptions;
   }
 
+  /* Chart Labels */
   public getNumericalLabelOptions = (): ILineChartOptions => {
     return {
       ...AXIS_Y_DEFAULT,
       height: 300
-    } as ILineChartOptions;
-  }
-
-  public getNumericalChartOptions = (data: ChartistData, hasFrequencyData: boolean = false): ILineChartOptions => {
-    return {
-      ...DEFAULT_CHART_OPTIONS,
-      ...NUMERICAL_OPTIONS,
-      height: 300,
-      width: this._width,
-      axisX: {
-        ...AXIS_X_DEFAULT,
-        divisor: this._divisor,
-        labelOffset: {
-          y: hasFrequencyData ? 12.5 : AXIS_X_DEFAULT.labelOffset.y
-        },
-        labelInterpolationFnc: (value: any, i: number) => {
-          console.log(value, i);
-          return moment(value).format(this._dateFormat)
-        }
-      }
     } as ILineChartOptions;
   }
 
@@ -190,22 +195,45 @@ export class ChartistOptionsFactory {
     } as ILineChartOptions;
   }
 
-  public getFrequencyChartOptions = (numSeries: number, hideLabels: boolean = false): ILineChartOptions => {
+  /* Chart */
+  public getNumericalChartOptions = (series: any, hasFrequencyData: boolean = false): ILineChartOptions => {
+    const spanSeries = series[series.length - 1];
+    
     return {
-      ...DEFAULT_CHART_OPTIONS,
-      ...FREQUENCY_OPTIONS,
-      height: (numSeries - 1) * 40,
+      ...DEFAULT_OPTIONS,
+      ...NUMERICAL_OPTIONS,
+      height: 300,
       width: this._width,
       axisX: {
         ...AXIS_X_DEFAULT,
         divisor: this._divisor,
-        showLabel: !hideLabels,
-        labelInterpolationFnc: (value: any, i: number) => {
-          return moment(value).format(this._dateFormat)
-        }
+        ticks: this.convertSpanSeriesToTicks(spanSeries),
+        labelOffset: {
+          y: hasFrequencyData ? 12.5 : AXIS_X_DEFAULT.labelOffset.y
+        },
+        labelInterpolationFnc: this.formatAxisXLabels
+      }
+    } as ILineChartOptions;
+  }
+
+  public getFrequencyChartOptions = (series: any, hideLabels: boolean = false): ILineChartOptions => {
+    const spanSeries = series[series.length - 1];
+    console.log('HIDE LABELS', hideLabels);
+    
+    return {
+      ...DEFAULT_OPTIONS,
+      ...FREQUENCY_OPTIONS,
+      height: (series.length - 1) * 40,
+      width: this._width,
+      axisX: {
+        ...AXIS_X_DEFAULT,
+        divisor: this._divisor,
+        ticks: hideLabels ? null : this.convertSpanSeriesToTicks(spanSeries),
+        labelInterpolationFnc: this.formatAxisXLabels,
+        showLabel: !hideLabels
       },
       chartPadding: {
-        ...(DEFAULT_CHART_OPTIONS.chartPadding),
+        ...(DEFAULT_OPTIONS.chartPadding),
         bottom: hideLabels ? 0 : 10
       }
     } as ILineChartOptions;
