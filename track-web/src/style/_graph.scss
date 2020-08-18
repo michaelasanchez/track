@@ -35,10 +35,6 @@
   margin-left: 50px;
   margin-bottom: 1em;
 
-  .ct-labels foreignObject:last-child {
-    display: none;
-  }
-
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -56,11 +52,6 @@
       background: #66666666;
     }
   }
-
-  // .ct-chart:last-child {
-  //   position: absolute;
-  //   top: 0;
-  // }
 }
 
 svg.ct-chart-line.frequency {

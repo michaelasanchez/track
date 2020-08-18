@@ -188,7 +188,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
         break;
 
       case ToolbarAction.EditSave:
-        updateDataset(pendingDataset);
+        beginUpdateDataset(pendingDataset);
         setMode(UserMode.View);
         break;
 
@@ -218,7 +218,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
     });
   };
 
-  const updateDataset = (dataset: Dataset) => {
+  const beginUpdateDataset = (dataset: Dataset) => {
     if (!isEqual(dataset, currentDataset)) {
       if (!dataset?.CategoryId && !dataset?.Category?.Id && dataset?.Category?.Label) {
         new ApiRequest('Categories', token)

@@ -5,8 +5,8 @@ import moment, { Moment } from "moment";
 
 import { ChartZoom } from "../components/Graph";
 import { ApiSeries } from "../models/api/ApiSeries";
-import { ChartistData, ChartistRecord, ChartistSeries } from "../models/chartist";
 import { TimeSpan } from "./TimeSpan";
+import Chartist from "chartist";
 
 // Default css class suffixes for series (lines, points)
 // TODO: figure out what happens after z
@@ -28,6 +28,9 @@ const TOOLTIP_DATE_FORMAT = 'M/D/YY h:mma';
 // Axis-X Label "precision"
 const DEFAULT_PRECISE = false;
 
+// 
+const FILL_HOLES = false;
+
 export const defaultColor = (order: number) => {
   return DEFAULT_CHARTIST_COLORS[order % DEFAULT_CHARTIST_COLORS.length]
 }
@@ -40,14 +43,10 @@ const DEFAULT_OPTIONS = {
   axisY: {
     showLabel: false,
   },
-  // axisX: {
-  //   showLabel: false,
-  // },
   plugins: [
     ChartistTooltip({
       // tooltipFnc: (tooltipTitle: any, tooltipText: string) => tooltipTitle,
       transformTooltipTextFnc: (text: string) => {
-        console.log(text);
         const [timestamp, value] = text.split(',');
         return moment(parseInt(timestamp)).format(TOOLTIP_DATE_FORMAT);
       },
@@ -115,13 +114,13 @@ const getTimeSpanValue = (span: TimeSpan, zoom: ChartZoom): number => {
 const getDateFormat = (zoom: ChartZoom, precise: boolean = DEFAULT_PRECISE) => {
   switch (zoom) {
     case ChartZoom.Month:
-      return precise ? 'MMM \'YY D' : 'MMM' 
+      return precise ? 'MMM D h:mma' : 'MMM';
     case ChartZoom.Day:
       return precise ? 'MMM D h:mma' : 'MMM D';
     case ChartZoom.Hour:
-      return precise ? 'MMM D h:mm:ssa' : 'MMM D h:mm:a'
+      return precise ? 'MMM D h:mm:ssa' : 'MMM D h:mm:a';
     case ChartZoom.Minute:
-      return 'h:mm:ss a'
+      return precise ? 'h:mm:ss a' : 'h:mma';
   }
 }
 
@@ -145,14 +144,11 @@ export class ChartistOptionsFactory {
     this._dateFormat = getDateFormat(zoom);
   }
 
-  private formatAxisXLabels = (value: any, i: number) => {
-    return moment(value).format(this._dateFormat)
-  }
-
   private convertSpanSeriesToTicks = (series: any) => {
     const ticks: Date[] = [];
 
     times(this._divisor, (n: number) => {
+      // TODO: "span" series should probably be an actual member
       const clone = series[0].x.clone();
       ticks.push(clone.add(n, this._zoom).toDate());
     });
@@ -198,7 +194,7 @@ export class ChartistOptionsFactory {
   /* Chart */
   public getNumericalChartOptions = (series: any, hasFrequencyData: boolean = false): ILineChartOptions => {
     const spanSeries = series[series.length - 1];
-    
+
     return {
       ...DEFAULT_OPTIONS,
       ...NUMERICAL_OPTIONS,
@@ -211,26 +207,28 @@ export class ChartistOptionsFactory {
         labelOffset: {
           y: hasFrequencyData ? 12.5 : AXIS_X_DEFAULT.labelOffset.y
         },
-        labelInterpolationFnc: this.formatAxisXLabels
-      }
+        labelInterpolationFnc: (dateString: string) => moment(dateString).format(this._dateFormat),
+      },
     } as ILineChartOptions;
   }
 
   public getFrequencyChartOptions = (series: any, hideLabels: boolean = false): ILineChartOptions => {
     const spanSeries = series[series.length - 1];
-    console.log('HIDE LABELS', hideLabels);
-    
+
     return {
       ...DEFAULT_OPTIONS,
       ...FREQUENCY_OPTIONS,
-      height: (series.length - 1) * 40,
+      height: (series.length - 1) * 40, // Graph height = (# of series) x 40px
       width: this._width,
       axisX: {
         ...AXIS_X_DEFAULT,
         divisor: this._divisor,
-        ticks: hideLabels ? null : this.convertSpanSeriesToTicks(spanSeries),
-        labelInterpolationFnc: this.formatAxisXLabels,
-        showLabel: !hideLabels
+        ticks: this.convertSpanSeriesToTicks(spanSeries),
+        labelInterpolationFnc: (dateString: string) => moment(dateString).format(this._dateFormat),
+        showLabel: !hideLabels,
+        labelOffset: {
+          y: 10,
+        }
       },
       chartPadding: {
         ...(DEFAULT_OPTIONS.chartPadding),

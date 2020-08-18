@@ -80,11 +80,37 @@ const labelStyle = {
   backgroundColor: '#e2e3e5aa',
 };
 
-const getSpanSeries = (start: Moment, end: Moment, value: any) => {
-  return [
-    { x: start, y: value },
-    { x: end, y: value },
-  ];
+// 
+const getBufferUnits = (zoom: ChartZoom): [number, moment.unitOfTime.Base] => {
+  switch (zoom) {
+    case ChartZoom.Month:
+      return [15, 'day']
+    case ChartZoom.Day:
+      return [12, 'hour'];
+    case ChartZoom.Hour:
+      return [30, 'minute'];
+    case ChartZoom.Minute:
+      return [30, 'second'];
+  }
+};
+
+// Span Series - added to numerical/frequency to create chart "buffer"
+const getSpanSeries = (labels: Array<string>, value: any, zoom: ChartZoom) => {
+  const [num, unit] = getBufferUnits(zoom);
+
+  const starDate = moment(labels[0]);
+  const endDate = moment(labels[labels.length - 1]);
+
+  const startBuffer = starDate.clone().subtract(num, unit);
+  const startLabel = startBuffer.clone().add(1, zoom).startOf(zoom);
+
+  // const endLabel = endDate.clone().add(1, zoom).startOf(zoom);
+  const endBuffer = endDate.clone().add(num, unit);
+
+  return [startLabel, /*endLabel, */startBuffer, endBuffer].map((m) => ({
+    x: m,
+    y: value,
+  }));
 };
 
 const Graph: React.FunctionComponent<GraphProps> = ({
@@ -110,27 +136,19 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   useEffect(() => {
     if (dataset) {
       const span = new TimeSpan(dataset.Ticks);
-      const zoom = getChartZoom(span) as moment.unitOfTime.Base;
-
-      const labels = dataset.SeriesLabels;
-      const startDate = moment(labels[0]).startOf(zoom);
-      const endDate = moment(labels[labels.length - 1])
-        .add(1, zoom)
-        .startOf(zoom);
+      const zoom = getChartZoom(span);
 
       let numerical;
       if (dataset?.NumericalSeries.length) {
         numerical = new ChartistData(dataset, ChartistDataType.Numerical);
-        const spanSeries = getSpanSeries(startDate, endDate, 0);
-        numerical.series.push(spanSeries);
+        numerical.series.push(getSpanSeries(dataset.SeriesLabels, 0, zoom));
       }
       setNumericalData(numerical);
 
       let frequency;
       if (dataset?.FrequencySeries.length) {
         frequency = new ChartistData(dataset, ChartistDataType.Frequency);
-        const spanSeries = getSpanSeries(startDate, endDate, -1);
-        frequency.series.push(spanSeries);
+        frequency.series.push(getSpanSeries(dataset.SeriesLabels, -1, zoom));
       }
       setFrequencyData(frequency);
 
@@ -215,7 +233,6 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   };
 
   const frequencyGraph = (dataset: ApiDataset) => {
-    console.log('numerical', !!numericalData);
     return (
       <>
         {renderColorStyle(
