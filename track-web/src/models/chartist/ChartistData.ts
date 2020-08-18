@@ -15,6 +15,9 @@ export class ChartistData {
 
   public series: any;
 
+  public min: number;
+  public max: number;
+
   constructor(dataset: ApiDataset, dataType: ChartistDataType) {
 
     const ids = dataset.SeriesIds;
@@ -24,6 +27,12 @@ export class ChartistData {
     // Create an array of "series"
     // Each "series" is an array of ChartistRecords
     this.series = map(series, (s: ApiSeries, i: number) => {
+      if (!this.min || (s.Min && parseFloat(s.Min) < this.min)) {
+        this.min = parseFloat(s.Min);
+      }
+      if (!this.max || parseFloat(s.Max) > this.max) {
+        this.max = parseFloat(s.Max);
+      }
       return map(s.Data, (value: string, j: number) => new ChartistRecord(s, ids[i], labels[j], value, i));
     })
   }

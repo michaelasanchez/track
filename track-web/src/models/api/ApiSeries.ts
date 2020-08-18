@@ -12,5 +12,8 @@ export class ApiSeries {
   public Order: number;
   
   public Data: string[];
+
+  public Min: string;
+  public Max: string;
   
 }

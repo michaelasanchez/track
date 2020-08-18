@@ -88,9 +88,9 @@ const getBufferUnits = (zoom: ChartZoom): [number, moment.unitOfTime.Base] => {
     case ChartZoom.Day:
       return [12, 'hour'];
     case ChartZoom.Hour:
-      return [30, 'minute'];
+      return [10, 'minute'];
     case ChartZoom.Minute:
-      return [30, 'second'];
+      return [10, 'second'];
   }
 };
 
@@ -99,7 +99,7 @@ const getSpanSeries = (labels: Array<string>, value: any, zoom: ChartZoom) => {
   const [num, unit] = getBufferUnits(zoom);
 
   const starDate = moment(labels[0]);
-  const endDate = moment(labels[labels.length - 1]);
+  const endDate = moment(labels[labels.length - 1]);  
 
   const startBuffer = starDate.clone().subtract(num, unit);
   const startLabel = startBuffer.clone().add(1, zoom).startOf(zoom);
@@ -141,7 +141,8 @@ const Graph: React.FunctionComponent<GraphProps> = ({
       let numerical;
       if (dataset?.NumericalSeries.length) {
         numerical = new ChartistData(dataset, ChartistDataType.Numerical);
-        numerical.series.push(getSpanSeries(dataset.SeriesLabels, 0, zoom));
+        const avg = (numerical.max + numerical.min) / 2;
+        numerical.series.push(getSpanSeries(dataset.SeriesLabels, avg, zoom));
       }
       setNumericalData(numerical);
 

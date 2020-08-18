@@ -205,11 +205,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       (s: Series) => s.Label.length
     ) as Series[];
 
-    var req = new ApiRequest('Datasets', token).Patch({
+    var req = new ApiRequest('Datasets', token).Post({
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
       CategoryId: dataset?.CategoryId,
+      Category: dataset?.Category
     } as Dataset);
 
     req.then((dataset: Dataset) => {
