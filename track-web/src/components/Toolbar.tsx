@@ -9,22 +9,25 @@ import {
 import { each, findIndex, map } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Button, Form, Modal } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import Select, { OptionsType } from 'react-select';
+import { Button, Form, Container, Col, Row } from 'react-bootstrap';
+import { Link, useHistory } from 'react-router-dom';
+import Select, { OptionsType, components } from 'react-select';
 
 import { Dataset } from '../models/odata/Dataset';
 import { UserMode } from '../shared/enums';
 import { strings } from '../shared/strings';
 import ApiRequest from '../utils/Request';
 import ToolbarButton from './inputs/ToolbarButton';
+import { ModalAction, IModalState, Modal } from './Modal';
 
 export enum ToolbarAction {
   CreateBegin,
   CreateSave,
   EditBegin,
   EditSave,
-  Cancel,
+  Delete,
+  Discard,
+  Refresh,
 }
 
 enum SortOrder {
@@ -34,9 +37,9 @@ enum SortOrder {
 }
 
 // TODO: move into toolbar options
-const groupOptions = true;
-const groupSort = SortOrder.Ascending;
-const optionSort = SortOrder.Ascending;
+const _groupOptions = true;
+const _groupSort = SortOrder.Ascending;
+const _optionSort = SortOrder.Ascending;
 
 const sortFn = (a: SelectOption, b: SelectOption, sort: SortOrder): number => {
   return a.label.toLowerCase() > b.label.toLowerCase() ? sort : -sort;
@@ -72,17 +75,6 @@ const formatGroupLabel = (data: any) => (
   </div>
 );
 
-type ToolbarProps = {
-  dataset: Dataset;
-  datasetList: Dataset[];
-  mode: UserMode;
-  updateMode: Function;
-  updateDataset: Function;
-  updateDatasetList: Function;
-  onAction: Function;
-  disabled?: boolean;
-};
-
 interface SelectOption extends OptionsType<any> {
   label: string;
   value: any;
@@ -93,15 +85,22 @@ type SelectOptionGroup = {
   options: SelectOption[];
 };
 
+type ToolbarProps = {
+  dataset: Dataset;
+  datasetList: Dataset[];
+  mode: UserMode;
+  disabled?: boolean;
+  onAction: (action: ToolbarAction, args?: any) => void;
+  hasChanges?: boolean;
+};
+
 const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   mode,
-  updateMode,
-  updateDataset,
-  updateDatasetList,
   datasetList,
   dataset,
   onAction: doAction,
   disabled,
+  hasChanges,
 }) => {
   const editMode = mode == UserMode.Edit;
   const createMode = mode == UserMode.Create;
@@ -112,17 +111,61 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const disableSelect = editMode || createMode || disableAll;
   const disableAllClass = disableAll ? ' disabled' : '';
 
-  const [showModal, setShowModal] = useState(false);
+  const [modalState, setModalState] = useState<IModalState>(null);
+  let history = useHistory();
 
-  const archiveDataset = (dataset: Dataset) =>
-    new ApiRequest('Datasets').Delete(dataset);
+  const getModalState = (
+    strings: any,
+    toolbarAction: ToolbarAction,
+    variant?: string
+  ): IModalState => {
+    let newState = {
+      title: strings.title,
+      confirmLabel: strings.confirm,
+      cancelLabel: strings.cancel,
+      onConfirm: () => handleCloseModal(toolbarAction),
+      onCancel: () => setModalState(null),
+    } as IModalState;
 
-  const handleCloseModal = (confirm: boolean = false) => {
-    setShowModal(false);
-    updateMode(UserMode.View);
-    if (confirm) {
-      archiveDataset(dataset).then(() => updateDatasetList());
+    if (strings?.body) {
+      newState.body = strings.body(dataset.Label);
     }
+    if (variant) newState.variant = variant;
+
+    return newState;
+  };
+
+  const handleShowModal = (action: ToolbarAction) => {
+    switch (action) {
+      case ToolbarAction.Discard:
+        if (hasChanges)
+          setModalState(
+            getModalState(strings.modal.discard, action, 'outline-primary')
+          );
+        else {
+          history.push('/');
+          doAction(ToolbarAction.Discard);
+        }
+        break;
+
+      case ToolbarAction.Delete:
+        setModalState(getModalState(strings.modal.delete, action));
+        break;
+    }
+  };
+
+  const handleCloseModal = (toolbarAction: ToolbarAction) => {
+    switch (toolbarAction) {
+      case ToolbarAction.Delete:
+        doAction(ToolbarAction.Delete);
+        break;
+
+      case ToolbarAction.Discard:
+        doAction(ToolbarAction.Discard);
+        break;
+    }
+
+    setModalState(null);
   };
 
   const groupedOptions = () => {
@@ -138,7 +181,12 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     const current =
       options[findIndex(datasetList, (ds) => ds.Id == dataset.Id)];
 
-    if (groupOptions) {
+    if (!_groupOptions) {
+      if (!!_optionSort) {
+        options = options.sort((a, b) => sortFn(a, b, _optionSort));
+      }
+      return [options, current];
+    } else {
       let groups: SelectOptionGroup[] = [
         {
           label: 'Uncategorized',
@@ -169,24 +217,21 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         }
       });
 
-      if (!!groupSort) {
+      if (!!_groupSort) {
         groups = groups.sort((a, b) =>
-          a.label.toLowerCase() > b.label.toLowerCase() ? groupSort : -groupSort
+          a.label.toLowerCase() > b.label.toLowerCase()
+            ? _groupSort
+            : -_groupSort
         );
       }
 
-      if (!!optionSort) {
+      if (!!_optionSort) {
         each(groups, (g) => {
-          g.options = g.options.sort((a, b) => sortFn(a, b, optionSort));
+          g.options = g.options.sort((a, b) => sortFn(a, b, _optionSort));
         });
       }
 
       return [groups, current];
-    } else {
-      if (!!optionSort) {
-        options = options.sort((a, b) => sortFn(a, b, optionSort));
-      }
-      return [options, current];
     }
   };
 
@@ -201,60 +246,44 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         isSearchable={false}
         options={options}
         value={current}
-        // menuIsOpen={true} // dev
-        onChange={(option: any) => updateDataset(option.value)}
         formatGroupLabel={formatGroupLabel}
+        onChange={(option: any) =>
+          doAction(ToolbarAction.Refresh, option.value)
+        }
       />
     );
   };
-
-  /* Modal */
-  const renderModal = () => (
-    <Modal show={showModal} onHide={handleCloseModal} animation={false}>
-      <Modal.Header closeButton>
-        <Modal.Title>{strings.modal.title}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>{strings.modal.body(dataset.Label)}</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => handleCloseModal()}>
-          {strings.modal.cancel}
-        </Button>
-        <Link to={`/`} onClick={() => handleCloseModal(true)}>
-          <Button variant="primary">{strings.modal.confirm}</Button>
-        </Link>
-      </Modal.Footer>
-    </Modal>
-  );
 
   const toolbarLeft = (
     <>
       <ToolbarButton
         label="Edit"
-        link={editMode ? '/' : '/edit'}
-        className={editMode ? 'active' : ''}
-        onClick={() =>
-          doAction(editMode ? ToolbarAction.Cancel : ToolbarAction.EditBegin)
+        link={mode == UserMode.View && '/edit'}
+        onClick={
+          editMode
+            ? () => handleShowModal(ToolbarAction.Discard)
+            : () => doAction(ToolbarAction.EditBegin)
         }
         icon={editIcon}
         iconActive={editActive}
         iconClass={`edit ${disableAllClass}`}
         active={editMode}
-        disabled={createMode}
+        disabled={createMode} // keep width
       />
-      <ToolbarButton
-        label="Create"
-        link={createMode ? '/' : '/create'}
-        className={createMode ? 'active' : ''}
-        onClick={() =>
-          doAction(
-            createMode ? ToolbarAction.Cancel : ToolbarAction.CreateBegin
-          )
-        }
-        icon={createIcon}
-        iconClass={`create ${disableAllClass}`}
-        active={createMode}
-        disabled={editMode}
-      />
+      {!editMode && (
+        <ToolbarButton
+          label="Create"
+          link={mode == UserMode.View && '/create'}
+          onClick={() =>
+            createMode
+              ? handleShowModal(ToolbarAction.Discard)
+              : doAction(ToolbarAction.CreateBegin)
+          }
+          icon={createIcon}
+          iconClass={`create ${disableAllClass}`}
+          active={createMode}
+        />
+      )}
     </>
   );
 
@@ -263,7 +292,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       {editMode && (
         <>
           <ToolbarButton
-            onClick={() => setShowModal(true)}
+            onClick={() => handleShowModal(ToolbarAction.Delete)}
             icon={deleteIcon}
             iconClass="delete"
           />
@@ -273,8 +302,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       {(editMode || createMode) && (
         <>
           <ToolbarButton
-            link="/"
-            onClick={() => doAction(ToolbarAction.Cancel)}
+            onClick={() => handleShowModal(ToolbarAction.Discard)}
             icon={cancelIcon}
             iconClass="cancel"
           />
@@ -295,15 +323,18 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
 
   /* Render */
   return (
-    <Form className="toolbar">
-      {renderDatasetSelect()}
-
-      <div className="toolbar-left">{toolbarLeft}</div>
-
-      <div className="toolbar-right">{toolbarRight}</div>
-
-      {renderModal()}
-    </Form>
+    <>
+      <Col xs={6} md={4} lg={3}>
+        {renderDatasetSelect()}
+      </Col>
+      <Col xs={6} md={4} lg={3} className="pl-0">
+        <Form className="toolbar">
+          <div className="toolbar-left">{toolbarLeft}</div>
+          <div className="toolbar-right">{toolbarRight}</div>
+        </Form>
+      </Col>
+      <Modal show={!!modalState} state={modalState} />
+    </>
   );
 };
 

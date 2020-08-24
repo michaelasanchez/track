@@ -1,0 +1,12 @@
+.modal {
+  .modal-content {
+    margin: 2rem auto;
+    max-width: 400px;
+  }
+  .modal-header:nth-last-child(2) {
+    border-bottom: none;
+  }
+  .modal-footer:nth-child(2) {
+    border-top: none;
+  }
+}

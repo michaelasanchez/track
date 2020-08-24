@@ -8,10 +8,17 @@ export const strings = {
     noDataset: 'No Dataset',
   },
   modal: {
-    title: 'Just checking',
-    confirm: 'Confirm',
-    cancel: 'Nevermind',
-    body: (label: string) => `Dataset "${label}" is about to be <strong>deleted</strong>`
+    delete: {
+      title: 'Just checking',
+      confirm: 'Confirm',
+      cancel: 'Nevermind',
+      body: (label: string) => `Dataset "${label}" is about to be <strong>deleted</strong>`
+    },
+    discard: {
+      title: 'Discard Changes?',
+      confirm: 'Confirm',
+      cancel: 'Nevermind',
+    },
   },
   tooltip: {
     notAuthenticated: '<strong>Login</strong> to create private datasets',

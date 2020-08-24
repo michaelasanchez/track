@@ -1,8 +1,22 @@
 $dataset-select-min-width: 200px;
 
+.select {
+  width: 100%; //$dataset-select-min-width;
+  margin-right: 0.75rem;
+
+  .group-heading-wrapper {
+    cursor: pointer;
+  }
+
+  .collapsed {
+    display: none;
+  }
+}
+
 .toolbar {
   display: flex;
   margin-bottom: 0; // TODO: switch from Form.Control
+  height: 100%;
 
   .toolbar-left,
   .toolbar-right {
@@ -18,9 +32,9 @@ $dataset-select-min-width: 200px;
     align-items: stretch;
   }
 
-  .select {
-    width: $dataset-select-min-width;
-    margin-right: 0.75rem;
+  .divider {
+    border: 1px solid rgb(232, 232, 232);
+    margin: 10px 0.75rem 8px;
   }
 
   a.icon-container {
@@ -51,9 +65,6 @@ $dataset-select-min-width: 200px;
         &.create {
           color: var(--green);
         }
-        // &.edit {
-        //   color: var(--orange);
-        // }
       }
     }
 
@@ -64,13 +75,14 @@ $dataset-select-min-width: 200px;
     }
   }
 
-  .divider {
-    border: 1px solid rgb(232, 232, 232);
-    margin: 10px 0.75rem 8px;
-  }
-
   .icon {
     margin: 0 0.5rem;
+
+    &:not(:hover) {
+      &.delete {
+        opacity: .25;
+      }
+    }
 
     &:hover:not(.disabled) {
       &.create,

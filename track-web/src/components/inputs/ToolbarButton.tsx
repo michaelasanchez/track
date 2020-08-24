@@ -27,18 +27,20 @@ const ToolbarButton: React.FunctionComponent<ToolbarButtonProps> = ({
   disabled,
 }) => {
 
-  const linkClassName = className ? `icon-container ${className}` : 'icon-container';
+  const baseLinkClassname = `${disabled ? 'disabled' : ''} ${active ? 'active': ''} icon-container`;
+  const linkClassName = className ? `${baseLinkClassname} ${className}` : baseLinkClassname;
   const iconClassName = iconClass ? `icon ${iconClass}` : 'icon';
 
   const renderLinkContent = () => {
     return (
       <>
-        {!disabled &&
+        {/* {!disabled && */}
           <FontAwesomeIcon
             icon={active && iconActive ? iconActive : icon}
             color="gray"
             className={iconClassName}
-          />}
+          />
+          {/* } */}
         {label && active && <span>{label}</span>}
         {/* <span>{label}</span> */}
       </>

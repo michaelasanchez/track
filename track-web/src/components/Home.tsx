@@ -47,7 +47,6 @@ export type HomeProps = {
 };
 
 export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
-  
   const [isListLoading, setIsListLoading] = useState<boolean>(false);
   const [isDatasetLoading, setIsDatasetLoading] = useState<boolean>(false);
   const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
@@ -67,6 +66,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   const [pendingDataset, setPendingDataset] = useState<Dataset>(
     new Dataset(user?.Id)
   );
+  const [hasPendingChanges, setHasPendingChanges] = useState<boolean>(false);
 
   const [apiDataset, setApiDataset] = useState<ApiDataset>();
 
@@ -76,12 +76,19 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
     if (loading != isListLoading || isDatasetLoading) setLoading(!loading);
   }, [isListLoading, isDatasetLoading]);
 
+  useEffect(() => {
+    const equal = ((mode == UserMode.Create && !isEqual(pendingDataset, new Dataset(user?.Id))) ||
+        (mode == UserMode.Edit && !isEqual(currentDataset, pendingDataset)))
+    setHasPendingChanges(equal);
+  }, [pendingDataset]);
+
   // Init
   useEffect(() => {
     loadDatasetList();
     loadCategoryList();
   }, []);
 
+  /* Load Dataset List */
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {
     setIsListLoading(true);
     new ApiRequest('Datasets', token)
@@ -102,12 +109,14 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       });
   };
 
+  /* Load Categories */
   const loadCategoryList = () => {
     new ApiRequest('Categories', token).Get().then((resp: any) => {
       setCategoryList(resp.value);
     });
   };
 
+  /* Load Dataset */
   const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
     window.localStorage.setItem('datasetId', id.toString());
     const cachedIndex = findIndex(datasetCache, (c) => c.Id == id);
@@ -169,9 +178,13 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   };
 
   /* Toolbar Actions */
-  const handleToolbarAction = (action: ToolbarAction) => {
+  const handleToolbarAction = (action: ToolbarAction, args?: any) => {
     // TODO: Shouldn't need set mode here since toolbar uses links
     switch (action) {
+      case ToolbarAction.Refresh:
+        loadDataset(args);
+        break;
+
       case ToolbarAction.CreateBegin:
         setPendingDataset(new Dataset(user?.Id));
         setMode(UserMode.Create);
@@ -192,25 +205,45 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
         setMode(UserMode.View);
         break;
 
-      case ToolbarAction.Cancel:
+      case ToolbarAction.Discard:
         setPendingDataset(new Dataset(user?.Id));
+        setMode(UserMode.View);
+        break;
+
+      case ToolbarAction.Delete:
+        archiveDataset(currentDataset).then(() => loadDatasetList());
         setMode(UserMode.View);
         break;
     }
   };
 
+  /* Create Dataset */
   const createDataset = (dataset: Dataset) => {
     dataset.Series = filter(
       dataset.Series,
       (s: Series) => s.Label.length
     ) as Series[];
 
+    console.log('NOW', {
+      Private: dataset.Private,
+      Label: dataset.Label,
+      Series: dataset.Series,
+      CategoryId: dataset?.CategoryId,
+      Category: dataset?.Category,
+    });
+
+    console.log('COULD BE', {
+      ...dataset,
+      Series: dataset.Series,
+      Category: dataset?.Category,
+    });
+
     var req = new ApiRequest('Datasets', token).Post({
       Private: dataset.Private,
       Label: dataset.Label,
       Series: dataset.Series,
       CategoryId: dataset?.CategoryId,
-      Category: dataset?.Category
+      Category: dataset?.Category,
     } as Dataset);
 
     req.then((dataset: Dataset) => {
@@ -219,9 +252,18 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
     });
   };
 
+  /* Archive Dataset */
+  const archiveDataset = (dataset: Dataset) =>
+    new ApiRequest('Datasets').Delete(dataset);
+
+  /* Update Dataset */
   const beginUpdateDataset = (dataset: Dataset) => {
     if (!isEqual(dataset, currentDataset)) {
-      if (!dataset?.CategoryId && !dataset?.Category?.Id && dataset?.Category?.Label) {
+      if (
+        !dataset?.CategoryId &&
+        !dataset?.Category?.Id &&
+        dataset?.Category?.Label
+      ) {
         new ApiRequest('Categories', token)
           .Post({
             Label: dataset.Category.Label,
@@ -266,6 +308,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
     });
   };
 
+  /* Create Record */
   const createRecord = (record: Record): Promise<any> => {
     setIsRecordLoading(true);
     const req = new ApiRequest('Records')
@@ -291,20 +334,16 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
       <>
         <Container>
           <Row className="mt-3">
-            <Col xs={12} md={8} lg={6}>
-              <Toolbar
-                dataset={
-                  mode == UserMode.Create ? pendingDataset : currentDataset
-                }
-                datasetList={datasetList}
-                mode={mode}
-                disabled={loading}
-                updateMode={setMode}
-                updateDataset={loadDataset}
-                updateDatasetList={loadDatasetList}
-                onAction={handleToolbarAction}
-              />
-            </Col>
+            <Toolbar
+              dataset={
+                mode == UserMode.Create ? pendingDataset : currentDataset
+              }
+              datasetList={datasetList}
+              mode={mode}
+              disabled={loading}
+              onAction={handleToolbarAction}
+              hasChanges={hasPendingChanges}
+            />
           </Row>
           <hr />
           <Row>
