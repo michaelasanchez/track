@@ -49,6 +49,7 @@ const groupStyles = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  // background: 'red',
 };
 
 const groupLabelStyles = {
@@ -239,6 +240,23 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const renderDatasetSelect = () => {
     const [options, current] = groupedOptions();
 
+    const handleHeaderClick = (id: any) => {
+      const node = document.querySelector(`#${id}`).parentElement
+        .nextElementSibling;
+      node.classList.toggle('collapsed');
+    };
+
+    const CustomGroupHeading = (props: any) => {
+      return (
+        <div
+          className="group-heading-wrapper"
+          onClick={() => handleHeaderClick(props.id)}
+        >
+          <components.GroupHeading {...props} />
+        </div>
+      );
+    };
+
     return (
       <Select
         className="select"
@@ -250,6 +268,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         onChange={(option: any) =>
           doAction(ToolbarAction.Refresh, option.value)
         }
+        // menuIsOpen={true} // dev
+        components={{ GroupHeading: CustomGroupHeading }}
       />
     );
   };
