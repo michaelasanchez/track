@@ -1,11 +1,10 @@
 // import img from '../public/img/whoa.jpg';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { LoginCallback, SecureRoute, Security } from '@okta/okta-react';
+import { LoginCallback, Security } from '@okta/okta-react';
 import * as React from 'react';
 import { useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { Route, Switch, useHistory } from 'react-router-dom';
-
 import App from './App';
 import Login from './components/Login';
 import Navbar from './components/Navbar';

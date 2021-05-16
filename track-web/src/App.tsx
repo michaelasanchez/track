@@ -1,11 +1,13 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useEffect, useState } from 'react';
+
 import { Home, HomeProps } from './components/Home';
 import { Loading } from './components/Loading';
-// import { Navbar } from './components/Navbar';
+// import { User } from './components/Navbar';
 import { User } from './models/odata';
 import { OktaUser } from './models/okta';
 import ApiRequest from './utils/Request';
+
 import React = require('react');
 
 type AppProps = {};
@@ -20,15 +22,17 @@ const App: React.FunctionComponent<AppProps> = ({}) => {
 
   useEffect(() => {
     if (!authState?.isPending) {
-      if (authState.isAuthenticated) {
+      if (authState.isAuthenticated && !!authState.accessToken?.value) {
         oktaAuth.getUser().then((oktaUser: OktaUser) => {
           setOktaUser(oktaUser);
 
-          const datasetRequest = new ApiRequest(null, authState.accessToken)
+          console.log('AUTH STATE', authState);
+
+          const datasetRequest = new ApiRequest(null, authState.accessToken.value)
             .Custom('User')
             .then((resp: User) => {
               setHomeProps({
-                token: authState?.accessToken,
+                token: authState.accessToken.value,
                 user: resp,
               });
               setIsLoading(false);

@@ -1,5 +1,5 @@
-import * as useOktaAuth from '@okta/okta-react';
-import { OktaSignIn } from '@okta/okta-signin-widget';
+import { useOktaAuth } from '@okta/okta-react';
+import OktaSignIn from '@okta/okta-signin-widget';
 /*
  * Copyright (c) 2018, Okta, Inc. and/or its affiliates. All rights reserved.
  * The Okta software accompanied by this notice is provided pursuant to the Apache License, Version 2.0 (the "License.")
