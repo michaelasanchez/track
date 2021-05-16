@@ -62,18 +62,18 @@ module.exports = function makeWebpackConfig() {
           },
           {
             loader: 'postcss-loader',
-            options: {
-              plugins: function () {
-                return [
-                  require('autoprefixer'),
-                ]
-              }
-            }
           },
           {
             loader: 'sass-loader',
           }
         ]
+      },
+      {
+        test: /\.(png|jpe?g|svg|ttf|eot|gif|woff)$/,
+        loader: 'file-loader',
+        options: {
+          name: 'assets/[name].[ext]',
+        }
       },
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       {

@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
-import { useInterval, useLocation, positionToLocation } from '../../hooks';
+import { positionToLocation, useInterval, useLocation } from '../../hooks';
 import { Note, Property, Record, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
+import { strings } from '../../shared/strings';
 import { defaultColor } from '../../utils/ChartistOptionsFactory';
 import DateTimePicker from '../inputs/DateTimePicker';
-import { strings } from '../../shared/strings';
 
 type RecordFormProps = {
   series: Series[];
@@ -42,7 +42,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
           record.Location = positionToLocation(position);
           handleSaveRecord(record);
         },
-        (error: PositionError) => {
+        (error: any) => {
           console.error(error.message);
           handleSaveRecord(record);
         },
@@ -146,7 +146,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         <Form.Label>Note</Form.Label>
         <Form.Control
           as="textarea"
-          rows="3"
+          rows={3}
           disabled={disabled}
           value={record?.Notes.length ? record.Notes[0].Text : ''}
           onChange={(e: any) => handleUpdateRecord({ Notes: [{ Text: e.target.value } as Note] })}
