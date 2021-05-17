@@ -1,13 +1,15 @@
 // import img from '../public/img/whoa.jpg';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { LoginCallback, Security } from '@okta/okta-react';
+import { LoginCallback, SecureRoute, Security } from '@okta/okta-react';
 import * as React from 'react';
 import { useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { Route, Switch, useHistory } from 'react-router-dom';
+
 import App from './App';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
+import Profile from './components/Profile';
 import { config } from './config';
 import CorsErrorModal from './shared/CorsErrorModal';
 
@@ -43,9 +45,11 @@ export const Auth: React.FunctionComponent<AuthProps> = (props) => {
       onAuthRequired={customAuthHandler}
       restoreOriginalUri={restoreOriginalUri}
     >
-      <Navbar {...{ setCorsErrorModalOpen }} />
-      <CorsErrorModal {...{ corsErrorModalOpen, setCorsErrorModalOpen }} />
-      <Container style={{ marginTop: '7em' }}>
+      <header>
+        <Navbar {...{ setCorsErrorModalOpen }} />
+      </header>
+      <main>
+        <CorsErrorModal {...{ corsErrorModalOpen, setCorsErrorModalOpen }} />
         <Switch>
           <Route path={`/`} exact component={App} />
           <Route
@@ -58,9 +62,9 @@ export const Auth: React.FunctionComponent<AuthProps> = (props) => {
             path={`/login`}
             render={() => <Login {...{ setCorsErrorModalOpen }} />}
           />
-          {/* <SecureRoute path={`/profile`} component={Profile} /> */}
+          <SecureRoute path={`/profile`} component={Profile} />
         </Switch>
-      </Container>
+      </main>
     </Security>
   );
 };

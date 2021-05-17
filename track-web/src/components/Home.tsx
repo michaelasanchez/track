@@ -357,7 +357,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
                   />
                 )}
               </Col>
-              <Col lg={9} className="order-1 order-lg-2">
+              <Col lg={9} className="order-1 order-lg-2" style={{ position: 'relative' }}>
                 <Graph dataset={apiDataset} />
               </Col>
             </Route>

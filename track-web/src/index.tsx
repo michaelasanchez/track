@@ -13,5 +13,5 @@ ReactDOM.render(
   <Router>
     <Auth />
   </Router>,
-  document.querySelector('main')
+  document.querySelector('.app')
 );
