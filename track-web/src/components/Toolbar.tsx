@@ -99,7 +99,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   mode,
   datasetList,
   dataset,
-  onAction: doAction,
+  onAction: performAction,
   disabled,
   hasChanges,
 }) => {
@@ -145,7 +145,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
           );
         else {
           history.push('/');
-          doAction(ToolbarAction.Discard);
+          performAction(ToolbarAction.Discard);
         }
         break;
 
@@ -158,11 +158,11 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const handleCloseModal = (toolbarAction: ToolbarAction) => {
     switch (toolbarAction) {
       case ToolbarAction.Delete:
-        doAction(ToolbarAction.Delete);
+        performAction(ToolbarAction.Delete);
         break;
 
       case ToolbarAction.Discard:
-        doAction(ToolbarAction.Discard);
+        performAction(ToolbarAction.Discard);
         break;
     }
 
@@ -266,7 +266,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         value={current}
         formatGroupLabel={formatGroupLabel}
         onChange={(option: any) =>
-          doAction(ToolbarAction.Refresh, option.value)
+          performAction(ToolbarAction.Refresh, option.value)
         }
         // menuIsOpen={true} // dev
         components={{ GroupHeading: CustomGroupHeading }}
@@ -282,7 +282,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         onClick={
           editMode
             ? () => handleShowModal(ToolbarAction.Discard)
-            : () => doAction(ToolbarAction.EditBegin)
+            : () => performAction(ToolbarAction.EditBegin)
         }
         icon={editIcon}
         iconActive={editActive}
@@ -297,7 +297,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
           onClick={() =>
             createMode
               ? handleShowModal(ToolbarAction.Discard)
-              : doAction(ToolbarAction.CreateBegin)
+              : performAction(ToolbarAction.CreateBegin)
           }
           icon={createIcon}
           iconClass={`create ${disableAllClass}`}
@@ -329,7 +329,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
           <ToolbarButton
             link="/"
             onClick={() =>
-              doAction(
+              performAction(
                 editMode ? ToolbarAction.EditSave : ToolbarAction.CreateSave
               )
             }

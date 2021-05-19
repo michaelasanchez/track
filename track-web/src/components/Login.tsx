@@ -42,7 +42,7 @@ const Login: React.FunctionComponent<LoginProps> = (props) => {
         redirectUri,
         i18n: {
           en: {
-            'primaryauth.title': 'Sign in to React & Company',
+            'primaryauth.title': 'Sign in to Track',
           },
         },
         authParams: {
