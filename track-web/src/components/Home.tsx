@@ -2,7 +2,6 @@ import { cloneDeep, each, filter, findIndex, isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
-
 import { ApiDataset } from '../models/api';
 import { Category, Dataset, Record, Series, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
@@ -12,6 +11,7 @@ import RecordForm from './forms/RecordForm';
 import Graph from './Graph';
 import { Loading } from './Loading';
 import Toolbar, { ToolbarAction } from './Toolbar';
+
 
 const FALLBACK_DATASET_ID = 1;
 
@@ -77,8 +77,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   }, [isListLoading, isDatasetLoading]);
 
   useEffect(() => {
-    const equal = ((mode == UserMode.Create && !isEqual(pendingDataset, new Dataset(user?.Id))) ||
-        (mode == UserMode.Edit && !isEqual(currentDataset, pendingDataset)))
+    const equal =
+      (mode == UserMode.Create &&
+        !isEqual(pendingDataset, new Dataset(user?.Id))) ||
+      (mode == UserMode.Edit && !isEqual(currentDataset, pendingDataset));
     setHasPendingChanges(equal);
   }, [pendingDataset]);
 
@@ -332,8 +334,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
   if (loaded && !errors.length) {
     return (
       <>
-        <Container>
-          <Row className="mt-3">
+        <Container className="mt-3">
+          <Row>
             <Toolbar
               dataset={
                 mode == UserMode.Create ? pendingDataset : currentDataset
@@ -357,7 +359,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
                   />
                 )}
               </Col>
-              <Col lg={9} className="order-1 order-lg-2" style={{ position: 'relative' }}>
+              <Col
+                lg={9}
+                className="order-1 order-lg-2"
+                style={{ position: 'relative' }}
+              >
                 <Graph dataset={apiDataset} />
               </Col>
             </Route>

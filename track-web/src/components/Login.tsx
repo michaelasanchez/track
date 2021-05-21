@@ -56,7 +56,6 @@ const Login: React.FunctionComponent<LoginProps> = (props) => {
       widget.renderEl(
         { el: widgetRef.current },
         (res: any) => {
-          console.log(res);
           oktaAuth.handleLoginRedirect(res.tokens);
         },
         (err: any) => {

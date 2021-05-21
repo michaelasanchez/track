@@ -24,6 +24,10 @@ $pending-row-opacity: 0.5;
 form {
   margin-bottom: 1rem;
 
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
   .color {
     display: inline-block;
     background-color: var(--red);

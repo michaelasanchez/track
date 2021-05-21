@@ -7,7 +7,8 @@ import {
   NavDropdown,
   Spinner,
 } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+import { LinkContainer } from 'react-router-bootstrap';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../Auth';
 import { strings } from '../shared/strings';
 
@@ -18,8 +19,19 @@ interface NavbarProps {
 const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
   const { setCorsErrorModalOpen } = props;
   const history = useHistory();
+  const location = useLocation();
 
-  const { authState, loading, oktaUser: user, signout } = useAuthContext();
+  const onLoginPage = location.pathname === '/login';
+
+  const {
+    isPending,
+    isAuthenticated,
+    loading,
+    oktaUser: user,
+    signout,
+  } = useAuthContext();
+
+  console.log(`loading: ${loading} pending: ${isPending}`);
 
   const login = async () => history.push(`/login`);
 
@@ -44,57 +56,53 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
   const renderLoginButton = () => {
     return (
       <>
-        {authState.isAuthenticated && (
-          <Nav.Link href={`/profile`}>Profile</Nav.Link>
-        )}
-        {authState.isAuthenticated && (
-          <Nav.Link onClick={logout}>Logout</Nav.Link>
-        )}
-        {!authState.isPending && !authState.isAuthenticated && (
-          <Nav.Link onClick={login}>Login</Nav.Link>
+        {isPending || (isAuthenticated && loading) ? (
+          <div className="spinner-container">
+            <Spinner animation="border" size="sm" variant="secondary" />
+          </div>
+        ) : (
+          <>
+            {isAuthenticated && user ? (
+              <NavDropdown
+                title={user.email.split('@')[0]}
+                id="navbar-dropdown"
+              >
+                <LinkContainer to="/profile">
+                  <NavDropdown.Item>
+                    {strings.navbar.profileButtonLabel}
+                  </NavDropdown.Item>
+                </LinkContainer>
+
+                <NavDropdown.Item onClick={logout}>
+                  {strings.navbar.logoutButtonLabel}
+                </NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <Nav.Link>
+                <Button
+                  onClick={login}
+                  className="login"
+                  disabled={onLoginPage}
+                  variant={'outline-secondary'}
+                >
+                  {strings.navbar.loginButtonLabel}
+                </Button>
+              </Nav.Link>
+            )}
+          </>
         )}
       </>
     );
   };
-  {
-    authState.isPending || (authState.isAuthenticated && !user && loading) ? (
-      <div className="spinner-container">
-        <Spinner animation="border" size="sm" variant="secondary" />
-      </div>
-    ) : (
-      <>
-        {authState.isAuthenticated && user ? (
-          <NavDropdown title={user.email.split('@')[0]} id="logout-dropdown">
-            <NavDropdown.Item onClick={logout}>
-              {strings.navbar.logoutButtonLabel}
-            </NavDropdown.Item>
-          </NavDropdown>
-        ) : (
-          <Nav.Link>
-            <Button
-              onClick={login}
-              className="login"
-              variant="outline-secondary"
-            >
-              {strings.navbar.loginButtonLabel}
-            </Button>
-          </Nav.Link>
-        )}
-      </>
-    );
-  }
 
   return (
     <BootstrapNavbar bg="dark" variant="dark">
       <Container>
         <Nav className="mr-auto">
-          <BootstrapNavbar.Brand href={`/`}>
-            {strings.brand}
-          </BootstrapNavbar.Brand>
+          <LinkContainer to="/">
+            <BootstrapNavbar.Brand>{strings.brand}</BootstrapNavbar.Brand>
+          </LinkContainer>
         </Nav>
-        {/* {authState.isAuthenticated && (
-        <Nav.Link href="/messages">Messages</Nav.Link>
-      )} */}
         <Nav>{renderLoginButton()}</Nav>
       </Container>
     </BootstrapNavbar>

@@ -4,9 +4,6 @@ import { User } from '../models/odata';
 import { OktaUser } from '../models/okta';
 import ApiRequest from '../utils/Request';
 
-// Use OktaAuthState
-const getToken = (authState: any) => authState.accessToken.value;
-
 const useAuth = () => {
   const [oktaUser, setOktaUser] = useState<OktaUser>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -21,9 +18,6 @@ const useAuth = () => {
       if (authState.isAuthenticated && !!authState.accessToken?.value) {
         oktaAuth.getUser().then((oktaUser: OktaUser) => {
           setOktaUser(oktaUser);
-
-          console.log('OKTA USER', oktaUser);
-          console.log('AUTH STATE', authState);
 
           const datasetRequest = new ApiRequest(
             null,
@@ -44,9 +38,18 @@ const useAuth = () => {
 
   const signout = async () => {
     await oktaAuth.signOut();
-  }
+  };
 
-  return { authState, loading, oktaUser, user, token, signout };
+  return {
+    isAuthenticated: authState.isAuthenticated,
+    isPending: authState.isPending,
+    authState,
+    loading,
+    oktaUser,
+    user,
+    token,
+    signout,
+  };
 };
 
 export default useAuth;

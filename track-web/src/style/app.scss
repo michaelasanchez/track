@@ -6,11 +6,21 @@
 @import 'toolbar';
 @import 'modal';
 
+@import 'login';
+
 @import 'graph';
 
 @import 'colorpicker';
 @import 'datetimepicker';
 
-html, body, main {
+html,
+body {
   height: 100%;
+}
+
+// TODO: this probably isn't it.
+// Just trying to expand main
+.app {
+  display: flex;
+  flex-direction: column;
 }

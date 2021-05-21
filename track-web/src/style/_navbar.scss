@@ -1,32 +1,46 @@
 nav.navbar {
-
   .navbar-nav {
     align-items: center;
 
-    .nav-link {
-      color: rgba(255, 255, 255, 0.3);
+    .dropdown-toggle {
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      padding: 0;
 
       &:hover {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 1);
       }
+    }
+
+    .dropdown-menu {
+      left: unset;
+      right: 0;
+      top: 30px;
     }
   }
 
-  button.login {
-    color: $white;
+  a.nav-link {
+    cursor: default;
+  }
+
+  a,
+  button {
+    &:disabled {
+      cursor: default;
+    }
+  }
+
+  button {
+    &.login {
+      color: $white;
+    }
   }
 
   button.logout:not(:hover) {
     color: #999;
   }
 
-  .dropdown-menu {
-    left: unset;
-    right: 0;
-  }
-
   .spinner-container {
     margin: 0 1rem;
   }
-
 }
