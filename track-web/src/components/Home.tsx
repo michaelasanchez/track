@@ -12,7 +12,6 @@ import Graph from './Graph';
 import { Loading } from './Loading';
 import Toolbar, { ToolbarAction } from './Toolbar';
 
-
 const FALLBACK_DATASET_ID = 1;
 
 const ALLOW_DATASET_CACHING = true;

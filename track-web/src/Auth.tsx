@@ -1,6 +1,6 @@
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { LoginCallback, SecureRoute, Security } from '@okta/okta-react';
-import constate from "constate";
+import constate from 'constate';
 import * as React from 'react';
 import { useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';

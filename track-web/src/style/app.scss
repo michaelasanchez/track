@@ -18,9 +18,12 @@ body {
   height: 100%;
 }
 
-// TODO: this probably isn't it.
-// Just trying to expand main
 .app {
+  height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
 }

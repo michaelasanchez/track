@@ -8,7 +8,6 @@ interface AppProps {}
 const App: React.FunctionComponent<AppProps> = ({}) => {
   const { loading, user, token } = useAuthContext();
 
-  // return <Loading />;
   return loading ? <Loading /> : <Home user={user} token={token} />;
 };
 
