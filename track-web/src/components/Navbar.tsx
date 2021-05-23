@@ -77,11 +77,11 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
                 title={getUserName(user)}
                 id="navbar-dropdown"
               >
-                <LinkContainer to="/profile">
+                {/* <LinkContainer to="/profile">
                   <NavDropdown.Item>
                     {strings.navbar.profileButtonLabel}
                   </NavDropdown.Item>
-                </LinkContainer>
+                </LinkContainer> */}
 
                 <NavDropdown.Item onClick={logout}>
                   {strings.navbar.logoutButtonLabel}
