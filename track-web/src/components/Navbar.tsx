@@ -1,3 +1,4 @@
+import { indexOf } from 'lodash';
 import * as React from 'react';
 import {
   Button,
@@ -10,6 +11,7 @@ import {
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../Auth';
+import { OktaUser } from '../models/okta';
 import { strings } from '../shared/strings';
 
 interface NavbarProps {
@@ -28,10 +30,9 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
     isAuthenticated,
     loading,
     oktaUser: user,
+    user: who,
     signout,
   } = useAuthContext();
-
-  console.log(`loading: ${loading} pending: ${isPending}`);
 
   const login = async () => history.push(`/login`);
 
@@ -53,6 +54,15 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
     }
   };
 
+  const getUserName = (user: OktaUser): string => {
+    if (indexOf(user?.preferred_username, '@')) {
+      return user.preferred_username.split('@')[0];
+    }
+
+    return user.preferred_username;
+    // return user.email.split('@')[0];
+  }
+
   const renderLoginButton = () => {
     return (
       <>
@@ -64,7 +74,7 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
           <>
             {isAuthenticated && user ? (
               <NavDropdown
-                title={user.email.split('@')[0]}
+                title={getUserName(user)}
                 id="navbar-dropdown"
               >
                 <LinkContainer to="/profile">

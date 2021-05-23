@@ -41,11 +41,16 @@ const defaultDatasetId = (datasetList: Dataset[]): number => {
 };
 
 export type HomeProps = {
+  authenticated: boolean;
   user?: User;
   token?: string;
 };
 
-export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
+export const Home: React.FunctionComponent<HomeProps> = ({
+  authenticated,
+  user,
+  token,
+}) => {
   const [isListLoading, setIsListLoading] = useState<boolean>(false);
   const [isDatasetLoading, setIsDatasetLoading] = useState<boolean>(false);
   const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
@@ -85,9 +90,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({ user, token }) => {
 
   // Init
   useEffect(() => {
-    loadDatasetList();
-    loadCategoryList();
-  }, []);
+    if (!authenticated || (user && token)) {
+      loadDatasetList();
+      loadCategoryList();
+    }
+  }, [user]);
 
   /* Load Dataset List */
   const loadDatasetList = (skipDatasetLoad: boolean = false) => {

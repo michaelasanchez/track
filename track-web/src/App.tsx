@@ -6,9 +6,9 @@ import { Loading } from './components/Loading';
 interface AppProps {}
 
 const App: React.FunctionComponent<AppProps> = ({}) => {
-  const { loading, user, token } = useAuthContext();
+  const { isAuthenticated, loading, user, token } = useAuthContext();
 
-  return loading ? <Loading /> : <Home user={user} token={token} />;
+  return loading ? <Loading /> : <Home user={user} token={token} authenticated={isAuthenticated} />;
 };
 
 export default App;

@@ -106,6 +106,12 @@ module.exports = function makeWebpackConfig() {
     }),
   ]
 
+  config.optimization = {
+    splitChunks: {
+      chunks: 'all'
+    }
+  };
+
   config.devServer = {
     contentBase: path.join(__dirname, './dist/'),
     // // Serve index.html as the base
