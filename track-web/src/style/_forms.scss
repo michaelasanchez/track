@@ -43,6 +43,8 @@ form {
 
   // Checkboxes
   .custom-control {
+    z-index: auto;
+    
     input,
     label {
       cursor: pointer;

@@ -50,6 +50,9 @@ const Login: React.FunctionComponent<LoginProps> = (props) => {
           issuer,
           scopes,
         },
+        features: {
+          registration: true
+        },
         useInteractionCodeFlow: useInteractionCode, // Set to true, if your org is OIE enabled
       });
 
