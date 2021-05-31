@@ -16,8 +16,33 @@ namespace track_api.Utils
             {
                 var clientId = userClaims.FirstOrDefault(z => z.Type == "cid").Value;
                 var oktaId = userClaims.FirstOrDefault(z => z.Type == "uid")?.Value;
+                var sub = userClaims.FirstOrDefault(z => z.Type == "sub")?.Value;
 
-                return context.Users.FirstOrDefault(z => z.OktaUserId == oktaId);
+                var user = context.Users.FirstOrDefault(z => z.OktaUserId == oktaId);
+
+                if (user == null)
+				{
+                    var newUser = new User()
+                    {
+                        OktaUserId = oktaId,
+                        Username = sub
+                    };
+
+                    context.Users.Add(newUser);
+
+                    try
+					{
+                        context.SaveChanges();
+					}
+                    catch
+					{
+
+					}
+
+                    return newUser;
+				}
+
+                return user;
             }
 
             return null;

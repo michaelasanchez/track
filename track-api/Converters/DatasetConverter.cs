@@ -43,18 +43,23 @@ namespace track_api.Converters
                     var propSeries = series.FirstOrDefault(s => s.Id == prop.SeriesId);
 
                     if (propSeries != null)
+                    {
                         propSeries.Data.Add(prop.Value);
 
-                    if (propSeries.SeriesType != SeriesType.Boolean)
-                    {
-                        if (string.IsNullOrEmpty(propSeries.Min) || decimal.Parse(propSeries.Min) > decimal.Parse(prop.Value))
+                        if (propSeries.SeriesType != SeriesType.Boolean)
                         {
-                            propSeries.Min = prop.Value;
-                        }
+                            if (!string.IsNullOrWhiteSpace(prop.Value) && decimal.TryParse(prop.Value, out decimal propValue))
+                            {
+                                if (string.IsNullOrWhiteSpace(propSeries.Min) || decimal.Parse(propSeries.Min) > propValue)
+                                {
+                                    propSeries.Min = prop.Value;
+                                }
 
-                        if (string.IsNullOrEmpty(propSeries.Max) || decimal.Parse(propSeries.Max) < decimal.Parse(prop.Value))
-                        {
-                            propSeries.Max = prop.Value;
+                                if (string.IsNullOrWhiteSpace(propSeries.Max) || decimal.Parse(propSeries.Max) < propValue)
+                                {
+                                    propSeries.Max = prop.Value;
+                                }
+                            }
                         }
                     }
                 }

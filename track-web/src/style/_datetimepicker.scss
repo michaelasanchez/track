@@ -63,7 +63,7 @@
     .rdtTimeToggle {
       cursor: pointer;
     }
-    
+
     .rdtNext,
     .rdtPrev,
     .rdtDay,
@@ -85,7 +85,6 @@
       cursor: default;
     }
 
-
     .rdtOld,
     .rdtNew {
       background: #f8f8f8;
@@ -95,6 +94,14 @@
       display: flex;
       justify-content: space-evenly;
       align-items: center;
+    }
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .datetime-picker {
+    .rdt .rdtPicker {
+      transform: translateY(10px);
     }
   }
 }

@@ -113,11 +113,11 @@ namespace track_api.Controllers
 
             if (user != null)
             {
-                dataset.User = new User
-                {
-                    Id = user.Id
-                };
-            }
+                dataset.UserId = user.Id;
+            } else
+			{
+                dataset.Private = false;
+			}
 
             db.Datasets.Add(dataset);
 

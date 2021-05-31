@@ -18,8 +18,8 @@ export const strings = {
     },
     discard: {
       title: 'Discard Changes?',
-      confirm: 'Confirm',
-      cancel: 'Nevermind',
+      confirm: 'Discard',
+      cancel: 'Keep changes',
     },
   },
   tooltip: {

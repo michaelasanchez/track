@@ -47,6 +47,13 @@ form {
     label {
       cursor: pointer;
     }
+
+    // Bootstrap Override
+    &.custom-checkbox {
+      label {
+        background: none;
+      } 
+    }
   }
 
   // .form-label, input {

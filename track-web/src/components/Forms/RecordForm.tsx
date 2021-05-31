@@ -1,7 +1,7 @@
 import { filter, findIndex } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { positionToGeolocation, useInterval } from '../../hooks';
 import { Note, Property, Record, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
@@ -120,6 +120,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
         <Form.Check
           type="checkbox"
           custom
+          className="d-inline-block"
           label={s.Label}
           checked={prop?.Value === 'true'}
           disabled={disabled}
