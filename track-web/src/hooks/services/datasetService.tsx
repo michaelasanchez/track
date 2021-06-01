@@ -1,6 +1,10 @@
+import { findIndex } from 'lodash';
 import { useEffect, useState } from 'react';
+import { ApiDataset } from '../../models/api';
 import { Dataset } from '../../models/odata';
 import ApiRequest from '../../utils/Request';
+
+const ALLOW_DATASET_CACHING = true;
 
 const loadDatasets = (token: string) => {
   return new ApiRequest('Datasets', token)
@@ -13,30 +17,103 @@ const loadDatasets = (token: string) => {
 export const DatasetService = (token: string) => {
   const [errors, setErrors] = useState([]);
 
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [datasetsLoading, setDatasetsLoading] = useState<boolean>(false);
+  /* Cache */
+  const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
+  const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
 
-  useEffect(() => {
-    reloadDatasets();
-  }, []);
+  /* Dataset List */
+  const [datasetList, setDatasetList] = useState<Dataset[]>([]);
+  const [datasetListLoading, setDatasetListLoading] = useState<boolean>(false);
 
-  const reloadDatasets = () => {
-    if (!datasetsLoading) {
-      setDatasetsLoading(true);
+  /* Dataset */
+  const [datasetLoading, setDatasetLoading] = useState<boolean>(false);
+  const [dataset, setDataset] = useState<Dataset>();
+  const [apiDataset, setApiDataset] = useState<ApiDataset>();
+
+  /* Load Dataset List */
+  const reloadDatasetList = () => {
+    if (!datasetListLoading) {
+      setDatasetListLoading(true);
 
       loadDatasets(token)
         .then((d: Dataset[]) => {
-          setDatasets(d);
+          setDatasetList(d);
         })
         .catch((error: any) => {
           errors.push(error);
           setErrors(errors);
         })
         .finally(() => {
-          setDatasetsLoading(false);
+          setDatasetListLoading(false);
         });
     }
   };
 
-  return { datasetsLoading, datasets, reloadDatasets };
+  /* Load Dataset */
+  const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
+    window.localStorage.setItem('datasetId', id.toString());
+    const cachedIndex = findIndex(datasetCache, (c) => c.Id == id);
+
+    if (cachedIndex >= 0 && !force) {
+      setDataset(datasetCache[cachedIndex]);
+      setApiDataset(apiDatasetCache[cachedIndex]);
+    } else {
+      setDatasetLoading(true);
+      const datasetRequest = new ApiRequest('Datasets', token)
+        .Id(id)
+        .Expand('Series')
+        .Expand('Category')
+        .Get();
+      const apiDatasetRequest = new ApiRequest('ApiDatasets')
+        .Id(id)
+        .GetApiDataset();
+
+      Promise.all([datasetRequest, apiDatasetRequest])
+        .then((values) => {
+          const [d, api] = values;
+
+          const datasetExists = d.ok !== false;
+          const apiDatasetExists = api.ok !== false;
+
+          if (datasetExists && ALLOW_DATASET_CACHING) {
+            if (cachedIndex < 0) {
+              datasetCache.push(d);
+            } else {
+              datasetCache[cachedIndex] = d;
+            }
+            setDatasetCache(datasetCache);
+          }
+
+          if (apiDatasetExists && ALLOW_DATASET_CACHING) {
+            if (cachedIndex < 0) {
+              apiDatasetCache.push(api);
+            } else {
+              apiDatasetCache[cachedIndex] = api;
+            }
+            setApiDatasetCache(apiDatasetCache);
+          }
+
+          setDataset(datasetExists ? d : null);
+          setApiDataset(apiDatasetExists ? api : null);
+        })
+        .catch((error) => {
+          errors.push(error);
+          setErrors(errors);
+        })
+        .finally(() => {
+          setDatasetLoading(false);
+        });
+    }
+  };
+
+  return {
+    apiDataset,
+    dataset,
+    datasetLoading,
+    loadDataset,
+    datasetListLoading,
+    datasetList,
+    reloadDatasetList,
+    errors,
+  };
 };

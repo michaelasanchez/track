@@ -1,9 +1,8 @@
-import { cloneDeep, each, filter, findIndex, isEqual } from 'lodash';
+import { cloneDeep, each, filter, isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
 import { useDatasetService } from '../App';
-import { ApiDataset } from '../models/api';
 import { Category, Dataset, Record, Series, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
 import ApiRequest from '../utils/Request';
@@ -14,8 +13,6 @@ import { Loading } from './Loading';
 import Toolbar, { ToolbarAction } from './Toolbar';
 
 const FALLBACK_DATASET_ID = 1;
-
-const ALLOW_DATASET_CACHING = true;
 
 // TODO: Figure out what to do with this
 const defaultUserMode = (location: any): UserMode => {
@@ -52,40 +49,29 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   user,
   token,
 }) => {
-  // const [isListLoading, setIsListLoading] = useState<boolean>(false);
-  const [isDatasetLoading, setIsDatasetLoading] = useState<boolean>(false);
   const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
 
   const {
-    datasets: datasetList,
-    datasetsLoading: isListLoading,
-    reloadDatasets: loadDatasetList,
+    apiDataset,
+    dataset: currentDataset,
+    datasetLoading: isDatasetLoading,
+    loadDataset,
+    datasetList,
+    datasetListLoading: isListLoading,
+    reloadDatasetList: loadDatasetList,
+    errors,
   } = useDatasetService();
 
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
-  const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
-  const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
-
-  // const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [categoryList, setCategoryList] = useState<Category[]>();
 
-  const [currentDataset, setCurrentDataset] = useState<Dataset>();
   const [pendingDataset, setPendingDataset] = useState<Dataset>(
     new Dataset(user?.Id)
   );
   const [hasPendingChanges, setHasPendingChanges] = useState<boolean>(false);
-
-  const [apiDataset, setApiDataset] = useState<ApiDataset>();
-
-  const [errors, setErrors] = useState([]);
-
-  useEffect(() => {
-    if (loading != isListLoading || isDatasetLoading) setLoading(!loading);
-  }, [isListLoading, isDatasetLoading]);
 
   useEffect(() => {
     const equal =
@@ -95,15 +81,23 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     setHasPendingChanges(equal);
   }, [pendingDataset]);
 
+  useEffect(() => {
+    if (!!currentDataset && !loaded) {
+      // TODO: Move this to dataset list load complete
+      setLoaded(true);
+    }
+  }, [currentDataset]);
+
   // Init
   useEffect(() => {
     if (!authenticated || (user && token)) {
+      loadDatasetList();
       loadCategoryList();
     }
   }, [user]);
 
   useEffect(() => {
-    if (!currentDataset) {
+    if (!currentDataset && !isDatasetLoading) {
       loadDataset(defaultDatasetId(datasetList));
     }
   }, [datasetList]);
@@ -113,67 +107,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     new ApiRequest('Categories', token).Get().then((resp: any) => {
       setCategoryList(resp.value);
     });
-  };
-
-  /* Load Dataset */
-  const loadDataset = (id: number, force: boolean = !ALLOW_DATASET_CACHING) => {
-    window.localStorage.setItem('datasetId', id.toString());
-    const cachedIndex = findIndex(datasetCache, (c) => c.Id == id);
-
-    if (cachedIndex >= 0 && !force) {
-      setCurrentDataset(datasetCache[cachedIndex]);
-      setApiDataset(apiDatasetCache[cachedIndex]);
-    } else {
-      setIsDatasetLoading(true);
-      const datasetRequest = new ApiRequest('Datasets', token)
-        .Id(id)
-        .Expand('Series')
-        .Expand('Category')
-        .Get();
-      const apiDatasetRequest = new ApiRequest('ApiDatasets')
-        .Id(id)
-        .GetApiDataset();
-
-      Promise.all([datasetRequest, apiDatasetRequest])
-        .then((values) => {
-          const [d, api] = values;
-
-          const datasetExists = d.ok !== false;
-          const apiDatasetExists = api.ok !== false;
-
-          if (datasetExists && ALLOW_DATASET_CACHING) {
-            if (cachedIndex < 0) {
-              datasetCache.push(d);
-            } else {
-              datasetCache[cachedIndex] = d;
-            }
-            setDatasetCache(datasetCache);
-          }
-
-          if (apiDatasetExists && ALLOW_DATASET_CACHING) {
-            if (cachedIndex < 0) {
-              apiDatasetCache.push(api);
-            } else {
-              apiDatasetCache[cachedIndex] = api;
-            }
-            setApiDatasetCache(apiDatasetCache);
-          }
-
-          setCurrentDataset(datasetExists ? d : null);
-          setApiDataset(apiDatasetExists ? api : null);
-
-          if (mode == UserMode.Edit) setPendingDataset(cloneDeep(d));
-        })
-        .catch((error) => {
-          errors.push(error);
-          setErrors(errors);
-        })
-        .finally(() => {
-          // TODO: move to dataset list load finally
-          if (!loaded) setLoaded(true);
-          setIsDatasetLoading(false);
-        });
-    }
   };
 
   /* Toolbar Actions */
@@ -276,7 +209,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
       } as Dataset)
     );
 
-    setIsDatasetLoading(true);
+    // setIsDatasetLoading(true);
     each(dataset.Series, (s: Series, index: number) => {
       if (index >= currentDataset.Series.length) {
         delete s.Id;
@@ -325,7 +258,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
               }
               datasetList={datasetList}
               mode={mode}
-              disabled={loading}
+              disabled={isListLoading || isDatasetLoading}
               onAction={handleToolbarAction}
               hasChanges={hasPendingChanges}
             />
