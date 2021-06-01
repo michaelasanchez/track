@@ -1,30 +1,32 @@
-import { useState } from 'react';
-import { Dataset } from '../models/odata';
-import ApiRequest from '../utils/Request';
+import { useEffect, useState } from 'react';
+import { Dataset } from '../../models/odata';
+import ApiRequest from '../../utils/Request';
 
 const loadDatasets = (token: string) => {
   return new ApiRequest('Datasets', token)
     .Expand('Category')
     .Filter('Archived eq false')
     .Get()
-    .then((d: any) => {
-      return d.value as Dataset[];
-    });
+    .then((d: any) => d.value as Dataset[]);
 };
 
-const datasetService = (token: string) => {
+export const DatasetService = (token: string) => {
   const [errors, setErrors] = useState([]);
 
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [datasetsLoading, setDatasetsLoading] = useState<boolean>(false);
 
-  const GetDatasets = () => {
+  useEffect(() => {
+    reloadDatasets();
+  }, []);
+
+  const reloadDatasets = () => {
     if (!datasetsLoading) {
       setDatasetsLoading(true);
 
       loadDatasets(token)
-        .then((d: any) => {
-            setDatasets(d.value as Dataset[]);
+        .then((d: Dataset[]) => {
+          setDatasets(d);
         })
         .catch((error: any) => {
           errors.push(error);
@@ -35,4 +37,6 @@ const datasetService = (token: string) => {
         });
     }
   };
+
+  return { datasetsLoading, datasets, reloadDatasets };
 };

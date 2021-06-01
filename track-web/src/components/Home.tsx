@@ -2,6 +2,7 @@ import { cloneDeep, each, filter, findIndex, isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
+import { useDatasetService } from '../App';
 import { ApiDataset } from '../models/api';
 import { Category, Dataset, Record, Series, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
@@ -51,9 +52,15 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   user,
   token,
 }) => {
-  const [isListLoading, setIsListLoading] = useState<boolean>(false);
+  // const [isListLoading, setIsListLoading] = useState<boolean>(false);
   const [isDatasetLoading, setIsDatasetLoading] = useState<boolean>(false);
   const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
+
+  const {
+    datasets: datasetList,
+    datasetsLoading: isListLoading,
+    reloadDatasets: loadDatasetList,
+  } = useDatasetService();
 
   const [loaded, setLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -63,7 +70,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   const [datasetCache, setDatasetCache] = useState<Dataset[]>([]);
   const [apiDatasetCache, setApiDatasetCache] = useState<ApiDataset[]>([]);
 
-  const [datasetList, setDatasetList] = useState<Dataset[]>();
+  // const [datasetList, setDatasetList] = useState<Dataset[]>();
   const [categoryList, setCategoryList] = useState<Category[]>();
 
   const [currentDataset, setCurrentDataset] = useState<Dataset>();
@@ -91,31 +98,15 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   // Init
   useEffect(() => {
     if (!authenticated || (user && token)) {
-      loadDatasetList();
       loadCategoryList();
     }
   }, [user]);
 
-  /* Load Dataset List */
-  const loadDatasetList = (skipDatasetLoad: boolean = false) => {
-    setIsListLoading(true);
-    new ApiRequest('Datasets', token)
-      .Expand('Category')
-      .Filter('Archived eq false')
-      .Get()
-      .then((d: any) => {
-        setDatasetList(d.value as Dataset[]);
-
-        if (!skipDatasetLoad) loadDataset(defaultDatasetId(d.value));
-      })
-      .catch((error: any) => {
-        errors.push(error);
-        setErrors(errors);
-      })
-      .finally(() => {
-        setIsListLoading(false);
-      });
-  };
+  useEffect(() => {
+    if (!currentDataset) {
+      loadDataset(defaultDatasetId(datasetList));
+    }
+  }, [datasetList]);
 
   /* Load Categories */
   const loadCategoryList = () => {
@@ -241,7 +232,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     } as Dataset);
 
     req.then((dataset: Dataset) => {
-      loadDatasetList(true);
+      loadDatasetList();
       loadDataset(dataset.Id);
     });
   };
@@ -297,7 +288,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     });
 
     Promise.all(requests).then(() => {
-      loadDatasetList(true);
+      loadDatasetList();
       loadDataset(dataset.Id, true);
     });
   };
