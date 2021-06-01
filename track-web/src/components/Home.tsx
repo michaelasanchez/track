@@ -232,20 +232,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
       (s: Series) => s.Label.length
     ) as Series[];
 
-    console.log('NOW', {
-      Private: dataset.Private,
-      Label: dataset.Label,
-      Series: dataset.Series,
-      CategoryId: dataset?.CategoryId,
-      Category: dataset?.Category,
-    });
-
-    console.log('COULD BE', {
-      ...dataset,
-      Series: dataset.Series,
-      Category: dataset?.Category,
-    });
-
     var req = new ApiRequest('Datasets', token).Post({
       Private: dataset.Private,
       Label: dataset.Label,
