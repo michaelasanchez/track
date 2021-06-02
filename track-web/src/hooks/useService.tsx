@@ -1,12 +1,12 @@
 import { useAuthContext } from '../Auth';
-import { DatasetService } from './services';
-import { CategoryService } from './services/categoryService';
+import { CategoryService, DatasetService, RecordService } from './services';
 
 export const useService = () => {
   const { token } = useAuthContext();
 
   const dataset = DatasetService(token);
   const category = CategoryService();
+  const record = RecordService();
 
-  return { category, dataset };
+  return { category, dataset, record };
 };

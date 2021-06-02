@@ -2,31 +2,36 @@ import { filter, findIndex } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
+import { useRecordService } from '../../App';
 import { positionToGeolocation, useInterval } from '../../hooks';
-import { Note, Property, Record, Series } from '../../models/odata';
+import { Dataset, Note, Property, Record, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
 import { strings } from '../../shared/strings';
 import { defaultColor } from '../../utils/ChartistOptionsFactory';
 import DateTimePicker from '../inputs/DateTimePicker';
 
 type RecordFormProps = {
-  series: Series[];
-  saveRecord: (record: Record) => Promise<any>;
+  dataset: Dataset;
+  loadDataset: (datasetId: number, force: boolean) => void;
   disabled?: boolean;
 };
 
 const RecordForm: React.FunctionComponent<RecordFormProps> = ({
-  series,
-  saveRecord,
+  dataset,
+  loadDataset,
   disabled,
 }) => {
-  const [record, setRecord] = useState<Record>(Record.Default(series));
+  const [record, setRecord] = useState<Record>(Record.Default(dataset.Series));
   const [autoUpdate, setAutoUpdate] = useState<boolean>(false);
+
+  const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
+
+  const { createRecord } = useRecordService();
 
   // Keep props up to date
   useEffect(() => {
-    setRecord(Record.Default(series));
-  }, [series]);
+    setRecord(Record.Default(dataset.Series));
+  }, [dataset.Series]);
 
   // DateTime
   useInterval(() => {
@@ -51,11 +56,24 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
     }
   };
 
+  /* Create Record */
   const handleSaveRecord = (record: Record) => {
-    saveRecord(record).then(() => {
-      setAutoUpdate(true);
-      setRecord(Record.Default(series));
-    });
+    setIsRecordLoading(true);
+    return createRecord({
+      DatasetId: dataset.Id,
+      DateTime: record.DateTime,
+      Properties: filter(record.Properties, (p) => !!p.Value),
+      Notes: record.Notes,
+      Location: record.Location,
+    } as Record)
+      .then(() => {
+        loadDataset(dataset.Id, true);
+      })
+      .finally(() => {
+        setIsRecordLoading(false);
+        setAutoUpdate(true);
+        setRecord(Record.Default(dataset.Series));
+      });
   };
 
   const handleUpdateRecord = (
@@ -145,7 +163,7 @@ const RecordForm: React.FunctionComponent<RecordFormProps> = ({
       </Form.Group>
 
       {/* Props */}
-      {filter(series, (s) => s.Visible).map((s: Series, i: number) => (
+      {filter(dataset.Series, (s) => s.Visible).map((s: Series, i: number) => (
         <Form.Group controlId={`series-${s.Id}`} key={s.Id}>
           {s.Visible && s.TypeId == SeriesType.Boolean
             ? renderCheckInput(s, record.Properties[i])

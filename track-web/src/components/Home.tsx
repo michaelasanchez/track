@@ -49,8 +49,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   user,
   token,
 }) => {
-  const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
-
   const { categoryList, createCategory, loadCategoryList } =
     useCategoryService();
 
@@ -164,27 +162,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     }
   };
 
-  /* Create Record */
-  const createRecord = (record: Record): Promise<any> => {
-    setIsRecordLoading(true);
-    const req = new ApiRequest('Records')
-      .Post({
-        DatasetId: currentDataset.Id,
-        DateTime: record.DateTime,
-        Properties: filter(record.Properties, (p) => !!p.Value),
-        Notes: record.Notes,
-        Location: record.Location,
-      } as Record)
-      .then(() => {
-        loadDataset(currentDataset.Id, true);
-      })
-      .finally(() => {
-        setIsRecordLoading(false);
-      });
-
-    return req;
-  };
-
   if (loaded && !errors.length) {
     return (
       <>
@@ -207,9 +184,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({
               <Col xs={12} lg={3} className="order-2 order-lg-1">
                 {currentDataset && (
                   <RecordForm
-                    series={currentDataset.Series}
-                    saveRecord={createRecord}
-                    disabled={isRecordLoading}
+                    dataset={currentDataset}
+                    loadDataset={loadDataset}
                   />
                 )}
               </Col>
