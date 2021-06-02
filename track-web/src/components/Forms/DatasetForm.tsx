@@ -1,10 +1,34 @@
-import { faPlusCircle as addIcon, faEye as archiveIcon, faTimes as deleteIcon, faAngleUp as hiddenCloseIcon, faAngleDown as hiddenOpenIcon, faEyeSlash as unarchiveIcon } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPlusCircle as addIcon,
+  faEye as archiveIcon,
+  faTimes as deleteIcon,
+  faAngleUp as hiddenCloseIcon,
+  faAngleDown as hiddenOpenIcon,
+  faEyeSlash as unarchiveIcon,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { countBy, filter, findIndex, isUndefined, map, maxBy, some } from 'lodash';
+import {
+  countBy,
+  filter,
+  findIndex,
+  isUndefined,
+  map,
+  maxBy,
+  some,
+} from 'lodash';
 import React, { useState } from 'react';
-import { Button, Col, Collapse, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import {
+  Button,
+  Col,
+  Collapse,
+  Form,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+} from 'react-bootstrap';
 import { Color } from 'react-color';
 import CreatableSelect from 'react-select/creatable';
+import { useCategoryService } from '../../App';
 
 import { Category, Dataset, Series } from '../../models/odata';
 import { SeriesType } from '../../shared/enums';
@@ -31,6 +55,8 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
 }) => {
   const [hiddenOpen, setHiddenOpen] = useState<boolean>(false);
 
+  const { createCategory } = useCategoryService();
+
   const categoryOptions = map(categoryList, (c) => {
     return { label: c.Label, value: c.Id };
   });
@@ -54,10 +80,13 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
   const updateCategory = (option: any) => {
     if (option) {
       if (option?.__isNew__) {
-        updateDataset({
-          Category: {
-            Label: option.label,
-          } as Category,
+        createCategory({
+          Label: option.label,
+        } as Category).then((category: Category) => {
+          updateDataset({
+            CategoryId: category.Id,
+            Category: category,
+          });
         });
       } else {
         updateDataset({
@@ -133,24 +162,22 @@ const DatasetForm: React.FunctionComponent<DatasetFormProps> = ({
               disabled={!s.Visible}
             />
 
-            {
-              <Form.Control
-                as="select"
-                value={s.TypeId.toString()}
-                onChange={(e: any) =>
-                  updateSeries(s.Id, { TypeId: parseInt(e.target.value) })
-                }
-                disabled={!createMode && !!s.DatasetId}
-              >
-                {map(SeriesType, (i, j) => {
-                  return isNaN(i) ? null : (
-                    <option key={i} value={i}>
-                      {j}
-                    </option>
-                  );
-                })}
-              </Form.Control>
-            }
+            <Form.Control
+              as="select"
+              value={s.TypeId.toString()}
+              onChange={(e: any) =>
+                updateSeries(s.Id, { TypeId: parseInt(e.target.value) })
+              }
+              disabled={!createMode && !!s.DatasetId}
+            >
+              {map(SeriesType, (i, j) => {
+                return isNaN(i) ? null : (
+                  <option key={i} value={i}>
+                    {j}
+                  </option>
+                );
+              })}
+            </Form.Control>
 
             {((createMode && dataset.Series.length > 1) ||
               !s.DatasetId) /*|| !s.Visible*/ && (

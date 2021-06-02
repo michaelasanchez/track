@@ -6,10 +6,12 @@ import { Home } from './components/Home';
 import { Loading } from './components/Loading';
 import { useService } from './hooks';
 
-export const [ServiceProvider, useDatasetService] = constate(
-  useService,
-  (s) => s.dataset
-);
+export const [ServiceProvider, useCategoryService, useDatasetService] =
+  constate(
+    useService,
+    (s) => s.category,
+    (s) => s.dataset
+  );
 
 interface AppProps {}
 

@@ -2,7 +2,7 @@ import { cloneDeep, each, filter, isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
-import { useDatasetService } from '../App';
+import { useCategoryService, useDatasetService } from '../App';
 import { Category, Dataset, Record, Series, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
 import ApiRequest from '../utils/Request';
@@ -51,6 +51,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({
 }) => {
   const [isRecordLoading, setIsRecordLoading] = useState<boolean>(false);
 
+  const { categoryList, createCategory, loadCategoryList } =
+    useCategoryService();
+
   const {
     apiDataset,
     dataset: currentDataset,
@@ -69,8 +72,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
 
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
-  const [categoryList, setCategoryList] = useState<Category[]>();
-
   const [pendingDataset, setPendingDataset] = useState<Dataset>(
     new Dataset(user?.Id)
   );
@@ -80,7 +81,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   useEffect(() => {
     if (!authenticated || (user && token)) {
       loadDatasetList();
-      loadCategoryList();
     }
   }, [user]);
 
@@ -106,13 +106,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     setHasPendingChanges(equal);
   }, [pendingDataset]);
 
-  /* Load Categories */
-  const loadCategoryList = () => {
-    new ApiRequest('Categories', token).Get().then((resp: any) => {
-      setCategoryList(resp.value);
-    });
-  };
-
   /* Toolbar Actions */
   const handleToolbarAction = (action: ToolbarAction, args?: any) => {
     // TODO: Shouldn't need set mode here since toolbar uses links
@@ -137,7 +130,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
         break;
 
       case ToolbarAction.EditSave:
-        beginUpdateDataset(pendingDataset);
+        handleUpdateDataset(pendingDataset);
         setMode(UserMode.View);
         break;
 
@@ -162,33 +155,13 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   };
 
   /* Update Dataset */
-  const beginUpdateDataset = (dataset: Dataset) => {
-    if (!isEqual(dataset, currentDataset)) {
-      if (
-        !dataset?.CategoryId &&
-        !dataset?.Category?.Id &&
-        dataset?.Category?.Label
-      ) {
-        new ApiRequest('Categories', token)
-          .Post({
-            Label: dataset.Category.Label,
-          } as Category)
-          .then((category) => {
-            dataset.CategoryId = category.Id;
-            handleUpdateDataset(dataset);
-            loadCategoryList();
-          });
-      } else {
-        handleUpdateDataset(dataset);
-      }
-    }
-  };
-
   const handleUpdateDataset = (dataset: Dataset) => {
-    updateDataset(dataset, currentDataset).then(() => {
-      loadDatasetList();
-      loadDataset(dataset.Id, true);
-    });
+    if (!isEqual(dataset, currentDataset)) {
+      updateDataset(dataset, currentDataset).then(() => {
+        loadDatasetList();
+        loadDataset(dataset.Id, true);
+      });
+    }
   };
 
   /* Create Record */
