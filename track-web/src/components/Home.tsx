@@ -55,7 +55,10 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     apiDataset,
     dataset: currentDataset,
     datasetLoading: isDatasetLoading,
+    archiveDataset,
+    createDataset,
     loadDataset,
+    updateDataset,
     datasetList,
     datasetListLoading: isListLoading,
     reloadDatasetList: loadDatasetList,
@@ -73,21 +76,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   );
   const [hasPendingChanges, setHasPendingChanges] = useState<boolean>(false);
 
-  useEffect(() => {
-    const equal =
-      (mode == UserMode.Create &&
-        !isEqual(pendingDataset, new Dataset(user?.Id))) ||
-      (mode == UserMode.Edit && !isEqual(currentDataset, pendingDataset));
-    setHasPendingChanges(equal);
-  }, [pendingDataset]);
-
-  useEffect(() => {
-    if (!!currentDataset && !loaded) {
-      // TODO: Move this to dataset list load complete
-      setLoaded(true);
-    }
-  }, [currentDataset]);
-
   // Init
   useEffect(() => {
     if (!authenticated || (user && token)) {
@@ -101,6 +89,22 @@ export const Home: React.FunctionComponent<HomeProps> = ({
       loadDataset(defaultDatasetId(datasetList));
     }
   }, [datasetList]);
+
+  useEffect(() => {
+    if (!!currentDataset && !loaded) {
+      // TODO: Move this to dataset list load complete
+      setLoaded(true);
+    }
+  }, [currentDataset]);
+
+  // Determine if pending dataset has changes
+  useEffect(() => {
+    const equal =
+      (mode == UserMode.Create &&
+        !isEqual(pendingDataset, new Dataset(user?.Id))) ||
+      (mode == UserMode.Edit && !isEqual(currentDataset, pendingDataset));
+    setHasPendingChanges(equal);
+  }, [pendingDataset]);
 
   /* Load Categories */
   const loadCategoryList = () => {
@@ -123,7 +127,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
         break;
 
       case ToolbarAction.CreateSave:
-        createDataset(pendingDataset);
+        handleCreateDataset(pendingDataset);
         setMode(UserMode.View);
         break;
 
@@ -150,29 +154,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   };
 
   /* Create Dataset */
-  const createDataset = (dataset: Dataset) => {
-    dataset.Series = filter(
-      dataset.Series,
-      (s: Series) => s.Label.length
-    ) as Series[];
-
-    var req = new ApiRequest('Datasets', token).Post({
-      Private: dataset.Private,
-      Label: dataset.Label,
-      Series: dataset.Series,
-      CategoryId: dataset?.CategoryId,
-      Category: dataset?.Category,
-    } as Dataset);
-
-    req.then((dataset: Dataset) => {
+  const handleCreateDataset = (pendingDataset: Dataset) => {
+    createDataset(pendingDataset).then((dataset: Dataset) => {
       loadDatasetList();
       loadDataset(dataset.Id);
     });
   };
-
-  /* Archive Dataset */
-  const archiveDataset = (dataset: Dataset) =>
-    new ApiRequest('Datasets').Delete(dataset);
 
   /* Update Dataset */
   const beginUpdateDataset = (dataset: Dataset) => {
@@ -188,39 +175,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({
           } as Category)
           .then((category) => {
             dataset.CategoryId = category.Id;
-            completeUpdateDataset(dataset);
+            handleUpdateDataset(dataset);
             loadCategoryList();
           });
       } else {
-        completeUpdateDataset(dataset);
+        handleUpdateDataset(dataset);
       }
     }
   };
 
-  const completeUpdateDataset = (dataset: Dataset) => {
-    let requests: any[] = [];
-
-    requests.push(
-      new ApiRequest('Datasets', token).Patch({
-        Id: dataset.Id,
-        Label: dataset.Label,
-        Private: dataset.Private,
-        CategoryId: dataset.CategoryId,
-      } as Dataset)
-    );
-
-    // setIsDatasetLoading(true);
-    each(dataset.Series, (s: Series, index: number) => {
-      if (index >= currentDataset.Series.length) {
-        delete s.Id;
-        s.DatasetId = dataset.Id;
-        requests.push(new ApiRequest('Series').Post(s));
-      } else if (!isEqual(s, currentDataset.Series[index])) {
-        requests.push(new ApiRequest('Series').Put(s));
-      }
-    });
-
-    Promise.all(requests).then(() => {
+  const handleUpdateDataset = (dataset: Dataset) => {
+    updateDataset(dataset, currentDataset).then(() => {
       loadDatasetList();
       loadDataset(dataset.Id, true);
     });

@@ -1,7 +1,7 @@
-import { findIndex } from 'lodash';
+import { each, filter, findIndex, isEqual } from 'lodash';
 import { useEffect, useState } from 'react';
 import { ApiDataset } from '../../models/api';
-import { Dataset } from '../../models/odata';
+import { Dataset, Series } from '../../models/odata';
 import ApiRequest from '../../utils/Request';
 
 const ALLOW_DATASET_CACHING = true;
@@ -106,14 +106,73 @@ export const DatasetService = (token: string) => {
     }
   };
 
+  /* Create Dataset */
+  const createDataset = (dataset: Dataset): Promise<Dataset> => {
+    setDatasetLoading(true);
+    dataset.Series = filter(
+      dataset.Series,
+      (s: Series) => s.Label.length
+    ) as Series[];
+
+    var req = new ApiRequest('Datasets', token).Post({
+      Private: dataset.Private,
+      Label: dataset.Label,
+      Series: dataset.Series,
+      CategoryId: dataset?.CategoryId,
+      Category: dataset?.Category,
+    } as Dataset);
+
+    return req.then((dataset: Dataset) => {
+      setDatasetLoading(false);
+      return dataset;
+    });
+  };
+
+  /* Update Dataset */
+  const updateDataset = (updated: Dataset, current: Dataset) => {
+    setDatasetLoading(true);
+    let requests: any[] = [];
+
+    requests.push(
+      new ApiRequest('Datasets', token).Patch({
+        Id: updated.Id,
+        Label: updated.Label,
+        Private: updated.Private,
+        CategoryId: updated.CategoryId,
+      } as Dataset)
+    );
+
+    each(updated.Series, (s: Series, index: number) => {
+      if (index >= current.Series.length) {
+        delete s.Id;
+        s.DatasetId = updated.Id;
+        requests.push(new ApiRequest('Series').Post(s));
+      } else if (!isEqual(s, current.Series[index])) {
+        requests.push(new ApiRequest('Series').Put(s));
+      }
+    });
+
+    return Promise.all(requests).then((values: any) => {
+      setDatasetLoading(false);
+      return values;
+    });
+  };
+
+  /* Archive Dataset */
+  const archiveDataset = (dataset: Dataset) =>
+    new ApiRequest('Datasets').Delete(dataset);
+
   return {
-    apiDataset,
-    dataset,
-    datasetLoading,
-    loadDataset,
     datasetListLoading,
     datasetList,
     reloadDatasetList,
+    apiDataset,
+    dataset,
+    datasetLoading,
+    archiveDataset,
+    createDataset,
+    loadDataset,
+    updateDataset,
     errors,
   };
 };
