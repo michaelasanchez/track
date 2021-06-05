@@ -1,6 +1,8 @@
-import { cloneDeep, each, filter, isEqual } from 'lodash';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { cloneDeep, each, filter, isEqual, map } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Container, Row, Tab, Table, Tabs } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
 import { useCategoryService, useDatasetService } from '../App';
 import { Category, Dataset, Record, Series, User } from '../models/odata';
@@ -49,8 +51,9 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   user,
   token,
 }) => {
-  const { categoryList, createCategory, loadCategoryList } =
-    useCategoryService();
+  const { categoryList } = useCategoryService();
+
+  const [key, setKey] = useState('graph');
 
   const {
     apiDataset,
@@ -62,7 +65,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     updateDataset,
     datasetList,
     datasetListLoading: isListLoading,
-    reloadDatasetList: loadDatasetList,
+    loadDatasetList: loadDatasetList,
     errors,
   } = useDatasetService();
 
@@ -162,6 +165,40 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     }
   };
 
+  const renderTableHead = () => {
+    return (
+      <tr>
+        <td>Date/Time</td>
+        {map(apiDataset.NumericalSeries, (n, i) => (
+          <td key={i}>{n.Label}</td>
+        ))}
+        {map(apiDataset.FrequencySeries, (f, i) => (
+          <td key={i}>{f.Label}</td>
+        ))}
+      </tr>
+    );
+  };
+
+  const renderTableBody = () => {
+    return (
+      <>
+        {map(apiDataset.SeriesLabels, (s, i) => (
+          <tr key={i}>
+            <td>{s}</td>
+            {map(apiDataset.NumericalSeries, (n, j) => (
+              <td key={j}>{n.Data[i]}</td>
+            ))}
+            {map(apiDataset.FrequencySeries, (f, k) => (
+              <td key={k}>
+                {f.Data[i] === 'true' && <FontAwesomeIcon icon={faCheck} color={f.Color} />}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </>
+    );
+  };
+
   if (loaded && !errors.length) {
     return (
       <>
@@ -189,12 +226,27 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                   />
                 )}
               </Col>
-              <Col
-                lg={9}
-                className="order-1 order-lg-2"
-                style={{ position: 'relative' }}
-              >
-                <Graph dataset={apiDataset} />
+              <Col lg={9} className="order-1 order-lg-2">
+                <Tabs
+                  id="controlled-tab-example"
+                  activeKey={key}
+                  onSelect={(k) => setKey(k)}
+                >
+                  <Tab eventKey="graph" title="Graph">
+                    <div
+                      className="graph-container"
+                      style={{ position: 'relative' }}
+                    >
+                      <Graph dataset={apiDataset} />
+                    </div>
+                  </Tab>
+                  <Tab eventKey="data" title="Data">
+                    <Table striped bordered hover>
+                      <thead>{renderTableHead()}</thead>
+                      <tbody>{renderTableBody()}</tbody>
+                    </Table>
+                  </Tab>
+                </Tabs>
               </Col>
             </Route>
             <Route path={[`/edit`, `/create`]}>

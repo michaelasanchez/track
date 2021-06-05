@@ -14,22 +14,25 @@
   }
 }
 
+.graph-container {
+  position: relative;
+}
+
 .label-container {
   position: absolute;
   top: 0;
   left: 0;
   background: white;
 
-  // TODO: hack
+  // TODO: this shouldn't be static
   width: 40px;
-  padding-left: 15px;
 
   svg {
     overflow: visible;
   }
 }
 
-.graph-container {
+.chart-container {
   overflow-x: auto;
   scrollbar-width: thin;
   margin-left: 50px;

@@ -1,5 +1,5 @@
 import { each, filter, findIndex, isEqual } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ApiDataset } from '../../models/api';
 import { Dataset, Series } from '../../models/odata';
 import ApiRequest from '../../utils/Request';
@@ -165,7 +165,7 @@ export const DatasetService = (token: string) => {
   return {
     datasetListLoading,
     datasetList,
-    reloadDatasetList,
+    loadDatasetList: reloadDatasetList,
     apiDataset,
     dataset,
     datasetLoading,

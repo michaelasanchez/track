@@ -270,7 +270,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
         {numericalData && numericalLabels()}
         {frequencyData && frequencyLabels(dataset)}
       </div>
-      <div className="graph-container" ref={ref}>
+      <div className="chart-container" ref={ref}>
         {numericalData && numericalGraph(dataset)}
         {frequencyData && frequencyGraph(dataset)}
       </div>
