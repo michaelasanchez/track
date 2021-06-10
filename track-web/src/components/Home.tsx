@@ -1,13 +1,13 @@
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { cloneDeep, each, filter, isEqual, map } from 'lodash';
+import { cloneDeep, filter, isEqual, map } from 'lodash';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { Col, Container, Row, Tab, Table, Tabs } from 'react-bootstrap';
+import { Button, Col, Container, Row, Tab, Table, Tabs } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
 import { useCategoryService, useDatasetService } from '../App';
-import { Category, Dataset, Record, Series, User } from '../models/odata';
+import { Dataset, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
-import ApiRequest from '../utils/Request';
 import DatasetForm from './forms/DatasetForm';
 import RecordForm from './forms/RecordForm';
 import Graph from './Graph';
@@ -165,6 +165,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     }
   };
 
+  const [activeRow, setActiveRow] = useState<string>(null);
+
+  const handleSetActiveRow = (i: string) => {
+    setActiveRow(i);
+  };
+
   const renderTableHead = () => {
     return (
       <tr>
@@ -182,20 +188,55 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   const renderTableBody = () => {
     return (
       <>
-        {map(apiDataset.SeriesLabels, (s, i) => (
-          <tr key={i}>
-            <td>{s}</td>
-            {map(apiDataset.NumericalSeries, (n, j) => (
-              <td key={j}>{n.Data[i]}</td>
-            ))}
-            {map(apiDataset.FrequencySeries, (f, k) => (
-              <td key={k}>
-                {f.Data[i] === 'true' && <FontAwesomeIcon icon={faCheck} color={f.Color} />}
+        {map(apiDataset.SeriesLabels, (s: string, i: string) => {
+          const dateTime = moment(s);
+          return (
+            <tr
+              key={i}
+              onMouseOver={() => handleSetActiveRow(i)}
+              className={i == activeRow ? 'active' : ''}
+            >
+              <td>
+                {dateTime.format('MMM D')}{' '}
+                <span className="small text-muted">
+                  {dateTime.format('h:ma')}
+                </span>
               </td>
-            ))}
-          </tr>
-        ))}
+              {map(apiDataset.NumericalSeries, (n, j) => (
+                <td key={j}>{n.Data[parseInt(i)]}</td>
+              ))}
+              {map(apiDataset.FrequencySeries, (f, k) => (
+                <td key={k}>
+                  {f.Data[parseInt(i)] === 'true' && (
+                    <FontAwesomeIcon icon={faCheck} color={f.Color} />
+                  )}
+                </td>
+              ))}
+            </tr>
+          );
+        })}
       </>
+    );
+  };
+
+  const renderRecordActions = () => {
+    const active = activeRow !== null;
+    return (
+      <div
+        className={`record-actions${active ? ' active' : ''}`}
+        style={{
+          transform: `translateY(${
+            active ? `${parseInt(activeRow) * 49}px` : '0'
+          })`,
+        }}
+      >
+        <Button variant="outline-secondary">
+          <FontAwesomeIcon icon={faEdit} />
+        </Button>
+        <Button variant="outline-secondary">
+          <FontAwesomeIcon icon={faTrash} />
+        </Button>
+      </div>
     );
   };
 
@@ -232,7 +273,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                   activeKey={key}
                   onSelect={(k) => setKey(k)}
                 >
-                  <Tab eventKey="graph" title="Graph">
+                  <Tab eventKey="graph" title="Graph" className="graph-tab">
                     <div
                       className="graph-container"
                       style={{ position: 'relative' }}
@@ -240,11 +281,16 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                       <Graph dataset={apiDataset} />
                     </div>
                   </Tab>
-                  <Tab eventKey="data" title="Data">
-                    <Table striped bordered hover>
+                  <Tab eventKey="data" title="Data" className="table-tab">
+                    <Table
+                      striped
+                      hover
+                      onMouseOut={() => handleSetActiveRow(null)}
+                    >
                       <thead>{renderTableHead()}</thead>
                       <tbody>{renderTableBody()}</tbody>
                     </Table>
+                    {renderRecordActions()}
                   </Tab>
                 </Tabs>
               </Col>

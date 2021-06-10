@@ -1,0 +1,49 @@
+.tab-content {
+  position: relative;
+}
+
+.table-tab {
+  .table {
+    tbody {
+      tr {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .record-actions {
+    position: absolute;
+    right: 0;
+    top: calc(70px);
+
+    opacity: 0;
+    transition: opacity 400ms;
+
+    &.active {
+      opacity: 0.4;
+    }
+
+    &:hover {
+      opacity: 1;
+      button {
+        opacity: 0.4;
+      }
+    }
+
+    button:hover {
+      opacity: 1;
+    }
+
+    &.active button,
+    button:hover {
+      // opacity: 1;
+    }
+
+    button {
+      margin-right: 0.5em;
+
+      // opacity: 0.4;
+      transition: all 400ms;
+    }
+  }
+}
