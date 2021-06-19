@@ -52,6 +52,7 @@ namespace track_api.Controllers
             if (user == null)
             {
                 dbDataset = db.Datasets.Where(dataset => dataset.Id == key && dataset.Private == false);
+                var test = dbDataset.ToList();
             }
             else
             {
@@ -61,7 +62,7 @@ namespace track_api.Controllers
             //dbDataset = dbDataset.IncludeFilter(d => d.Series.Where(s => s.Visible));
 
             //return dbDataset.First();
-            return SingleResult.Create(dbDataset);
+            return SingleResult.Create(dbDataset.Any() ? dbDataset : null);
         }
 
         // PUT: odata/Datasets(5)

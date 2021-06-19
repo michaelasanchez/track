@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import App from './App';
 import Login from './components/Login';
-import Navbar from './components/Navbar';
+import Navbar from './components/ui/Navbar';
 import Profile from './components/Profile';
 import { config } from './config';
 import useAuth from './hooks/useAuth';

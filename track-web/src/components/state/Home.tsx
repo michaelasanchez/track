@@ -1,19 +1,19 @@
 import { cloneDeep, filter, isEqual } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
 
-import { useCategoryService, useDatasetService } from '../App';
-import { appPaths } from '../Auth';
-import { Dataset, User } from '../models/odata';
-import { UserMode } from '../shared/enums';
-import { DatasetTable } from './DatasetTable';
-import { CreateRecord, DatasetSelector } from './dev';
-import DatasetForm from './forms/DatasetForm';
-import RecordForm from './forms/RecordForm';
-import Graph from './Graph';
-import { Loading } from './Loading';
-import Toolbar, { ToolbarAction } from './Toolbar';
+import { useCategoryService, useDatasetService } from '../../App';
+import { appPaths } from '../../Auth';
+import { Dataset, User } from '../../models/odata';
+import { UserMode } from '../../shared/enums';
+import { DatasetTable } from '../DatasetTable';
+import { CreateRecord, DatasetSelector } from '../dev';
+import DatasetForm from '../forms/DatasetForm';
+import RecordForm from '../forms/RecordForm';
+import DatasetGraph from '../DatasetGraph';
+import { Loading } from '../ui/Loading';
+import Toolbar, { ToolbarAction } from '../ui/Toolbar';
 
 const FALLBACK_DATASET_ID = 1;
 
@@ -72,8 +72,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     errors,
   } = useDatasetService();
 
-  const [loaded, setLoaded] = useState<boolean>(false);
-
   const [mode, setMode] = useState<UserMode>(defaultUserMode(useLocation()));
 
   const [pendingDataset, setPendingDataset] = useState<Dataset>(
@@ -81,31 +79,28 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   );
   const [hasPendingChanges, setHasPendingChanges] = useState<boolean>(false);
 
-  // Init
+  const chartRef = useRef<HTMLDivElement>();
+
+  /* Initialize app load process */
+  // Load dataset list
   useEffect(() => {
-    if (user && token) {
+    if (user && token && !datasetList.length) {
       loadDatasetList();
     }
   }, [user]);
 
+  // Load initial dataset
   useEffect(() => {
     if (
       !currentDataset &&
       !isDatasetLoading &&
-      !!authenticated &&
+      authenticated &&
       datasetList.length
     ) {
       const datasetId = defaultDatasetId(datasetList);
       datasetId && loadDataset(datasetId);
     }
   }, [datasetList]);
-
-  useEffect(() => {
-    if (!!currentDataset && !loaded) {
-      // TODO: Move this to dataset list load complete
-      setLoaded(true);
-    }
-  }, [currentDataset]);
 
   // Determine if pending dataset has changes
   useEffect(() => {
@@ -174,7 +169,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     }
   };
 
-  if (loaded && !errors.length) {
+  if (!!currentDataset && !isDatasetLoading && !errors.length) {
     return (
       <>
         <Route exact path="/dev">
@@ -208,13 +203,17 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                 </Col>
                 <Col lg={9} className="order-1 order-lg-2">
                   <div className="home-tab-container">
-                    <Tabs activeKey={key} className="reverse" onSelect={(k) => setKey(k)}>
+                    <Tabs
+                      activeKey={key}
+                      className="reverse"
+                      onSelect={(k) => setKey(k)}
+                    >
                       <Tab eventKey="graph" title="Graph" className="graph-tab">
                         <div
                           className="graph-container"
                           style={{ position: 'relative' }}
                         >
-                          <Graph dataset={apiDataset} />
+                          <DatasetGraph dataset={apiDataset} chartRef={chartRef} />
                         </div>
                       </Tab>
                       <Tab eventKey="data" title="Table" className="table-tab">
@@ -231,9 +230,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                     dataset={pendingDataset}
                     categoryList={categoryList}
                     updateDataset={setPendingDataset}
-                    allowPrivate={
-                      token && pendingDataset.UserId === user?.Id ? true : false
-                    }
+                    allowPrivate={token && pendingDataset.UserId === user?.Id}
                   />
                 </Col>
               </Route>

@@ -1,7 +1,7 @@
 import { map } from 'lodash';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import ChartistGraph from 'react-chartist';
 import { useResize } from '../hooks';
@@ -18,11 +18,6 @@ import {
   SERIES_PREFIXES,
 } from '../utils/ChartistOptionsFactory';
 import { TimeSpan } from '../utils/TimeSpan';
-
-type GraphProps = {
-  dataset: ApiDataset;
-  defaultType?: GraphType;
-};
 
 export enum GraphType {
   Bar = 'Bar',
@@ -80,11 +75,11 @@ const labelStyle = {
   backgroundColor: '#e2e3e5aa',
 };
 
-// 
+//
 const getBufferUnits = (zoom: ChartZoom): [number, moment.unitOfTime.Base] => {
   switch (zoom) {
     case ChartZoom.Month:
-      return [15, 'day']
+      return [15, 'day'];
     case ChartZoom.Day:
       return [12, 'hour'];
     case ChartZoom.Hour:
@@ -99,7 +94,7 @@ const getSpanSeries = (labels: Array<string>, value: any, zoom: ChartZoom) => {
   const [num, unit] = getBufferUnits(zoom);
 
   const starDate = moment(labels[0]);
-  const endDate = moment(labels[labels.length - 1]);  
+  const endDate = moment(labels[labels.length - 1]);
 
   const startBuffer = starDate.clone().subtract(num, unit);
   const startLabel = startBuffer.clone().add(1, zoom).startOf(zoom);
@@ -107,31 +102,50 @@ const getSpanSeries = (labels: Array<string>, value: any, zoom: ChartZoom) => {
   // const endLabel = endDate.clone().add(1, zoom).startOf(zoom);
   const endBuffer = endDate.clone().add(num, unit);
 
-  return [startLabel, /*endLabel, */startBuffer, endBuffer].map((m) => ({
+  return [startLabel, /*endLabel, */ startBuffer, endBuffer].map((m) => ({
     x: m,
     y: value,
   }));
 };
 
-const Graph: React.FunctionComponent<GraphProps> = ({
+export interface GraphDimensions {
+  height: number;
+  width: number;
+}
+
+interface GraphProps {
+  chartRef: React.MutableRefObject<HTMLDivElement>;
+  dataset: ApiDataset;
+  defaultType?: GraphType;
+}
+
+const DatasetGraph: React.FunctionComponent<GraphProps> = ({
+  chartRef,
   dataset,
   defaultType = GraphType.Line,
 }) => {
-  const [refWidth, setRefWidth] = useState<number>();
+  const [graphDimensions, setGraphDimensions] = useState<GraphDimensions>({ height: 0, width: 0 });
 
-  const ref = useRef<HTMLHeadingElement>();
-  const { width } = useResize(ref);
+  console.log('dimensions', graphDimensions)
+
+  const { height, width } = useResize(chartRef);
 
   const [span, setSpan] = useState<TimeSpan>(new TimeSpan(dataset?.Ticks));
 
   const [numericalData, setNumericalData] = useState<ChartistData>();
   const [frequencyData, setFrequencyData] = useState<ChartistData>();
 
-  const optionsFactory = new ChartistOptionsFactory(
-    span,
-    refWidth,
-    getChartZoom(span)
-  );
+  const [optionsFactory, setOptionsFactory] = useState<ChartistOptionsFactory>();
+
+  useEffect(() => {
+    if (!!span && !!graphDimensions) {
+      setOptionsFactory(new ChartistOptionsFactory(
+        span,
+        graphDimensions,
+        getChartZoom(span)
+      ));
+    }
+  }, [span, graphDimensions]);
 
   useEffect(() => {
     if (dataset) {
@@ -157,27 +171,19 @@ const Graph: React.FunctionComponent<GraphProps> = ({
     }
   }, [dataset]);
 
-  // Set initial graph container width
-  useEffect(() => {
-    ref?.current?.offsetWidth && setRefWidth(ref.current.offsetWidth);
-  }, [ref]);
-
   // Update width on resize
   useEffect(() => {
-    if (width) {
-      setRefWidth(width);
+    if (height && width) {
+      setGraphDimensions({ height, width });
     }
-  }, [width]);
+  }, [height, width]);
 
   // Set scroll position
   let graphWidth = 0;
   const onDrawHandler = (e: any) => {
-    // if (e.type === 'point') {
-    //   console.log('POINT', e);
-    // }
-    const scrollWidth = ref.current?.scrollWidth;
+    const scrollWidth = chartRef.current?.scrollWidth;
     if (!!scrollWidth && graphWidth != scrollWidth) {
-      ref.current.scrollLeft = scrollWidth;
+      chartRef.current.scrollLeft = scrollWidth;
       graphWidth = scrollWidth;
     }
   };
@@ -270,7 +276,7 @@ const Graph: React.FunctionComponent<GraphProps> = ({
         {numericalData && numericalLabels()}
         {frequencyData && frequencyLabels(dataset)}
       </div>
-      <div className="chart-container" ref={ref}>
+      <div className="chart-container" ref={chartRef}>
         {numericalData && numericalGraph(dataset)}
         {frequencyData && frequencyGraph(dataset)}
       </div>
@@ -289,4 +295,4 @@ const Graph: React.FunctionComponent<GraphProps> = ({
   );
 };
 
-export default Graph;
+export default DatasetGraph;

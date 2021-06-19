@@ -9,9 +9,9 @@ import {
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useAuthContext } from '../Auth';
-import { OktaUser } from '../models/okta';
-import { strings } from '../shared/strings';
+import { useAuthContext } from '../../Auth';
+import { OktaUser } from '../../models/okta';
+import { strings } from '../../shared/strings';
 
 interface NavbarProps {
   setCorsErrorModalOpen: any;

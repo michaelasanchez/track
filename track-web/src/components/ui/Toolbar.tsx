@@ -12,10 +12,10 @@ import { useState } from 'react';
 import { Col, Form } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import Select, { components, OptionsType } from 'react-select';
-import { Dataset } from '../models/odata/Dataset';
-import { UserMode } from '../shared/enums';
-import { strings } from '../shared/strings';
-import ToolbarButton from './inputs/ToolbarButton';
+import { Dataset } from '../../models/odata/Dataset';
+import { UserMode } from '../../shared/enums';
+import { strings } from '../../shared/strings';
+import ToolbarButton from '../inputs/ToolbarButton';
 import { IModalState, Modal } from './Modal';
 
 export enum ToolbarAction {

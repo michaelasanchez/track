@@ -1,8 +1,8 @@
 import constate from 'constate';
 import * as React from 'react';
 import { useAuthContext } from './Auth';
-import { Home } from './components/Home';
-import { Loading } from './components/Loading';
+import { Home } from './components/state/Home';
+import { Loading } from './components/ui/Loading';
 import { useService } from './hooks';
 
 export const [
