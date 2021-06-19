@@ -5,15 +5,17 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { ApiDataset } from '../models/api';
+import { defaultColor } from '../utils/ChartistOptionsFactory';
 
 interface DatasetTableProps {
   apiDataset: ApiDataset;
+  tableHeight: number;
 }
 
 export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   props
 ) => {
-  const { apiDataset } = props;
+  const { apiDataset, tableHeight } = props;
 
   const [activeRow, setActiveRow] = useState<string>(null);
 
@@ -60,7 +62,10 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
               {map(apiDataset.FrequencySeries, (f, k) => (
                 <td key={k}>
                   {f.Data[parseInt(i)] === 'true' && (
-                    <FontAwesomeIcon icon={faCheck} color={f.Color} />
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      color={f.Color || `#${defaultColor(f.Order)}`}
+                    />
                   )}
                 </td>
               ))}
@@ -86,14 +91,12 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   };
 
   return (
-    <>
-      {renderRecordActions()}
-      <div className="table-container">
-        <Table striped hover>
-          <thead>{renderTableHead()}</thead>
-          <tbody>{renderTableBody()}</tbody>
-        </Table>
-      </div>
-    </>
+    <div className="table-container">
+      {/* {renderRecordActions()} */}
+      <Table striped hover>
+        <thead>{renderTableHead()}</thead>
+        <tbody>{renderTableBody()}</tbody>
+      </Table>
+    </div>
   );
 };

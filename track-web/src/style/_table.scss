@@ -1,20 +1,15 @@
-$graph-container-height: 316.8px;
-$record-actions-height: 38px;
-
-$table-margin-bottom: 16px;
-$table-max-height: $graph-container-height - $record-actions-height -
-  $table-margin-bottom;
-
 .table-container {
-  max-height: $table-max-height;
   overflow-y: scroll;
 }
 
-.tab-content {
-  position: relative;
-}
-
 .table-tab {
+  overflow: hidden;
+
+  &.active {
+    display: flex;
+    flex-direction: column;
+  }
+
   .table {
     tbody {
       tr {

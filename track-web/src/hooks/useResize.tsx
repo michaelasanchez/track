@@ -14,8 +14,8 @@ export const useResize = (ref: any) => {
 
     // Hack: Wait 1ms allows chartist to render
     setTimeout(() => {
-      setWidth(ref.current.offsetWidth);
-      setHeight(ref.current.offsetHeight);
+      setWidth(ref.current?.offsetWidth || 0);
+      setHeight(ref.current?.offsetHeight || 0);
     }, 1);
 
     window.addEventListener('resize', handleResize)

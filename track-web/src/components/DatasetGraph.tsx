@@ -114,20 +114,20 @@ export interface GraphDimensions {
 }
 
 interface GraphProps {
-  chartRef: React.MutableRefObject<HTMLDivElement>;
+  graphRef: React.MutableRefObject<HTMLDivElement>;
+  graphDimensions: GraphDimensions;
   dataset: ApiDataset;
   defaultType?: GraphType;
+  setGraphDimensions: (updated: GraphDimensions) => void;
 }
 
 const DatasetGraph: React.FunctionComponent<GraphProps> = ({
-  chartRef,
+  graphRef: chartRef,
+  graphDimensions,
   dataset,
   defaultType = GraphType.Line,
+  setGraphDimensions,
 }) => {
-  const [graphDimensions, setGraphDimensions] = useState<GraphDimensions>({ height: 0, width: 0 });
-
-  console.log('dimensions', graphDimensions)
-
   const { height, width } = useResize(chartRef);
 
   const [span, setSpan] = useState<TimeSpan>(new TimeSpan(dataset?.Ticks));

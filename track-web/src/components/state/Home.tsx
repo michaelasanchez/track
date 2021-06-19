@@ -11,7 +11,7 @@ import { DatasetTable } from '../DatasetTable';
 import { CreateRecord, DatasetSelector } from '../dev';
 import DatasetForm from '../forms/DatasetForm';
 import RecordForm from '../forms/RecordForm';
-import DatasetGraph from '../DatasetGraph';
+import DatasetGraph, { GraphDimensions } from '../DatasetGraph';
 import { Loading } from '../ui/Loading';
 import Toolbar, { ToolbarAction } from '../ui/Toolbar';
 
@@ -80,6 +80,11 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   const [hasPendingChanges, setHasPendingChanges] = useState<boolean>(false);
 
   const chartRef = useRef<HTMLDivElement>();
+
+  const [graphDimensions, setGraphDimensions] = useState<GraphDimensions>({
+    height: 0,
+    width: 0,
+  });
 
   /* Initialize app load process */
   // Load dataset list
@@ -213,11 +218,16 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                           className="graph-container"
                           style={{ position: 'relative' }}
                         >
-                          <DatasetGraph dataset={apiDataset} chartRef={chartRef} />
+                          <DatasetGraph
+                            dataset={apiDataset}
+                            graphRef={chartRef}
+                            graphDimensions={graphDimensions}
+                            setGraphDimensions={setGraphDimensions}
+                          />
                         </div>
                       </Tab>
-                      <Tab eventKey="data" title="Table" className="table-tab">
-                        <DatasetTable apiDataset={apiDataset} />
+                      <Tab eventKey="data" title="Table" className="table-tab" style={{ height: graphDimensions.height }}>
+                        <DatasetTable apiDataset={apiDataset} tableHeight={graphDimensions.height} />
                       </Tab>
                     </Tabs>
                   </div>
