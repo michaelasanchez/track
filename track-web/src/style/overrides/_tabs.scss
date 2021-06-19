@@ -1,0 +1,30 @@
+$white: #fff;
+$interface-border-color: #dee2e6;
+
+.nav-tabs {
+  /* Requires parent style */
+  // flex-direction: column-reverse;
+  &.reverse {
+    // Overrides
+    border-bottom: none;
+
+    // Additional
+    border-top: 1px solid $interface-border-color;
+
+    .nav-link {
+      // Overrides
+      margin-bottom: 0;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+
+      // Additional
+      margin-top: -1px;
+      border-bottom-left-radius: 0.25rem;
+      border-bottom-right-radius: 0.25rem;
+
+      &.active {
+        border-color: $white $interface-border-color $interface-border-color;
+      }
+    }
+  }
+}

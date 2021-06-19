@@ -19,6 +19,7 @@ export class Dataset {
 
   constructor(userId?: number) {
     this.UserId = userId;
+    this.Private = true;
 
     this.Label = '';
     this.records = [];

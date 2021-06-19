@@ -8,17 +8,15 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { each, findIndex, map } from 'lodash';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Button, Form, Container, Col, Row } from 'react-bootstrap';
-import { Link, useHistory } from 'react-router-dom';
-import Select, { OptionsType, components } from 'react-select';
-
+import { useState } from 'react';
+import { Col, Form } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
+import Select, { components, OptionsType } from 'react-select';
 import { Dataset } from '../models/odata/Dataset';
 import { UserMode } from '../shared/enums';
 import { strings } from '../shared/strings';
-import ApiRequest from '../utils/Request';
 import ToolbarButton from './inputs/ToolbarButton';
-import { ModalAction, IModalState, Modal } from './Modal';
+import { IModalState, Modal } from './Modal';
 
 export enum ToolbarAction {
   CreateBegin,
@@ -49,7 +47,6 @@ const groupStyles = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  // background: 'red',
 };
 
 const groupLabelStyles = {

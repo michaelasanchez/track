@@ -24,7 +24,9 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   const renderTableHead = () => {
     return (
       <tr>
-        <td>Date/Time</td>
+        <td>
+          Date <span className="small text-muted">/ Time</span>
+        </td>
         {map(apiDataset.NumericalSeries, (n, i) => (
           <td key={i}>{n.Label}</td>
         ))}
@@ -86,10 +88,12 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   return (
     <>
       {renderRecordActions()}
-      <Table striped hover>
-        <thead>{renderTableHead()}</thead>
-        <tbody>{renderTableBody()}</tbody>
-      </Table>
+      <div className="table-container">
+        <Table striped hover>
+          <thead>{renderTableHead()}</thead>
+          <tbody>{renderTableBody()}</tbody>
+        </Table>
+      </div>
     </>
   );
 };

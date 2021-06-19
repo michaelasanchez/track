@@ -1,6 +1,5 @@
 import constate from 'constate';
 import * as React from 'react';
-import { useEffect } from 'react';
 import { useAuthContext } from './Auth';
 import { Home } from './components/Home';
 import { Loading } from './components/Loading';

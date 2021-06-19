@@ -1,6 +1,11 @@
 .create-record {
 
   .date-time-header {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 1rem;
+
     background: var(--info);
     color: var(--white);
   }

@@ -1,7 +1,6 @@
 import { indexOf } from 'lodash';
 import * as React from 'react';
 import {
-  Button,
   Container,
   Nav,
   Navbar as BootstrapNavbar,
@@ -9,7 +8,7 @@ import {
   Spinner,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../Auth';
 import { OktaUser } from '../models/okta';
 import { strings } from '../shared/strings';
@@ -30,7 +29,6 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
     isAuthenticated,
     loading,
     oktaUser: user,
-    user: who,
     signout,
   } = useAuthContext();
 
@@ -60,8 +58,7 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
     }
 
     return user.preferred_username;
-    // return user.email.split('@')[0];
-  }
+  };
 
   const renderLoginButton = () => {
     return (
@@ -72,11 +69,8 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
           </div>
         ) : (
           <>
-            {isAuthenticated && user ? (
-              <NavDropdown
-                title={getUserName(user)}
-                id="navbar-dropdown"
-              >
+            {isAuthenticated && user && (
+              <NavDropdown title={getUserName(user)} id="navbar-dropdown">
                 {/* <LinkContainer to="/profile">
                   <NavDropdown.Item>
                     {strings.navbar.profileButtonLabel}
@@ -87,17 +81,17 @@ const Navbar: React.FunctionComponent<NavbarProps> = (props) => {
                   {strings.navbar.logoutButtonLabel}
                 </NavDropdown.Item>
               </NavDropdown>
-            ) : (
-              <Nav.Link>
-                <Button
-                  onClick={login}
-                  className="login"
-                  disabled={onLoginPage}
-                  variant={'outline-secondary'}
-                >
-                  {strings.navbar.loginButtonLabel}
-                </Button>
-              </Nav.Link>
+              // ) : (
+              //   <Nav.Link>
+              //     <Button
+              //       onClick={login}
+              //       className="login"
+              //       disabled={onLoginPage}
+              //       variant={'outline-secondary'}
+              //     >
+              //       {strings.navbar.loginButtonLabel}
+              //     </Button>
+              //   </Nav.Link>
             )}
           </>
         )}

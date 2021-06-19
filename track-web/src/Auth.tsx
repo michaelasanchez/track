@@ -50,7 +50,7 @@ export const Auth: React.FunctionComponent<AuthProps> = (props) => {
         <main>
           <CorsErrorModal {...{ corsErrorModalOpen, setCorsErrorModalOpen }} />
           <Switch>
-            <Route path={appPaths} exact component={App} />
+            <SecureRoute path={appPaths} exact component={App} />
             <Route
               path={`/login/callback`}
               render={(props) => (

@@ -8,12 +8,15 @@
 @import 'tabs';
 
 @import 'login';
+@import 'home';
 
 @import 'graph';
 @import 'table';
 
 @import 'colorpicker';
 @import 'datetimepicker';
+
+@import 'overrides/tabs';
 
 /* Dev */
 @import 'dev/create-record';

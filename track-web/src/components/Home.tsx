@@ -2,6 +2,7 @@ import { cloneDeep, filter, isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
+
 import { useCategoryService, useDatasetService } from '../App';
 import { appPaths } from '../Auth';
 import { Dataset, User } from '../models/odata';
@@ -29,7 +30,9 @@ const defaultUserMode = (location: any): UserMode => {
 };
 
 const defaultDatasetId = (datasetList: Dataset[]): number => {
-  const firstId = datasetList.length ? datasetList[0].Id : FALLBACK_DATASET_ID;
+  const firstId = datasetList.length ? datasetList[0].Id : 0;
+
+  if (!firstId) return firstId;
 
   // Attempt to recover from local storage
   const parsed = parseInt(window.localStorage.getItem('datasetId'));
@@ -80,14 +83,20 @@ export const Home: React.FunctionComponent<HomeProps> = ({
 
   // Init
   useEffect(() => {
-    if (!authenticated || (user && token)) {
+    if (user && token) {
       loadDatasetList();
     }
   }, [user]);
 
   useEffect(() => {
-    if (!currentDataset && !isDatasetLoading) {
-      loadDataset(defaultDatasetId(datasetList));
+    if (
+      !currentDataset &&
+      !isDatasetLoading &&
+      !!authenticated &&
+      datasetList.length
+    ) {
+      const datasetId = defaultDatasetId(datasetList);
+      datasetId && loadDataset(datasetId);
     }
   }, [datasetList]);
 
@@ -168,16 +177,12 @@ export const Home: React.FunctionComponent<HomeProps> = ({
   if (loaded && !errors.length) {
     return (
       <>
-        <Container className="mt-3">
-          <Route exact path="/dev">
-            <Row>
-              <Col>
-                {/* <DatasetSelector /> */}
-                <CreateRecord />
-              </Col>
-            </Row>
-          </Route>
-          <Route exact path={appPaths.filter((p) => p != '/dev')}>
+        <Route exact path="/dev">
+          {/* <DatasetSelector /> */}
+          <CreateRecord />
+        </Route>
+        <Route exact path={appPaths.filter((p) => p != '/dev')}>
+          <Container className="mt-3">
             <Row>
               <Toolbar
                 dataset={
@@ -202,23 +207,21 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                   )}
                 </Col>
                 <Col lg={9} className="order-1 order-lg-2">
-                  <Tabs
-                    id="controlled-tab-example"
-                    activeKey={key}
-                    onSelect={(k) => setKey(k)}
-                  >
-                    <Tab eventKey="graph" title="Graph" className="graph-tab">
-                      <div
-                        className="graph-container"
-                        style={{ position: 'relative' }}
-                      >
-                        <Graph dataset={apiDataset} />
-                      </div>
-                    </Tab>
-                    <Tab eventKey="data" title="Data" className="table-tab">
-                      <DatasetTable apiDataset={apiDataset} />
-                    </Tab>
-                  </Tabs>
+                  <div className="home-tab-container">
+                    <Tabs activeKey={key} className="reverse" onSelect={(k) => setKey(k)}>
+                      <Tab eventKey="graph" title="Graph" className="graph-tab">
+                        <div
+                          className="graph-container"
+                          style={{ position: 'relative' }}
+                        >
+                          <Graph dataset={apiDataset} />
+                        </div>
+                      </Tab>
+                      <Tab eventKey="data" title="Table" className="table-tab">
+                        <DatasetTable apiDataset={apiDataset} />
+                      </Tab>
+                    </Tabs>
+                  </div>
                 </Col>
               </Route>
               <Route path={[`/edit`, `/create`]}>
@@ -235,8 +238,8 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                 </Col>
               </Route>
             </Row>
-          </Route>
-        </Container>
+          </Container>
+        </Route>
       </>
     );
   }
