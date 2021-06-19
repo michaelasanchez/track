@@ -15,6 +15,9 @@
 @import 'colorpicker';
 @import 'datetimepicker';
 
+/* Dev */
+@import 'dev/create-record';
+
 html,
 body {
   height: 100%;

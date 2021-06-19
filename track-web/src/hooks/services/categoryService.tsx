@@ -20,7 +20,6 @@ export const CategoryService = () => {
   };
 
   const createCategory = (category: Category): Promise<Category> => {
-    console.log('nolkj');
     return new ApiRequest('Categories').Post(category).then((category) => {
       loadCategoryList();
       return category;

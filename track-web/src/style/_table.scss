@@ -7,43 +7,73 @@
     tbody {
       tr {
         cursor: pointer;
+        transition: all 200ms;
+
+        $nnop: 4px;
+
+        &.active {
+          // outline: 0;
+          background: rgba(0, 0, 0, 0.075);
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+          // border-radius: $nnop;
+
+          td {
+            border-bottom: 1px solid #80bdff;
+            border-top-color: #80bdff;
+
+            // &:first-child {
+            //   border-top-left-radius: $nnop;
+            //   border-bottom-left-radius: $nnop;
+            // }
+
+            // &:last-child {
+            //   border-top-right-radius: $nnop;
+            //   border-bottom-right-radius: $nnop;
+            // }
+          }
+        }
       }
     }
   }
 
   .record-actions {
-    position: absolute;
-    right: 0;
-    top: calc(70px);
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1em;
+    //   position: absolute;
+    //   right: 0;
+    //   top: calc(70px);
 
-    opacity: 0;
-    transition: opacity 400ms;
+    //   opacity: 0;
+    //   transition: opacity 400ms;
 
-    &.active {
+    //   &.active {
+    //     opacity: 0.4;
+    //   }
+
+    //   &:hover {
+    //     opacity: 1;
+    //   }
+
+    button {
       opacity: 0.4;
+      transition: opacity 200ms;
     }
 
-    &:hover {
-      opacity: 1;
-      button {
-        opacity: 0.4;
-      }
-    }
-
-    button:hover {
+    &.active button {
       opacity: 1;
     }
 
-    &.active button,
-    button:hover {
-      // opacity: 1;
-    }
+    //   &.active button,
+    //   button:hover {
+    //     // opacity: 1;
+    //   }
 
     button {
       margin-right: 0.5em;
 
-      // opacity: 0.4;
-      transition: all 400ms;
+      //     // opacity: 0.4;
+      //     transition: all 400ms;
     }
   }
 }

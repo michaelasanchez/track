@@ -1,13 +1,13 @@
-import { faCheck, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { cloneDeep, filter, isEqual, map } from 'lodash';
-import moment from 'moment';
+import { cloneDeep, filter, isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Container, Row, Tab, Table, Tabs } from 'react-bootstrap';
+import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
 import { useCategoryService, useDatasetService } from '../App';
+import { appPaths } from '../Auth';
 import { Dataset, User } from '../models/odata';
 import { UserMode } from '../shared/enums';
+import { DatasetTable } from './DatasetTable';
+import { CreateRecord, DatasetSelector } from './dev';
 import DatasetForm from './forms/DatasetForm';
 import RecordForm from './forms/RecordForm';
 import Graph from './Graph';
@@ -165,150 +165,77 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     }
   };
 
-  const [activeRow, setActiveRow] = useState<string>(null);
-
-  const handleSetActiveRow = (i: string) => {
-    setActiveRow(i);
-  };
-
-  const renderTableHead = () => {
-    return (
-      <tr>
-        <td>Date/Time</td>
-        {map(apiDataset.NumericalSeries, (n, i) => (
-          <td key={i}>{n.Label}</td>
-        ))}
-        {map(apiDataset.FrequencySeries, (f, i) => (
-          <td key={i}>{f.Label}</td>
-        ))}
-      </tr>
-    );
-  };
-
-  const renderTableBody = () => {
-    return (
-      <>
-        {map(apiDataset.SeriesLabels, (s: string, i: string) => {
-          const dateTime = moment(s);
-          return (
-            <tr
-              key={i}
-              onMouseOver={() => handleSetActiveRow(i)}
-              className={i == activeRow ? 'active' : ''}
-            >
-              <td>
-                {dateTime.format('MMM D')}{' '}
-                <span className="small text-muted">
-                  {dateTime.format('h:ma')}
-                </span>
-              </td>
-              {map(apiDataset.NumericalSeries, (n, j) => (
-                <td key={j}>{n.Data[parseInt(i)]}</td>
-              ))}
-              {map(apiDataset.FrequencySeries, (f, k) => (
-                <td key={k}>
-                  {f.Data[parseInt(i)] === 'true' && (
-                    <FontAwesomeIcon icon={faCheck} color={f.Color} />
-                  )}
-                </td>
-              ))}
-            </tr>
-          );
-        })}
-      </>
-    );
-  };
-
-  const renderRecordActions = () => {
-    const active = activeRow !== null;
-    return (
-      <div
-        className={`record-actions${active ? ' active' : ''}`}
-        style={{
-          transform: `translateY(${
-            active ? `${parseInt(activeRow) * 49}px` : '0'
-          })`,
-        }}
-      >
-        <Button variant="outline-secondary">
-          <FontAwesomeIcon icon={faEdit} />
-        </Button>
-        <Button variant="outline-secondary">
-          <FontAwesomeIcon icon={faTrash} />
-        </Button>
-      </div>
-    );
-  };
-
   if (loaded && !errors.length) {
     return (
       <>
         <Container className="mt-3">
-          <Row>
-            <Toolbar
-              dataset={
-                mode == UserMode.Create ? pendingDataset : currentDataset
-              }
-              datasetList={datasetList}
-              mode={mode}
-              disabled={isListLoading || isDatasetLoading}
-              onAction={handleToolbarAction}
-              hasChanges={hasPendingChanges}
-            />
-          </Row>
-          <hr />
-          <Row>
-            <Route exact path={`/`}>
-              <Col xs={12} lg={3} className="order-2 order-lg-1">
-                {currentDataset && (
-                  <RecordForm
-                    dataset={currentDataset}
-                    loadDataset={loadDataset}
-                  />
-                )}
-              </Col>
-              <Col lg={9} className="order-1 order-lg-2">
-                <Tabs
-                  id="controlled-tab-example"
-                  activeKey={key}
-                  onSelect={(k) => setKey(k)}
-                >
-                  <Tab eventKey="graph" title="Graph" className="graph-tab">
-                    <div
-                      className="graph-container"
-                      style={{ position: 'relative' }}
-                    >
-                      <Graph dataset={apiDataset} />
-                    </div>
-                  </Tab>
-                  <Tab eventKey="data" title="Data" className="table-tab">
-                    <Table
-                      striped
-                      hover
-                      onMouseOut={() => handleSetActiveRow(null)}
-                    >
-                      <thead>{renderTableHead()}</thead>
-                      <tbody>{renderTableBody()}</tbody>
-                    </Table>
-                    {renderRecordActions()}
-                  </Tab>
-                </Tabs>
-              </Col>
-            </Route>
-            <Route path={[`/edit`, `/create`]}>
+          <Route exact path="/dev">
+            <Row>
               <Col>
-                <DatasetForm
-                  createMode={mode == UserMode.Create}
-                  dataset={pendingDataset}
-                  categoryList={categoryList}
-                  updateDataset={setPendingDataset}
-                  allowPrivate={
-                    token && pendingDataset.UserId === user?.Id ? true : false
-                  }
-                />
+                {/* <DatasetSelector /> */}
+                <CreateRecord />
               </Col>
-            </Route>
-          </Row>
+            </Row>
+          </Route>
+          <Route exact path={appPaths.filter((p) => p != '/dev')}>
+            <Row>
+              <Toolbar
+                dataset={
+                  mode == UserMode.Create ? pendingDataset : currentDataset
+                }
+                datasetList={datasetList}
+                mode={mode}
+                disabled={isListLoading || isDatasetLoading}
+                onAction={handleToolbarAction}
+                hasChanges={hasPendingChanges}
+              />
+            </Row>
+            <hr />
+            <Row>
+              <Route exact path={`/`}>
+                <Col xs={12} lg={3} className="order-2 order-lg-1">
+                  {currentDataset && (
+                    <RecordForm
+                      dataset={currentDataset}
+                      loadDataset={loadDataset}
+                    />
+                  )}
+                </Col>
+                <Col lg={9} className="order-1 order-lg-2">
+                  <Tabs
+                    id="controlled-tab-example"
+                    activeKey={key}
+                    onSelect={(k) => setKey(k)}
+                  >
+                    <Tab eventKey="graph" title="Graph" className="graph-tab">
+                      <div
+                        className="graph-container"
+                        style={{ position: 'relative' }}
+                      >
+                        <Graph dataset={apiDataset} />
+                      </div>
+                    </Tab>
+                    <Tab eventKey="data" title="Data" className="table-tab">
+                      <DatasetTable apiDataset={apiDataset} />
+                    </Tab>
+                  </Tabs>
+                </Col>
+              </Route>
+              <Route path={[`/edit`, `/create`]}>
+                <Col>
+                  <DatasetForm
+                    createMode={mode == UserMode.Create}
+                    dataset={pendingDataset}
+                    categoryList={categoryList}
+                    updateDataset={setPendingDataset}
+                    allowPrivate={
+                      token && pendingDataset.UserId === user?.Id ? true : false
+                    }
+                  />
+                </Col>
+              </Route>
+            </Row>
+          </Route>
         </Container>
       </>
     );

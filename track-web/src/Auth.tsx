@@ -18,6 +18,8 @@ export const [AuthProvider, useAuthContext] = constate(useAuth);
 
 interface AuthProps {}
 
+export const appPaths = [`/`, '/create', '/edit', '/dev'];
+
 export const Auth: React.FunctionComponent<AuthProps> = (props) => {
   const history = useHistory();
 
@@ -48,7 +50,7 @@ export const Auth: React.FunctionComponent<AuthProps> = (props) => {
         <main>
           <CorsErrorModal {...{ corsErrorModalOpen, setCorsErrorModalOpen }} />
           <Switch>
-            <Route path={[`/`, '/create', '/edit']} exact component={App} />
+            <Route path={appPaths} exact component={App} />
             <Route
               path={`/login/callback`}
               render={(props) => (

@@ -190,7 +190,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     } else {
       let groups: SelectOptionGroup[] = [
         {
-          label: 'Uncategorized',
+          label: 'Empty',
           options: [],
         },
       ];

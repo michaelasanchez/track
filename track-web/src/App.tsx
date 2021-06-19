@@ -18,9 +18,7 @@ export const [
   (s) => s.record
 );
 
-interface AppProps {}
-
-const App: React.FunctionComponent<AppProps> = ({}) => {
+const App: React.FunctionComponent<{}> = () => {
   const { isAuthenticated, loading, user, token } = useAuthContext();
 
   return loading ? (
