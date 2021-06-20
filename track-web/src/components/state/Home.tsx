@@ -1,17 +1,16 @@
 import { cloneDeep, filter, isEqual } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
-import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import { Route, useLocation } from 'react-router-dom';
-
+import { DatasetTabs } from '.';
 import { useCategoryService, useDatasetService } from '../../App';
 import { appPaths } from '../../Auth';
 import { Dataset, User } from '../../models/odata';
 import { UserMode } from '../../shared/enums';
-import { DatasetTable } from '../DatasetTable';
-import { CreateRecord, DatasetSelector } from '../dev';
+import { GraphDimensions } from '../DatasetGraph';
+import { CreateRecord } from '../dev';
 import DatasetForm from '../forms/DatasetForm';
 import RecordForm from '../forms/RecordForm';
-import DatasetGraph, { GraphDimensions } from '../DatasetGraph';
 import { Loading } from '../ui/Loading';
 import Toolbar, { ToolbarAction } from '../ui/Toolbar';
 
@@ -56,8 +55,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
 }) => {
   const { categoryList } = useCategoryService();
 
-  const [key, setKey] = useState('graph');
-
   const {
     apiDataset,
     dataset: currentDataset,
@@ -78,13 +75,6 @@ export const Home: React.FunctionComponent<HomeProps> = ({
     new Dataset(user?.Id)
   );
   const [hasPendingChanges, setHasPendingChanges] = useState<boolean>(false);
-
-  const chartRef = useRef<HTMLDivElement>();
-
-  const [graphDimensions, setGraphDimensions] = useState<GraphDimensions>({
-    height: 0,
-    width: 0,
-  });
 
   /* Initialize app load process */
   // Load dataset list
@@ -208,28 +198,7 @@ export const Home: React.FunctionComponent<HomeProps> = ({
                 </Col>
                 <Col lg={9} className="order-1 order-lg-2">
                   <div className="home-tab-container">
-                    <Tabs
-                      activeKey={key}
-                      className="reverse"
-                      onSelect={(k) => setKey(k)}
-                    >
-                      <Tab eventKey="graph" title="Graph" className="graph-tab">
-                        <div
-                          className="graph-container"
-                          style={{ position: 'relative' }}
-                        >
-                          <DatasetGraph
-                            dataset={apiDataset}
-                            graphRef={chartRef}
-                            graphDimensions={graphDimensions}
-                            setGraphDimensions={setGraphDimensions}
-                          />
-                        </div>
-                      </Tab>
-                      <Tab eventKey="data" title="Table" className="table-tab" style={{ height: graphDimensions.height }}>
-                        <DatasetTable apiDataset={apiDataset} tableHeight={graphDimensions.height} />
-                      </Tab>
-                    </Tabs>
+                    <DatasetTabs apiDataset={apiDataset} />
                   </div>
                 </Col>
               </Route>

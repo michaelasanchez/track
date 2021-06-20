@@ -1,0 +1,29 @@
+$scrollbar-track-color: #dddddd33;
+$scrollbar-thumb-color: #66666633;
+$scrollbar-thumb-color-hover: #66666666;
+
+$scrollbar-diameter: 6px;
+$scrollbar-border-radius: 4px;
+
+@mixin scrollbar {
+  &::-webkit-scrollbar {
+    height: $scrollbar-diameter;
+    width: $scrollbar-diameter;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $scrollbar-track-color;
+    border-radius: $scrollbar-border-radius;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $scrollbar-thumb-color;
+    border-radius: $scrollbar-border-radius;
+  }
+
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background: $scrollbar-thumb-color-hover;
+    }
+  }
+}

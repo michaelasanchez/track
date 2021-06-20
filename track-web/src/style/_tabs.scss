@@ -6,3 +6,24 @@
   position: relative;
   margin-bottom: 1rem;
 }
+
+.record-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  max-height: 0;
+  overflow: hidden;
+
+  button {
+    opacity: 0.4;
+    transition: opacity 200ms;
+  }
+
+  &.active button {
+    opacity: 1;
+  }
+
+  button {
+    margin-right: 0.5em;
+  }
+}

@@ -1,23 +1,22 @@
-import { faCheck, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { map } from 'lodash';
 import moment from 'moment';
-import React, { useState } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import React from 'react';
+import { Table } from 'react-bootstrap';
 import { ApiDataset } from '../models/api';
 import { defaultColor } from '../utils/ChartistOptionsFactory';
 
 interface DatasetTableProps {
+  activeRow: string;
   apiDataset: ApiDataset;
-  tableHeight: number;
+  setActiveRow: (updated: string) => void;
 }
 
 export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   props
 ) => {
-  const { apiDataset, tableHeight } = props;
-
-  const [activeRow, setActiveRow] = useState<string>(null);
+  const { activeRow, apiDataset, setActiveRow } = props;
 
   const handleSetActiveRow = (i: string) => {
     setActiveRow(i === activeRow ? null : i);
@@ -26,14 +25,14 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   const renderTableHead = () => {
     return (
       <tr>
-        <td>
+        <th>
           Date <span className="small text-muted">/ Time</span>
-        </td>
+        </th>
         {map(apiDataset.NumericalSeries, (n, i) => (
-          <td key={i}>{n.Label}</td>
+          <th key={i}>{n.Label}</th>
         ))}
         {map(apiDataset.FrequencySeries, (f, i) => (
-          <td key={i}>{f.Label}</td>
+          <th key={i}>{f.Label}</th>
         ))}
       </tr>
     );
@@ -76,27 +75,14 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
     );
   };
 
-  const renderRecordActions = () => {
-    const active = activeRow !== null;
-    return (
-      <div className={`record-actions${active ? ' active' : ''}`}>
-        <Button variant="outline-secondary" disabled={!activeRow}>
-          <FontAwesomeIcon icon={faTrash} />
-        </Button>
-        <Button variant="outline-secondary" disabled={!activeRow}>
-          <FontAwesomeIcon icon={faEdit} />
-        </Button>
-      </div>
-    );
-  };
-
   return (
-    <div className="table-container">
-      {/* {renderRecordActions()} */}
-      <Table striped hover>
-        <thead>{renderTableHead()}</thead>
-        <tbody>{renderTableBody()}</tbody>
-      </Table>
-    </div>
+    <>
+      <div className="table-container">
+        <Table striped hover className="table-data">
+          <thead>{renderTableHead()}</thead>
+          <tbody>{renderTableBody()}</tbody>
+        </Table>
+      </div>
+    </>
   );
 };

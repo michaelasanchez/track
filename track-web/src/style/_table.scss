@@ -1,5 +1,7 @@
 .table-container {
-  overflow-y: scroll;
+  overflow-y: auto;
+
+  @include scrollbar;
 }
 
 .table-tab {
@@ -11,76 +13,59 @@
   }
 
   .table {
+    border-collapse: unset;
+    border-spacing: 0;
+
+    th {
+      position: sticky;
+      top: 0;
+
+      background: $white;
+      font-weight: normal;
+    }
+
     tbody {
       tr {
         cursor: pointer;
         transition: all 200ms;
 
-        $nnop: 4px;
+        &:first-child {
+          td {
+            border-top: none;
+          }
+        }
 
         &.active {
-          // outline: 0;
-          background: rgba(0, 0, 0, 0.075);
-          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-          // border-radius: $nnop;
+          position: relative;
+
+          &::after {
+            position: absolute;
+            content: '';
+
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+          }
 
           td {
+            background-color: rgba(0, 123, 255, 0.075);
             border-bottom: 1px solid #80bdff;
             border-top-color: #80bdff;
+          }
 
-            // &:first-child {
-            //   border-top-left-radius: $nnop;
-            //   border-bottom-left-radius: $nnop;
-            // }
+          &:first-child::after {
+            box-shadow: 0 -0.6px 0 0.25rem rgba(0, 123, 255, 0.25);
+          }
 
-            // &:last-child {
-            //   border-top-right-radius: $nnop;
-            //   border-bottom-right-radius: $nnop;
-            // }
+          & + tr {
+            td {
+              border-top: none;
+            }
           }
         }
       }
-    }
-  }
-
-  .record-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1em;
-    //   position: absolute;
-    //   right: 0;
-    //   top: calc(70px);
-
-    //   opacity: 0;
-    //   transition: opacity 400ms;
-
-    //   &.active {
-    //     opacity: 0.4;
-    //   }
-
-    //   &:hover {
-    //     opacity: 1;
-    //   }
-
-    button {
-      opacity: 0.4;
-      transition: opacity 200ms;
-    }
-
-    &.active button {
-      opacity: 1;
-    }
-
-    //   &.active button,
-    //   button:hover {
-    //     // opacity: 1;
-    //   }
-
-    button {
-      margin-right: 0.5em;
-
-      //     // opacity: 0.4;
-      //     transition: all 400ms;
     }
   }
 }

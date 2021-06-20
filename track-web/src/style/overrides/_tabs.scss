@@ -1,8 +1,7 @@
 $white: #fff;
-$interface-border-color: #dee2e6;
 
 .nav-tabs {
-  /* Requires parent style */
+  /* Required parent style: */
   // flex-direction: column-reverse;
   &.reverse {
     // Overrides
