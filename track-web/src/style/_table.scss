@@ -16,12 +16,39 @@
     border-collapse: unset;
     border-spacing: 0;
 
+    tr:nth-of-type(odd) {
+      td {
+        &:first-child {
+          background: rgb(242, 242, 242);
+        }
+      }
+    }
+
+    th,
+    td {
+      &:first-child {
+        position: sticky;
+        left: 0;
+
+        background: $white;
+      }
+    }
+
     th {
       position: sticky;
       top: 0;
+      z-index: 2;
 
       background: $white;
       font-weight: normal;
+
+      &:first-child {
+        z-index: 3;
+      }
+    }
+
+    td:first-child {
+      z-index: 1;
     }
 
     tbody {
