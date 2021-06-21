@@ -13,7 +13,7 @@
       position: absolute;
       width: 100%;
       transform: translateY(calc(-100% - 50px));
-      z-index: 1;
+      z-index: $z-index-dropdown;
 
       max-width: 320px;
       padding: 10px;

@@ -10,3 +10,15 @@ $interface-border-color: #dee2e6;
 
 /* Pickers */
 $picker-box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 2px;
+
+
+/* Z-Indexes */
+
+// Table
+$z-index-table-sticky-col: 1;
+$z-index-table-highlight: 2;
+$z-index-table-header: 3;
+$z-index-table-header-sticky-col: 4;
+
+// Dropdowns
+$z-index-dropdown: 50;

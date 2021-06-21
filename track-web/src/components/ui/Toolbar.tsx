@@ -18,6 +18,9 @@ import { strings } from '../../shared/strings';
 import ToolbarButton from '../inputs/ToolbarButton';
 import { IModalState, Modal } from './Modal';
 
+
+const zIndexDropdown = 50;
+
 export enum ToolbarAction {
   CreateBegin,
   CreateSave,
@@ -267,6 +270,9 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
         }
         // menuIsOpen={true} // dev
         components={{ GroupHeading: CustomGroupHeading }}
+        styles={{
+          menu: (provided) => ({ ...provided, zIndex: zIndexDropdown }),
+        }}
       />
     );
   };

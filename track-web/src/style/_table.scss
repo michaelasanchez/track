@@ -54,18 +54,18 @@ $table-row-active-odd-background-color: rgb(212, 225, 238);
     th {
       position: sticky;
       top: 0;
-      z-index: 3;
+      z-index: $z-index-table-header;
 
       background: $table-row-background-color;
       font-weight: normal;
 
       &:first-child {
-        z-index: 4;
+        z-index: $z-index-table-header-sticky-col;
       }
     }
 
     td:first-child {
-      z-index: 1;
+      z-index: $z-index-table-sticky-col;
     }
 
     tbody {
@@ -89,7 +89,7 @@ $table-row-active-odd-background-color: rgb(212, 225, 238);
           &::after {
             content: '';
             position: absolute;
-            z-index: 2;
+            z-index: $z-index-table-highlight;
 
             top: 0;
             left: 0;
