@@ -4,5 +4,4 @@ export * from './useGeolocation';
 export * from './useInterval';
 export * from './useResize';
 export * from './useService';
-
-
+export * from './useStyles';

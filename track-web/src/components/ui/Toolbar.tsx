@@ -46,33 +46,10 @@ const sortFn = (a: SelectOption, b: SelectOption, sort: SortOrder): number => {
   return a.label.toLowerCase() > b.label.toLowerCase() ? sort : -sort;
 };
 
-const groupStyles = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-};
-
-const groupLabelStyles = {
-  color: '#999',
-};
-
-const groupBadgeStyles = {
-  backgroundColor: '#EBECF0',
-  borderRadius: '2em',
-  color: '#888',
-  display: 'inline-block',
-  fontSize: 10,
-  fontWeight: 'bold',
-  lineHeight: '1',
-  minWidth: 1,
-  padding: '0.25em 0.7em',
-  textAlign: 'center',
-} as React.CSSProperties;
-
 const formatGroupLabel = (data: any) => (
-  <div style={groupStyles}>
-    <span style={groupLabelStyles}>{data.label}</span>
-    <span style={groupBadgeStyles}>{data.options.length}</span>
+  <div className="select-group">
+    <span className="select-label">{data.label}</span>
+    <span className="select-badge">{data.options.length}</span>
   </div>
 );
 

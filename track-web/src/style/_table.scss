@@ -79,6 +79,10 @@ $table-row-active-odd-background-color: rgb(212, 225, 238);
           }
         }
 
+        &:hover:not(.active) td:first-child {
+          background: rgb(236, 236, 236);
+        }
+
         &.active {
           position: relative;
 

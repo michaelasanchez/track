@@ -4,6 +4,7 @@ import { map } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { Table } from 'react-bootstrap';
+import { useStyles } from '../hooks';
 import { ApiDataset } from '../models/api';
 import { defaultColor } from '../utils/ChartistOptionsFactory';
 
@@ -17,6 +18,7 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
   props
 ) => {
   const { activeRow, apiDataset, setActiveRow } = props;
+  const { mobile } = useStyles();
 
   const handleSetActiveRow = (i: string) => {
     setActiveRow(i === activeRow ? null : i);
@@ -26,7 +28,8 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
     return (
       <tr>
         <th>
-          Date <span className="small text-muted">/ Time</span>
+          Date{' '}
+          <span className="small text-muted">{mobile ? '' : '/'} Time</span>
         </th>
         {map(apiDataset.NumericalSeries, (n, i) => (
           <th key={i}>{n.Label}</th>
@@ -50,7 +53,7 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
               className={i == activeRow ? 'active' : ''}
             >
               <td>
-                {dateTime.format('MMM D')}{' '}
+                {dateTime.format('MMM\u00A0D')}{' '}
                 <span className="small text-muted">
                   {dateTime.format('h:ma')}
                 </span>
