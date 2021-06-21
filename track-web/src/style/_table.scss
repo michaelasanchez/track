@@ -1,3 +1,12 @@
+$table-row-background-color: $white;
+$table-row-odd-background-color: rgb(242, 242, 242);
+
+$table-row-active-background-color: rgb(229, 242, 255);
+$table-row-active-border-color: #80bdff;
+$table-row-active-highlight: rgba(0, 123, 255, 0.25);
+
+$table-row-active-odd-background-color: rgb(212, 225, 238);
+
 .table-container {
   overflow-y: auto;
 
@@ -19,31 +28,39 @@
     tr:nth-of-type(odd) {
       td {
         &:first-child {
-          background: rgb(242, 242, 242);
+          background: $table-row-odd-background-color;
         }
       }
     }
 
     th,
     td {
+      transition: background-color 50ms;
+
+      /* Frequency Series */
+      &.freq {
+        text-align: center;
+        // vertical-align: middle;
+      }
+
       &:first-child {
         position: sticky;
         left: 0;
 
-        background: $white;
+        background: $table-row-background-color;
       }
     }
 
     th {
       position: sticky;
       top: 0;
-      z-index: 2;
+      z-index: 3;
 
-      background: $white;
+      background: $table-row-background-color;
       font-weight: normal;
 
       &:first-child {
-        z-index: 3;
+        z-index: 4;
       }
     }
 
@@ -65,25 +82,30 @@
         &.active {
           position: relative;
 
+          // &:first-child::after {
+          //   box-shadow: 0 -0.6px 0 0.25rem $table-row-active-highlight;
+          // }
+
           &::after {
-            position: absolute;
             content: '';
+            position: absolute;
+            z-index: 2;
 
             top: 0;
             left: 0;
             height: 100%;
             width: 100%;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            box-shadow: 0 0 0 0.2rem $table-row-active-highlight;
           }
 
           td {
-            background-color: rgba(0, 123, 255, 0.075);
-            border-bottom: 1px solid #80bdff;
-            border-top-color: #80bdff;
+            background-color: $table-row-active-background-color;
+            border-bottom: 1px solid $table-row-active-border-color;
+            border-top-color: $table-row-active-border-color;
           }
 
-          &:first-child::after {
-            box-shadow: 0 -0.6px 0 0.25rem rgba(0, 123, 255, 0.25);
+          &:nth-of-type(odd) td {
+            background-color: $table-row-active-odd-background-color;
           }
 
           & + tr {

@@ -56,7 +56,7 @@ export const DatasetTabs: React.FunctionComponent<DatasetTabsProps> = (
           eventKey="data"
           title="Table"
           className="table-tab"
-          style={{ height: graphDimensions.height }}
+          style={{ maxHeight: graphDimensions.height }}
         >
           <DatasetTable
             activeRow={activeRow}

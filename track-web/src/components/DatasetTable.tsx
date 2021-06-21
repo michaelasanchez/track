@@ -59,7 +59,7 @@ export const DatasetTable: React.FunctionComponent<DatasetTableProps> = (
                 <td key={j}>{n.Data[parseInt(i)]}</td>
               ))}
               {map(apiDataset.FrequencySeries, (f, k) => (
-                <td key={k}>
+                <td key={k} className="freq">
                   {f.Data[parseInt(i)] === 'true' && (
                     <FontAwesomeIcon
                       icon={faCheck}
